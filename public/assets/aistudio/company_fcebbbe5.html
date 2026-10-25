@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f5f7">
+  <meta name="description" content="ENJ Digital Concept provides general supplies, renewable energy solutions and digital printing services in Maiduguri, Nigeria.">
+  <title>Company — ENJ Digital Concept</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --orange: #f47b20;
+      --orange-dark: #c95510;
+      --paper: #fff;
+      --soft: #f5f5f7;
+      --ink: #1d1d1f;
+      --muted: #6e6e73;
+      --line: rgba(29,29,31,.12);
+      --display: "Space Grotesk", "Segoe UI", sans-serif;
+      --sans: "DM Sans", "Segoe UI", Arial, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; color: var(--ink); background: var(--paper); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+    body::after {
+      position: fixed; z-index: 19; inset: 0; content: ""; background: #fff;
+      pointer-events: none; animation: page-reveal .22s ease-out forwards;
+    }
+    body.page-leaving::after { animation: page-cover .16s ease-in forwards; }
+    @keyframes page-reveal { from { opacity: 1; } to { opacity: 0; } }
+    @keyframes page-cover { from { opacity: 0; } to { opacity: 1; } }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; }
+    .shell { width: min(1240px, calc(100% - 64px)); margin-inline: auto; }
+    .nav {
+      position: fixed; top: 16px; left: 50%; z-index: 20;
+      display: flex; align-items: center; gap: 24px;
+      width: min(1240px, calc(100% - 64px)); padding: 9px 12px 9px 18px;
+      border: 1px solid rgba(255,255,255,.55); border-radius: 999px;
+      background: rgba(255,255,255,.96);
+      box-shadow: 0 8px 30px rgba(0,0,0,.14), inset 0 1px 0 rgba(255,255,255,.95);
+      -webkit-backdrop-filter: blur(32px) saturate(180%); backdrop-filter: blur(32px) saturate(180%);
+      transform: translateX(-50%);
+    }
+    .brand { display: inline-flex; flex: 0 0 auto; }
+    .brand img { display: block; width: 58px; height: 58px; border-radius: 50%; object-fit: cover; }
+    .links { display: flex; align-items: center; gap: clamp(20px,3vw,38px); margin-left: auto; margin-right: clamp(20px,3vw,38px); }
+    .links a { color: #424245; font-size: 13px; }
+    .links a:hover { color: var(--orange-dark); }
+    .links a.active {
+      padding: 10px 13px;
+      border-radius: 999px;
+      color: var(--ink);
+      background: rgba(244,123,32,.12);
+      font-weight: 700;
+    }
+    .order {
+      display: inline-flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 18px;
+      border-radius: 999px; color: #fff; background: var(--ink); font-size: 12px; font-weight: 600; white-space: nowrap;
+    }
+    .order:hover { background: #3a3a3c; }
+    .menu-button {
+      display: none; width: 42px; height: 42px; place-content: center; gap: 6px; padding: 0;
+      border: 0; border-radius: 50%; background: rgba(29,29,31,.08); cursor: pointer;
+    }
+    .menu-button span { width: 20px; height: 1.5px; background: var(--ink); transition: transform .2s ease; }
+    .menu-button[aria-expanded="true"] span:first-child { transform: translateY(3.75px) rotate(45deg); }
+    .menu-button[aria-expanded="true"] span:last-child { transform: translateY(-3.75px) rotate(-45deg); }
+    .menu-panel {
+      position: absolute; top: calc(100% + 10px); right: 0; display: none; width: min(380px,100%);
+      padding: 12px; border: 1px solid rgba(255,255,255,.7); border-radius: 20px;
+      background: rgba(255,255,255,.98); box-shadow: 0 18px 54px rgba(0,0,0,.12);
+      -webkit-backdrop-filter: blur(32px) saturate(180%); backdrop-filter: blur(32px) saturate(180%);
+    }
+    .menu-panel.open { display: grid; }
+    .menu-panel a { padding: 15px 16px; border-radius: 12px; font-size: 20px; }
+    .menu-panel a:hover { background: var(--soft); }
+    .menu-panel a.active { background: rgba(244,123,32,.12); font-weight: 700; }
+    .menu-panel .order { justify-content: center; color: white; background: var(--ink); font-size: 13px; }
+    .eyebrow { margin: 0 0 18px; color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    h1,h2,h3,p { margin-top: 0; }
+    h2,h3 { font-family: var(--display); }
+    .button { display: inline-flex; align-items: center; gap: 18px; min-height: 48px; padding: 0 22px; border-radius: 999px; color: var(--ink); background: #fff; font-size: 13px; font-weight: 600; }
+    .button:hover { background: #e8e8ed; }
+    .icon-library { position: absolute; width: 0; height: 0; overflow: hidden; }
+    main { padding-top: 32px; }
+    main > .section { scroll-margin-top: 32px; }
+    .section { padding: clamp(76px,9vw,120px) 0; }
+    .intro { display: grid; grid-template-columns: 1fr 1fr; align-items: end; gap: 40px; margin-bottom: 54px; }
+    .intro h2,.section-heading { margin: 0; font-size: clamp(38px,5.5vw,66px); font-weight: 500; line-height: 1.02; letter-spacing: -.06em; }
+    .intro > p { max-width: 520px; margin: 0; color: var(--muted); font-size: 16px; line-height: 1.75; }
+    .audience { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 26px; }
+    .audience span { padding: 9px 13px; border: 1px solid var(--line); border-radius: 999px; color: #515154; font-size: 12px; }
+    .service-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 18px; }
+    .service-card { min-height: 270px; padding: 30px; border-radius: 20px; background: var(--soft); }
+    .service-card .number { display: block; margin-bottom: 50px; color: var(--orange-dark); font-size: 12px; font-weight: 600; }
+    .service-card h3 { margin-bottom: 12px; font-size: 26px; font-weight: 500; letter-spacing: -.045em; }
+    .service-card p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.7; }
+    .supply-section { padding-top: 10px; }
+    .section-heading { margin-bottom: 36px; }
+    .supply-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 12px; }
+    .supply-item { display: flex; align-items: center; gap: 14px; min-height: 88px; padding: 18px; border: 1px solid var(--line); border-radius: 14px; font-size: 14px; font-weight: 500; }
+    .supply-item span { flex: 0 0 34px; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; color: var(--orange-dark); background: #fff1e6; }
+    .supply-item svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    .note { margin: 22px 0 0; color: var(--muted); font-size: 14px; line-height: 1.7; }
+    .consumables {
+      display: grid; grid-template-columns: .8fr 1.2fr; gap: 54px; align-items: start;
+      padding: clamp(32px,6vw,72px); border-radius: 26px; background: var(--soft);
+    }
+    .consumables h2 { margin: 0; font-size: clamp(36px,5vw,58px); font-weight: 500; line-height: 1.03; letter-spacing: -.06em; }
+    .consumables-copy p { color: var(--muted); font-size: 15px; line-height: 1.8; }
+    .tags { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 22px; }
+    .tags span { padding: 9px 12px; border: 1px solid var(--line); border-radius: 999px; background: #fff; color: #515154; font-size: 12px; }
+    .contact {
+      display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 28px;
+      padding: clamp(36px,6vw,68px); border-radius: 26px; background: #171717; color: #fff;
+    }
+    .contact h2 { max-width: 700px; margin-bottom: 12px; font-size: clamp(36px,5vw,58px); font-weight: 500; line-height: 1.02; letter-spacing: -.06em; }
+    .contact p { max-width: 600px; margin: 0; color: rgba(255,255,255,.7); font-size: 14px; line-height: 1.7; }
+    .contact .button { white-space: nowrap; }
+    footer { padding: 42px 0 24px; background: var(--soft); }
+    .footer-main { display: flex; justify-content: space-between; gap: 28px; padding-bottom: 30px; }
+    .footer-brand { display: flex; align-items: center; gap: 13px; }
+    .footer-brand img { width: 54px; height: 54px; border-radius: 50%; }
+    .footer-brand strong { font-family: var(--display); font-size: 18px; font-weight: 500; }
+    .footer-contact p,.footer-contact a { display: block; margin-bottom: 7px; color: #515154; font-size: 13px; line-height: 1.6; }
+    .footer-bottom { padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; }
+    @media (max-width: 760px) {
+      .shell { width: min(100% - 36px,600px); }
+      .nav { top: 10px; width: calc(100% - 28px); padding: 7px 9px 7px 13px; }
+      .brand img { width: 48px; height: 48px; }
+      .links,.nav > .order { display: none; }
+      .menu-button { display: grid; margin-left: auto; }
+      .menu-panel { width: 100%; }
+      .section { padding: 72px 0; }
+      .intro { grid-template-columns: 1fr; gap: 18px; margin-bottom: 32px; }
+      .intro h2,.section-heading { font-size: clamp(38px,10vw,54px); }
+      .intro > p { font-size: 14px; }
+      .service-grid { grid-template-columns: 1fr; gap: 12px; }
+      .service-card { min-height: 0; padding: 24px; }
+      .service-card .number { margin-bottom: 28px; }
+      .supply-section { padding-top: 0; }
+      .supply-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }
+      .supply-item { min-height: 78px; padding: 12px; gap: 9px; font-size: 12px; }
+      .supply-item span { flex-basis: 30px; width: 30px; height: 30px; }
+      .supply-item svg { width: 16px; height: 16px; }
+      .consumables { grid-template-columns: 1fr; gap: 20px; padding: 30px 24px; border-radius: 22px; }
+      .contact { grid-template-columns: 1fr; border-radius: 22px; }
+      .footer-main { flex-direction: column; }
+    }
+    @media (max-width: 380px) {
+      .supply-grid { grid-template-columns: 1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      body::after { animation: none; opacity: 0; }
+    }
+    .skip-link {
+      position: fixed; top: 12px; left: 12px; z-index: 30;
+      padding: 12px 18px; border-radius: 999px; color: #fff; background: var(--ink);
+      transform: translateY(-160%); transition: transform .2s ease;
+    }
+    .skip-link:focus { transform: translateY(0); }
+    :focus-visible { outline: 3px solid var(--orange-dark); outline-offset: 4px; }
+    @media (prefers-reduced-motion: reduce) {
+      .skip-link { transition: none; }
+    }
+    body {
+      background:
+        radial-gradient(ellipse at 14% 28%, rgba(244,123,32,.08), transparent 34rem),
+        radial-gradient(ellipse at 90% 72%, rgba(124,156,200,.1), transparent 38rem),
+        #f6f7fa;
+    }
+    .nav {
+      border-color: rgba(255,255,255,.76);
+      background: rgba(255,255,255,.72);
+      box-shadow: 0 12px 36px rgba(31,38,52,.13), inset 0 1px 0 rgba(255,255,255,.96);
+    }
+    .menu-panel {
+      border-color: rgba(255,255,255,.82);
+      background: rgba(255,255,255,.74);
+      box-shadow: 0 18px 54px rgba(31,38,52,.16), inset 0 1px 0 rgba(255,255,255,.95);
+    }
+    .service-card, .consumables, .contact {
+      border: 1px solid rgba(255,255,255,.82);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.94), 0 16px 44px rgba(31,38,52,.07);
+      -webkit-backdrop-filter: blur(24px) saturate(165%);
+      backdrop-filter: blur(24px) saturate(165%);
+    }
+    .service-card, .consumables { background: rgba(255,255,255,.6); }
+    .supply-item {
+      border-color: rgba(255,255,255,.9);
+      background: rgba(255,255,255,.55);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.95), 0 8px 24px rgba(31,38,52,.045);
+      -webkit-backdrop-filter: blur(18px) saturate(155%);
+      backdrop-filter: blur(18px) saturate(155%);
+    }
+    .supply-item span {
+      border: 1px solid rgba(255,255,255,.9);
+      background: rgba(255,241,230,.72);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.96);
+    }
+    .contact { background: rgba(29,29,31,.84); }
+    .tags span {
+      border-color: rgba(255,255,255,.86);
+      background: rgba(255,255,255,.62);
+      -webkit-backdrop-filter: blur(14px) saturate(150%);
+      backdrop-filter: blur(14px) saturate(150%);
+    }
+    footer { background: transparent; }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <nav class="nav" aria-label="Main navigation">
+    <a class="brand" href="index.html#home" aria-label="ENJ Digital Concept home">
+      <img src="https://static.wixstatic.com/media/acc89a_bdcf992ccfc24714a8a9b7ce4a4a0f8b~mv2.png" alt="ENJ Digital Concept">
+    </a>
+    <div class="links" aria-label="Page navigation">
+      <a data-nav="home" href="index.html#home">Home</a>
+      <a data-nav="company" href="company.html">Company</a>
+      <a data-nav="contact" href="contact.html">Contact</a>
+    </div>
+    <a class="order" href="https://enjdigitalshop.odoo.com/">Start Order</a>
+    <button class="menu-button" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="menu-panel">
+      <span></span><span></span>
+    </button>
+    <div class="menu-panel" id="menu-panel">
+      <a data-nav="home" href="index.html#home">Home</a>
+      <a data-nav="company" href="company.html">Company</a>
+      <a data-nav="contact" href="contact.html">Contact</a>
+      <a class="order" href="https://enjdigitalshop.odoo.com/">Start Order</a>
+    </div>
+  </nav>
+
+  <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="icon-appliance" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M5 8h14M8 5.5h.01M11 5.5h.01"/><circle cx="12" cy="14" r="3.5"/></symbol>
+    <symbol id="icon-office" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18M10 12v2h4v-2"/></symbol>
+    <symbol id="icon-furniture" viewBox="0 0 24 24"><path d="M5 11V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v5M4 12h16v5H4zM6 17v3m12-3v3"/></symbol>
+    <symbol id="icon-electronics" viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="2"/><path d="M10 5h4m-3 13h2"/></symbol>
+    <symbol id="icon-electrical" viewBox="0 0 24 24"><path d="M13 2 5 13h6l-1 9 9-12h-6z"/></symbol>
+    <symbol id="icon-building" viewBox="0 0 24 24"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6M8 10h.01M12 10h.01M16 10h.01"/></symbol>
+    <symbol id="icon-vehicle" viewBox="0 0 24 24"><path d="m5 11 2-5h10l2 5M3 11h18v7H3zM5 18v2m14-2v2M6 14h.01M18 14h.01M7 11h10"/></symbol>
+    <symbol id="icon-safety" viewBox="0 0 24 24"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="icon-cleaning" viewBox="0 0 24 24"><path d="M12 3s6 7 6 12a6 6 0 0 1-12 0c0-5 6-12 6-12Z"/><path d="M9 16a3 3 0 0 0 3 3"/></symbol>
+    <symbol id="icon-computer" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4M2 17h20"/></symbol>
+    <symbol id="icon-brochure" viewBox="0 0 24 24"><path d="M4 4.5h11a3 3 0 0 1 3 3v12H7a3 3 0 0 1-3-3z"/><path d="M18 8h2v11.5H7a3 3 0 0 1-3-3M8 8h6m-6 3h6m-6 3h4"/></symbol>
+    <symbol id="icon-letter" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></symbol>
+    <symbol id="icon-flyer" viewBox="0 0 24 24"><path d="M6 3h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M8 8h8m-8 4h8m-8 4h5"/></symbol>
+    <symbol id="icon-promo" viewBox="0 0 24 24"><path d="M3 10v4a2 2 0 0 0 2 2h2l3 5h3l-2-5h2l7 3V5l-7 3H5a2 2 0 0 0-2 2Z"/><path d="M7 16V8m13-1 2-2m-2 12 2 2"/></symbol>
+    <symbol id="icon-banner" viewBox="0 0 24 24"><path d="M4 4v16m16-16v16M5 5h14l-3 4 3 4H5m0 0h14l-3 3 3 3H5"/></symbol>
+    <symbol id="icon-print" viewBox="0 0 24 24"><path d="M7 8V3h10v5M6 17H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6zM18 11h.01"/></symbol>
+  </svg>
+
+  <main id="main-content" tabindex="-1">
+    <section class="section shell" id="services">
+      <div class="intro">
+        <div>
+          <p class="eyebrow">What we do</p>
+          <h2>One dependable partner for everyday needs.</h2>
+        </div>
+        <div>
+          <p>We supply a wide range of products and services to companies, individuals, hotels, churches, schools and government offices. Our service is organized around your requirements, with flexible quantities for items on our supply list.</p>
+          <div class="audience" aria-label="Clients we serve">
+            <span>Companies</span><span>Individuals</span><span>Hotels</span><span>Churches</span><span>Schools</span><span>Government offices</span>
+          </div>
+        </div>
+      </div>
+      <div class="service-grid">
+        <article class="service-card">
+          <span class="number">01 / GENERAL SUPPLY</span>
+          <h3>Products for work and life</h3>
+          <p>From office essentials and electronics to furniture, building materials, vehicles and safety equipment, we help source the items you need.</p>
+        </article>
+        <article class="service-card">
+          <span class="number">02 / RENEWABLE ENERGY</span>
+          <h3>Energy for a changing world</h3>
+          <p>We support the growing demand for renewable energy with quality-focused services and solutions for renewable energy needs.</p>
+        </article>
+        <article class="service-card">
+          <span class="number">03 / DIGITAL PRINTING</span>
+          <h3>Print, without the minimums</h3>
+          <p>Black-and-white and colour printing for everyday communications, marketing materials and large-format banners—even for smaller print runs.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section shell supply-section">
+      <p class="eyebrow">Supply categories</p>
+      <h2 class="section-heading">A broad range of products.</h2>
+      <div class="supply-grid">
+        <div class="supply-item"><span aria-hidden="true"><svg><use href="#icon-appliance"></use></svg></span>Home appliances</div>
+        <div class="supply-item"><span aria-hidden="true"><svg><use href="#icon-office"></use></svg></span>Office equipment</div>
+        <div class="supply-item"><span aria-hidden="true"><svg><use href="#icon-furniture"></use></svg></span>Home &amp; office furniture</div>
+        <div class="supply-item"><span aria-hidden="true"><svg><use href="#icon-electronics"></use></svg></span>Electronics</div>
+        <div class="supply-item"><span aria-hidden="true"><svg><use href="#icon-electrical"></use></svg></span>Electrical materials</div>
+        <div class="supply-item"><span aria-hidden="true"><svg><use href="#icon-building"></use></svg></span>Building materials &amp; equipment</div>
+        <div class="supply-item"><span aria-hidden="true"><svg><use href="#icon-vehicle"></use></svg></span>Vehicles</div>
+        <div class="supply-item"><span aria-hidden="true"><svg><use href="#icon-safety"></use></svg></span>Safety equipment</div>
+        <div class="supply-item"><span aria-hidden="true"><svg><use href="#icon-cleaning"></use></svg></span>Toiletries &amp; cleaning supplies</div>
+        <div class="supply-item"><span aria-hidden="true"><svg><use href="#icon-computer"></use></svg></span>Computers &amp; accessories</div>
+      </div>
+      <p class="note">Need a particular item or quantity? Get in touch to discuss your requirements. We can supply any quantity of items included in our product supply list.</p>
+    </section>
+
+    <section class="section shell">
+      <div class="consumables">
+        <div>
+          <p class="eyebrow">For the workplace</p>
+          <h2>Office consumables &amp; equipment.</h2>
+        </div>
+        <div class="consumables-copy">
+          <p>We provide everyday office supplies and equipment for written communication, recordkeeping, bookkeeping, cleaning and storage. That includes expendable daily-use products as well as the tools and furnishings that keep an organization running.</p>
+          <div class="tags">
+            <span>Stationery</span><span>Paper products</span><span>Bookkeeping supplies</span><span>Cleaning supplies</span><span>Storage</span><span>Small machines</span><span>Computers</span><span>Office furniture</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section shell">
+      <div class="intro">
+        <div>
+          <p class="eyebrow">Digital printing</p>
+          <h2>From a single flyer to a bold banner.</h2>
+        </div>
+        <p>Send us your print-ready PDF and we’ll take care of the rest. Choose black or colour printing, with no minimum order requirement—so even a small print job is welcome.</p>
+      </div>
+      <div class="supply-grid">
+        <div class="supply-item"><span aria-hidden="true"><svg><use href="#icon-brochure"></use></svg></span>Brochures &amp; newsletters</div>
+        <div class="supply-item"><span aria-hidden="true"><svg><use href="#icon-letter"></use></svg></span>Letters &amp; booklets</div>
+        <div class="supply-item"><span aria-hidden="true"><svg><use href="#icon-flyer"></use></svg></span>Flyers</div>
+        <div class="supply-item"><span aria-hidden="true"><svg><use href="#icon-promo"></use></svg></span>Promotional materials</div>
+        <div class="supply-item"><span aria-hidden="true"><svg><use href="#icon-banner"></use></svg></span>Large-format banners</div>
+        <div class="supply-item"><span aria-hidden="true"><svg><use href="#icon-print"></use></svg></span>Black &amp; colour printing</div>
+      </div>
+    </section>
+
+    <section class="section shell" id="contact">
+      <div class="contact">
+        <div>
+          <p class="eyebrow">Let’s work together</p>
+          <h2>Tell us what you need. We’ll help with the rest.</h2>
+          <p>Contact ENJ Digital Concept to ask about product availability, supply quantities, renewable energy services or a print job.</p>
+        </div>
+        <a class="button" href="mailto:enjdigitalconcept@gmail.com?subject=ENJ%20Company%20Enquiry">Contact our team</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="shell">
+      <div class="footer-main">
+        <a class="footer-brand" href="index.html#home">
+          <img src="https://static.wixstatic.com/media/acc89a_bdcf992ccfc24714a8a9b7ce4a4a0f8b~mv2.png" alt="">
+          <strong>ENJ Digital Concept</strong>
+        </a>
+        <div class="footer-contact">
+          <p>No. 1 Thatcher Building, Jiddari Junction,<br>Maiduguri, Borno State — Nigeria</p>
+          <a href="tel:+2348133535756">+234 (0) 813 353 5756</a>
+          <a href="mailto:enjdigitalconcept@gmail.com">enjdigitalconcept@gmail.com</a>
+        </div>
+      </div>
+      <div class="footer-bottom">© 2026 ENJ Digital Concept. All Rights Reserved</div>
+    </div>
+  </footer>
+  <script>
+    const menuButton = document.querySelector(".menu-button");
+    const menuPanel = document.querySelector(".menu-panel");
+    function updateActiveNavigation() {
+      const pageName = location.pathname.split("/").pop().toLowerCase();
+      const activePage = location.hash === "#contact"
+        ? "contact"
+        : pageName === "company.html" ? "company"
+        : pageName === "contact.html" ? "contact" : "home";
+
+      document.querySelectorAll("[data-nav]").forEach((link) => {
+        const isActive = link.dataset.nav === activePage;
+        link.classList.toggle("active", isActive);
+        if (isActive) link.setAttribute("aria-current", "page");
+        else link.removeAttribute("aria-current");
+      });
+    }
+    updateActiveNavigation();
+    window.addEventListener("hashchange", updateActiveNavigation);
+
+    function setMenuOpen(isOpen) {
+      menuButton.setAttribute("aria-expanded", String(isOpen));
+      menuButton.setAttribute("aria-label", isOpen ? "Close navigation menu" : "Open navigation menu");
+      menuPanel.classList.toggle("open", isOpen);
+    }
+
+    menuButton.addEventListener("click", () => {
+      const isOpen = menuButton.getAttribute("aria-expanded") === "true";
+      setMenuOpen(!isOpen);
+    });
+    menuPanel.addEventListener("click", (event) => {
+      if (event.target.closest("a")) {
+        setMenuOpen(false);
+      }
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!menuPanel.contains(event.target) && !menuButton.contains(event.target)) setMenuOpen(false);
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && menuButton.getAttribute("aria-expanded") === "true") {
+        setMenuOpen(false);
+        menuButton.focus();
+      }
+    });
+
+    document.querySelectorAll("a[href]").forEach((link) => {
+      link.addEventListener("click", (event) => {
+        const destination = new URL(link.href, location.href);
+        if (!["http:", "https:"].includes(destination.protocol)) return;
+        if (destination.origin === location.origin && destination.pathname === location.pathname) return;
+        event.preventDefault();
+        document.body.classList.add("page-leaving");
+        const delay = matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 160;
+        window.setTimeout(() => { location.href = destination.href; }, delay);
+      });
+    });
+  </script>
+</body>
+</html>

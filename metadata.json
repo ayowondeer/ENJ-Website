@@ -1,0 +1,6 @@
+{
+  "name": "ENJ Digital Concept",
+  "description": "High-quality print, signage, general supplies, renewable energy, and digital printing solutions in Maiduguri, Nigeria.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

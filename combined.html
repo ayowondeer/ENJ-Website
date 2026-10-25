@@ -1,0 +1,1107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f5f7">
+  <meta name="description" content="ENJ Digital Concept — High-quality print, signage, general supplies, and renewable energy in Maiduguri, Nigeria.">
+  <title>ENJ Digital Concept — Prints, General Supply & Renewable Energy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --orange: #f47b20;
+      --orange-dark: #c95510;
+      --cream: #fff0df;
+      --paper: #fff;
+      --soft: #f5f5f7;
+      --ink: #1d1d1f;
+      --muted: #6e6e73;
+      --line: rgba(29, 29, 31, .12);
+      --display: "Space Grotesk", "Segoe UI", sans-serif;
+      --sans: "DM Sans", "Segoe UI", Arial, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 14% 28%, rgba(244,123,32,.08), transparent 34rem),
+        radial-gradient(ellipse at 90% 72%, rgba(124,156,200,.1), transparent 38rem),
+        #f6f7fa;
+      font-family: var(--sans);
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    button, input, select, textarea { font: inherit; }
+    .shell { width: min(1240px, calc(100% - 48px)); margin-inline: auto; }
+
+    /* Sticky Navigation - iPhone Liquid Glass Material */
+    .nav {
+      position: fixed; top: 12px; left: 50%; z-index: 50;
+      display: flex; align-items: center; justify-content: space-between;
+      width: min(1240px, calc(100% - 32px)); padding: 6px 12px 6px 14px;
+      border: 1px solid rgba(255,255,255,.85); border-radius: 999px;
+      background: rgba(255,255,255,.75);
+      box-shadow: 
+        0 16px 36px -4px rgba(0,0,0,.16),
+        0 4px 12px -2px rgba(0,0,0,.08),
+        inset 0 1.5px 1px 0 rgba(255,255,255,.9),
+        inset 0 -1px 1px 0 rgba(0,0,0,.04);
+      -webkit-backdrop-filter: blur(36px) saturate(210%) brightness(104%);
+      backdrop-filter: blur(36px) saturate(210%) brightness(104%);
+      transform: translateX(-50%);
+    }
+    .brand { display: inline-flex; align-items: center; }
+    .brand img { display: block; width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background: #fff; border: 1px solid rgba(0,0,0,.08); }
+
+    .nav-links {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(0,0,0,.05); padding: 3px; border-radius: 999px;
+      border: 1px solid rgba(0,0,0,.04);
+      box-shadow: inset 0 1px 2px rgba(0,0,0,.06);
+    }
+    .nav-links a {
+      padding: 5px 14px; border-radius: 999px; font-size: 12.5px; font-weight: 600; color: #424245;
+      transition: all .2s ease;
+    }
+    .nav-links a:hover { color: var(--orange-dark); }
+    .nav-links a.active {
+      background: #fff; color: var(--ink);
+      box-shadow: 0 2px 8px rgba(0,0,0,.12), 0 1px 2px rgba(0,0,0,.06);
+    }
+
+    .nav-actions { display: flex; align-items: center; gap: 8px; }
+    .order-btn {
+      display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 16px;
+      border-radius: 999px; color: #fff; background: var(--ink); font-size: 11.5px; font-weight: 700;
+      white-space: nowrap; transition: background .2s ease;
+    }
+    .order-btn:hover { background: #3a3a3c; }
+
+    .menu-button {
+      display: none; width: 42px; height: 42px; place-content: center; gap: 6px; padding: 0;
+      border: 0; border-radius: 50%; background: rgba(29,29,31,.08); cursor: pointer;
+    }
+    .menu-button span { width: 20px; height: 1.5px; background: var(--ink); transition: transform .2s ease; }
+    .menu-button[aria-expanded="true"] span:first-child { transform: translateY(3.75px) rotate(45deg); }
+    .menu-button[aria-expanded="true"] span:last-child { transform: translateY(-3.75px) rotate(-45deg); }
+
+    .menu-panel {
+      position: absolute; top: calc(100% + 10px); right: 0; display: none; width: min(340px,100%);
+      padding: 12px; border: 1px solid rgba(255,255,255,.92); border-radius: 24px;
+      background: rgba(255,255,255,.94);
+      box-shadow: 
+        0 20px 48px rgba(0,0,0,.18),
+        inset 0 1.5px 1px 0 rgba(255,255,255,1);
+      -webkit-backdrop-filter: blur(36px) saturate(210%) brightness(104%);
+      backdrop-filter: blur(36px) saturate(210%) brightness(104%);
+    }
+    .menu-panel.open { display: grid; gap: 6px; }
+    .menu-panel a { padding: 12px 16px; border-radius: 12px; font-size: 16px; font-weight: 500; }
+    .menu-panel a:hover { background: var(--soft); }
+    .menu-panel a.active { background: rgba(244,123,32,.12); font-weight: 700; color: var(--orange-dark); }
+    .menu-panel .order-btn { justify-content: center; margin-top: 6px; }
+
+    /* Content Layout & Separate Page Views */
+    main { padding-top: 80px; min-height: 75vh; }
+    .page-section { display: none; }
+    .page-section.active { display: block; animation: page-fade .35s ease-out; }
+    @keyframes page-fade {
+      from { opacity: 0; transform: translateY(10px) scale(0.99); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    #page-wrapper {
+      transition: filter .5s ease, transform .5s ease, opacity .5s ease;
+    }
+    #page-wrapper.page-blurred {
+      filter: blur(14px);
+      transform: scale(0.985);
+      opacity: 0.4;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    #top-progress {
+      position: fixed; top: 0; left: 0; right: 0; height: 3.5px; z-index: 120;
+      background: linear-gradient(90deg, #06b6d4, #ec4899, var(--orange));
+      box-shadow: 0 0 16px rgba(244,123,32,.9);
+      display: none;
+    }
+
+    /* Cool High-Tech CMYK Print Modal Loader */
+    #page-loader {
+      position: fixed; inset: 0; z-index: 110;
+      background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+      display: none; align-items: center; justify-content: center; padding: 16px;
+    }
+    .cmyk-card {
+      position: relative; width: min(340px, 90vw); border-radius: 32px; padding: 32px 24px;
+      text-align: center; color: #fff; background: rgba(13, 16, 23, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 32px 90px rgba(0, 0, 0, 0.65);
+      overflow: hidden;
+    }
+    .cmyk-aura-1 {
+      position: absolute; top: -60px; left: -60px; width: 160px; height: 160px;
+      border-radius: 50%; background: rgba(6, 182, 212, 0.35); filter: blur(40px);
+      pointer-events: none;
+    }
+    .cmyk-aura-2 {
+      position: absolute; bottom: -60px; right: -60px; width: 160px; height: 160px;
+      border-radius: 50%; background: rgba(244, 123, 32, 0.4); filter: blur(40px);
+      pointer-events: none;
+    }
+    .cmyk-scan-line {
+      position: absolute; inset-inline: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, #06b6d4, transparent);
+      box-shadow: 0 0 14px #06b6d4; animation: scanLaser 2s ease-in-out infinite;
+      pointer-events: none;
+    }
+    .cmyk-orbit-box {
+      position: relative; width: 90px; height: 90px; margin: 0 auto 20px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cmyk-ring {
+      position: absolute; inset: 0; border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.15); animation: cmykSpin 3s linear infinite;
+    }
+    .cmyk-dot {
+      position: absolute; width: 12px; height: 12px; border-radius: 50%;
+    }
+    .cmyk-dot.c { top: -6px; left: calc(50% - 6px); background: #06b6d4; box-shadow: 0 0 12px #06b6d4; }
+    .cmyk-dot.m { bottom: -6px; left: calc(50% - 6px); background: #ec4899; box-shadow: 0 0 12px #ec4899; }
+    .cmyk-dot.y { top: calc(50% - 6px); left: -6px; background: #eab308; box-shadow: 0 0 12px #eab308; }
+    .cmyk-dot.k { top: calc(50% - 6px); right: -6px; background: #f47b20; box-shadow: 0 0 12px #f47b20; }
+    .cmyk-logo-img {
+      position: relative; z-index: 10; width: 62px; height: 62px; border-radius: 18px;
+      object-fit: cover; background: #fff; padding: 2px; border: 1px solid rgba(255, 255, 255, 0.4);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+    .cmyk-badge {
+      display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px;
+      background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.15);
+      font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--orange);
+      margin-bottom: 8px;
+    }
+    .cmyk-card h3 {
+      font-size: 18px; font-weight: 600; margin: 0 0 4px; letter-spacing: -.02em; color: #fff;
+    }
+    .cmyk-card p {
+      font-size: 12px; color: rgba(255, 255, 255, 0.65); margin: 0 0 20px;
+    }
+    .cmyk-progress-track {
+      position: relative; width: 100%; height: 6px; border-radius: 999px;
+      background: rgba(255, 255, 255, 0.1); overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .cmyk-progress-fill {
+      height: 100%; border-radius: 999px;
+      background: linear-gradient(90deg, #06b6d4, #ec4899, var(--orange));
+      box-shadow: 0 0 14px rgba(244, 123, 32, 0.9);
+      animation: progressSweep 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .cmyk-channels {
+      display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 18px;
+      font-size: 10px; font-family: monospace; color: rgba(255, 255, 255, 0.5);
+    }
+    .cmyk-channels span { display: inline-flex; align-items: center; gap: 4px; }
+    .cmyk-channels i { display: inline-block; width: 6px; height: 6px; border-radius: 50%; }
+
+    @keyframes cmykSpin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    @keyframes scanLaser {
+      0% { top: 0%; opacity: 0; }
+      15% { opacity: 1; }
+      50% { top: 92%; opacity: 1; }
+      85% { opacity: 0.8; }
+      100% { top: 0%; opacity: 0; }
+    }
+    @keyframes progressSweep {
+      0% { width: 0%; }
+      35% { width: 55%; }
+      75% { width: 88%; }
+      100% { width: 100%; }
+    }
+    .section { padding: clamp(40px,6vw,90px) 0; }
+    .eyebrow { margin: 0 0 14px; color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    h1,h2,h3,p { margin-top: 0; }
+    h1,h2,h3 { font-family: var(--display); }
+
+    /* Industrial Digital Printing Hero Section - 100% Full Bleed */
+    .hero {
+      position: relative; min-height: 680px; margin: -80px 0 0 0;
+      width: 100%; padding: 150px clamp(20px, 6vw, 84px) 80px;
+      border-radius: 0; overflow: hidden; color: #fff;
+      background: #030712 url('/hero-bg.png') center/cover no-repeat;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      box-shadow: 0 24px 70px rgba(0,0,0,.35); isolation: isolate; text-align: center;
+      border: none;
+    }
+    .hero::before {
+      content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+      background: radial-gradient(circle at center, rgba(3, 7, 18, 0.65) 0%, rgba(3, 7, 18, 0.85) 75%, rgba(2, 4, 10, 0.95) 100%);
+    }
+    @keyframes beamPulse {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50% { opacity: 0.9; transform: scale(1.08); }
+    }
+    .hero-horizon {
+      position: absolute; bottom: -220px; left: 50%; transform: translateX(-50%);
+      width: 140%; height: 340px; border-radius: 100%;
+      background: linear-gradient(to bottom, #02050f, #010307, #000103);
+      box-shadow: 0 -3px 25px rgba(56,189,248,.95), 0 -10px 55px rgba(14,165,233,.7), 0 -30px 110px rgba(37,99,235,.45);
+      border-top: 2px solid rgba(186,230,253,.85); pointer-events: none; z-index: 0;
+    }
+    .hero-horizon::before {
+      content: ''; position: absolute; top: 0; left: 50%; transform: translate(-50%, -50%);
+      width: 320px; height: 50px; border-radius: 50%;
+      background: radial-gradient(ellipse, rgba(255,255,255,.9) 0%, rgba(56,189,248,.7) 40%, transparent 80%);
+      filter: blur(12px);
+    }
+    .hero-content { position: relative; z-index: 1; max-width: 880px; margin: auto; display: flex; flex-direction: column; align-items: center; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px; padding: 7px 18px;
+      border-radius: 999px; background: rgba(59,130,246,.12); border: 1px solid rgba(56,189,248,.35);
+      color: #38bdf8; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+      margin-bottom: 24px; backdrop-filter: blur(12px); box-shadow: 0 0 18px rgba(56,189,248,.2);
+    }
+    .hero h1 {
+      font-size: clamp(38px, 6vw, 78px); font-weight: 600; line-height: 1.04; letter-spacing: -.04em; margin-bottom: 22px;
+      background: linear-gradient(to bottom, #fff, #f1f5f9, #94a3b8); -webkit-background-clip: text; color: transparent;
+      filter: drop-shadow(0 2px 18px rgba(0,0,0,.6));
+    }
+    .hero p { color: rgba(203,213,225,.9); font-size: clamp(15px, 1.8vw, 18px); line-height: 1.65; margin-bottom: 34px; max-width: 660px; }
+    .hero-tags { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 14px; }
+    .hero-tag {
+      padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 500;
+      background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12); color: #cbd5e1;
+      backdrop-filter: blur(8px);
+    }
+    .hero-tag.cyan {
+      background: rgba(8,47,73,.45); border-color: rgba(56,189,248,.3); color: #38bdf8;
+    }
+    .hero-cta { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: center; }
+    .btn-primary {
+      display: inline-flex; align-items: center; justify-content: center; min-height: 50px; padding: 0 28px;
+      border-radius: 999px; background: #1d4ed8; color: #fff; font-size: 13.5px; font-weight: 600;
+      border: 1px solid rgba(96,165,250,.35); box-shadow: 0 0 26px rgba(37,99,235,.6);
+      transition: all .2s ease;
+    }
+    .btn-primary:hover { background: #2563eb; transform: scale(1.04); }
+    .btn-secondary {
+      display: inline-flex; align-items: center; justify-content: center; min-height: 50px; padding: 0 26px;
+      border-radius: 999px; background: rgba(10,21,38,.75); border: 1px solid rgba(96,165,250,.35);
+      color: #bfdbfe; font-size: 13px; font-weight: 500; backdrop-filter: blur(8px);
+      transition: all .2s ease;
+    }
+    .btn-secondary:hover { background: rgba(16,32,58,.85); border-color: rgba(96,165,250,.55); transform: scale(1.04); }
+    .hero-footer {
+      position: relative; z-index: 1; padding-top: 20px;
+      display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: rgba(186,230,253,.6);
+    }
+
+    /* Services Grid */
+    .section-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; margin-bottom: 44px; }
+    .section-head h2 { font-size: clamp(38px, 5vw, 64px); font-weight: 500; line-height: 1.02; letter-spacing: -.055em; margin: 0; }
+    .section-head p { max-width: 420px; color: var(--muted); font-size: 15px; line-height: 1.65; margin: 0; }
+    
+    .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .service-card {
+      padding: 16px; border-radius: 28px; background: rgba(255,255,255,.65);
+      border: 1px solid rgba(255,255,255,.85); box-shadow: 0 10px 30px rgba(31,38,52,.05);
+      transition: transform .3s ease, box-shadow .3s ease;
+    }
+    .service-card:hover { transform: translateY(-4px); box-shadow: 0 18px 40px rgba(31,38,52,.1); }
+    .service-img { position: relative; height: 300px; border-radius: 20px; overflow: hidden; background: #eee; margin-bottom: 18px; }
+    .service-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+    .service-card:hover .service-img img { transform: scale(1.04); }
+    .service-num {
+      position: absolute; top: 12px; left: 12px; width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,.92); display: grid; place-items: center; font-size: 11px; font-weight: 700;
+    }
+    .service-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+    .service-title h3 { font-size: 22px; font-weight: 500; letter-spacing: -.03em; margin: 0; }
+    .service-title span { color: var(--orange-dark); font-size: 20px; }
+    .service-card > p { color: var(--muted); font-size: 13.5px; line-height: 1.65; margin: 0; }
+
+    /* Impact & Stats */
+    .impact-box {
+      padding: clamp(48px, 7vw, 84px); border-radius: 36px; background: rgba(255,255,255,.65);
+      border: 1px solid rgba(255,255,255,.85); box-shadow: 0 12px 36px rgba(31,38,52,.06);
+    }
+    .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 50px; padding-top: 40px; border-top: 1px solid var(--line); }
+    .stat-item strong { display: block; font-family: var(--display); font-size: clamp(48px, 6.5vw, 84px); font-weight: 400; line-height: 1; letter-spacing: -.06em; margin-bottom: 6px; }
+    .stat-item span { color: var(--muted); font-size: 13px; font-weight: 500; }
+
+    /* Testimonials */
+    .quotes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .quote-box {
+      padding: 36px; border-radius: 24px; background: #fff; border: 1px solid rgba(0,0,0,.06);
+      display: flex; flex-direction: column; justify-content: space-between; min-height: 220px;
+    }
+    .quote-box.highlight { background: #fff0df; border-color: rgba(244,123,32,.2); }
+    .quote-box blockquote { font-family: var(--display); font-size: clamp(19px, 2.2vw, 26px); font-weight: 400; line-height: 1.25; margin: 0 0 24px; }
+    .quote-box cite { font-size: 12px; font-style: normal; font-weight: 700; }
+    .quote-box cite span { display: block; font-size: 11px; font-weight: 400; color: var(--muted); margin-top: 4px; }
+
+    /* Company Section */
+    .intro-grid { display: grid; grid-template-columns: 1fr 1fr; align-items: flex-end; gap: 40px; margin-bottom: 50px; }
+    .audience-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
+    .audience-tags span { padding: 8px 14px; border: 1px solid var(--line); border-radius: 999px; background: rgba(255,255,255,.6); font-size: 12px; color: #515154; }
+
+    .pillars-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 56px; }
+    .pillar-card {
+      padding: 32px; border-radius: 24px; background: rgba(255,255,255,.65);
+      border: 1px solid rgba(255,255,255,.85); min-height: 250px;
+    }
+    .pillar-card .number { display: block; margin-bottom: 38px; color: var(--orange-dark); font-size: 11px; font-weight: 700; letter-spacing: .08em; }
+    .pillar-card h3 { font-size: 24px; font-weight: 500; margin-bottom: 10px; }
+    .pillar-card p { color: var(--muted); font-size: 13.5px; line-height: 1.65; margin: 0; }
+
+    /* Supply Categories */
+    .supply-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+    .supply-item {
+      display: flex; align-items: center; gap: 12px; min-height: 78px; padding: 14px;
+      border: 1px solid rgba(255,255,255,.9); border-radius: 16px; background: rgba(255,255,255,.55);
+      font-size: 13px; font-weight: 500; box-shadow: 0 4px 16px rgba(0,0,0,.03);
+    }
+    .supply-item span {
+      flex: 0 0 34px; width: 34px; height: 34px; display: grid; place-items: center;
+      border-radius: 50%; color: var(--orange-dark); background: #fff1e6;
+    }
+    .supply-item svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* Workplace Consumables */
+    .consumables-box {
+      display: grid; grid-template-columns: .8fr 1.2fr; gap: 48px; align-items: start;
+      padding: clamp(36px, 5vw, 68px); border-radius: 28px; background: rgba(255,255,255,.65);
+      border: 1px solid rgba(255,255,255,.85); margin-top: 56px;
+    }
+    .consumables-box h2 { font-size: clamp(34px, 4.5vw, 52px); font-weight: 500; line-height: 1.05; letter-spacing: -.05em; margin: 0; }
+    .tags-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+    .tags-row span { padding: 8px 14px; border: 1px solid var(--line); border-radius: 999px; background: #fff; font-size: 12px; color: #515154; }
+
+    /* Callout Card */
+    .action-cta {
+      display: flex; align-items: center; justify-content: space-between; gap: 32px;
+      padding: clamp(40px, 6vw, 64px); border-radius: 28px; background: #171717; color: #fff;
+      margin-top: 56px; box-shadow: 0 16px 48px rgba(0,0,0,.15);
+    }
+    .action-cta h2 { font-size: clamp(28px, 4vw, 44px); font-weight: 500; margin-bottom: 8px; }
+    .action-cta p { color: rgba(255,255,255,.7); font-size: 14px; margin: 0; max-width: 580px; }
+    .btn-light {
+      display: inline-flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 24px;
+      border-radius: 999px; background: #fff; color: var(--ink); font-size: 13px; font-weight: 700;
+      white-space: nowrap; transition: background .2s ease;
+    }
+    .btn-light:hover { background: #e8e8ed; }
+
+    /* Contact Section */
+    .contact-layout { display: grid; grid-template-columns: .85fr 1.15fr; gap: 24px; align-items: stretch; margin-top: 36px; }
+    .details-panel {
+      display: flex; flex-direction: column; justify-content: space-between; gap: 32px;
+      padding: clamp(32px, 4.5vw, 48px); border-radius: 26px; background: rgba(255,255,255,.65);
+      border: 1px solid rgba(255,255,255,.85);
+    }
+    .detail-item { margin-bottom: 22px; }
+    .detail-label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    .detail-item a, .detail-item address { font-style: normal; font-size: 14px; font-weight: 500; line-height: 1.6; }
+    .detail-item a:hover { color: var(--orange-dark); }
+
+    .form-panel {
+      padding: clamp(32px, 4.5vw, 48px); border-radius: 26px; background: #fff;
+      border: 1px solid rgba(0,0,0,.08); box-shadow: 0 12px 36px rgba(0,0,0,.05);
+    }
+    .form-panel h2 { font-size: 28px; font-weight: 500; margin-bottom: 8px; }
+    .form-panel > p { color: var(--muted); font-size: 13.5px; margin-bottom: 24px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-field { display: flex; flex-direction: column; gap: 7px; }
+    .form-field.full { grid-column: 1 / -1; }
+    .form-field label { font-size: 12px; font-weight: 600; }
+    .form-field input, .form-field select, .form-field textarea {
+      padding: 12px 14px; border: 1px solid #d2d2d7; border-radius: 12px; outline: none;
+      font-size: 14px; color: var(--ink); background: #fff; transition: border-color .2s ease;
+    }
+    .form-field input:focus, .form-field select:focus, .form-field textarea:focus {
+      border-color: var(--orange); box-shadow: 0 0 0 3px rgba(244,123,32,.14);
+    }
+    .form-field textarea { min-height: 120px; resize: vertical; }
+    .form-actions { grid-column: 1 / -1; display: flex; align-items: center; gap: 16px; margin-top: 8px; flex-wrap: wrap; }
+    .btn-submit {
+      min-height: 48px; padding: 0 26px; border: 0; border-radius: 999px; background: var(--ink);
+      color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; transition: background .2s ease;
+    }
+    .btn-submit:hover { background: #3a3a3c; }
+    .btn-submit:disabled { opacity: .6; cursor: wait; }
+    .form-status { font-size: 12px; color: var(--muted); margin: 0; }
+    .form-status.success { color: #059669; font-weight: 600; }
+    .form-status.error { color: #dc2626; }
+
+    /* Footer */
+    footer { padding: 60px 0 32px; border-top: 1px solid var(--line); margin-top: 60px; }
+    .footer-grid { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 36px; padding-bottom: 40px; }
+    .footer-brand { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+    .footer-brand img { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
+    .footer-brand strong { font-family: var(--display); font-size: 18px; }
+    .footer-col h3 { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 14px; color: var(--muted); }
+    .footer-col p, .footer-col a { display: block; font-size: 13px; color: #515154; line-height: 1.6; margin-bottom: 6px; }
+    .footer-col a:hover { color: var(--orange-dark); }
+    .subscribe-box { display: flex; gap: 8px; max-width: 300px; margin-bottom: 8px; }
+    .subscribe-box input {
+      flex: 1; min-width: 0; padding: 10px 14px; border: 1px solid #c7c7cc; border-radius: 999px;
+      outline: none; font-size: 12px; background: #fff;
+    }
+    .subscribe-box button {
+      padding: 0 18px; border: 0; border-radius: 999px; background: var(--ink); color: #fff;
+      font-size: 12px; font-weight: 600; cursor: pointer;
+    }
+    .footer-bottom {
+      padding-top: 20px; border-top: 1px solid var(--line); display: flex; justify-content: space-between;
+      gap: 16px; font-size: 11px; color: var(--muted);
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .services-grid { grid-template-columns: repeat(2, 1fr); }
+      .supply-grid { grid-template-columns: repeat(3, 1fr); }
+      .pillars-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      .nav-links, .nav-actions .order-btn { display: none; }
+      .menu-button { display: grid; }
+      .services-grid, .quotes-grid, .intro-grid, .consumables-box, .action-cta, .contact-layout, .footer-grid { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-field.full { grid-column: auto; }
+      .stats-row { grid-template-columns: 1fr; }
+      .supply-grid { grid-template-columns: repeat(2, 1fr); }
+      .hero { padding: 32px 20px 40px; border-radius: 28px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SVG Icon Library -->
+  <svg style="display:none;" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="icon-appliance" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M5 8h14M8 5.5h.01M11 5.5h.01"/><circle cx="12" cy="14" r="3.5"/></symbol>
+    <symbol id="icon-office" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18M10 12v2h4v-2"/></symbol>
+    <symbol id="icon-furniture" viewBox="0 0 24 24"><path d="M5 11V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v5M4 12h16v5H4zM6 17v3m12-3v3"/></symbol>
+    <symbol id="icon-electronics" viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="2"/><path d="M10 5h4m-3 13h2"/></symbol>
+    <symbol id="icon-electrical" viewBox="0 0 24 24"><path d="M13 2 5 13h6l-1 9 9-12h-6z"/></symbol>
+    <symbol id="icon-building" viewBox="0 0 24 24"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6M8 10h.01M12 10h.01M16 10h.01"/></symbol>
+    <symbol id="icon-vehicle" viewBox="0 0 24 24"><path d="m5 11 2-5h10l2 5M3 11h18v7H3zM5 18v2m14-2v2M6 14h.01M18 14h.01M7 11h10"/></symbol>
+    <symbol id="icon-safety" viewBox="0 0 24 24"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="icon-cleaning" viewBox="0 0 24 24"><path d="M12 3s6 7 6 12a6 6 0 0 1-12 0c0-5 6-12 6-12Z"/><path d="M9 16a3 3 0 0 0 3 3"/></symbol>
+    <symbol id="icon-computer" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4M2 17h20"/></symbol>
+    <symbol id="icon-brochure" viewBox="0 0 24 24"><path d="M4 4.5h11a3 3 0 0 1 3 3v12H7a3 3 0 0 1-3-3z"/><path d="M18 8h2v11.5H7a3 3 0 0 1-3-3M8 8h6m-6 3h6m-6 3h4"/></symbol>
+    <symbol id="icon-letter" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></symbol>
+    <symbol id="icon-flyer" viewBox="0 0 24 24"><path d="M6 3h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M8 8h8m-8 4h8m-8 4h5"/></symbol>
+    <symbol id="icon-promo" viewBox="0 0 24 24"><path d="M3 10v4a2 2 0 0 0 2 2h2l3 5h3l-2-5h2l7 3V5l-7 3H5a2 2 0 0 0-2 2Z"/><path d="M7 16V8m13-1 2-2m-2 12 2 2"/></symbol>
+    <symbol id="icon-banner" viewBox="0 0 24 24"><path d="M4 4v16m16-16v16M5 5h14l-3 4 3 4H5m0 0h14l-3 3 3 3H5"/></symbol>
+    <symbol id="icon-print" viewBox="0 0 24 24"><path d="M7 8V3h10v5M6 17H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6zM18 11h.01"/></symbol>
+  </svg>
+
+  <!-- Page Wrapper - Deeply blurred during next-page loading animation -->
+  <div id="page-wrapper">
+
+  <!-- Sticky Navbar -->
+  <nav class="nav" aria-label="Main Navigation">
+    <a class="brand" href="#home" aria-label="ENJ Digital Concept Home">
+      <img src="/logo.png" alt="ENJ Logo" onerror="this.src='/assets/aistudio/logo_3018c959.png'">
+    </a>
+
+    <div class="nav-links">
+      <a data-target="home" class="active" href="#home">Home</a>
+      <a data-target="company" href="#company">Company</a>
+      <a data-target="contact" href="#contact">Contact</a>
+    </div>
+
+    <div class="nav-actions">
+      <a class="order-btn" href="https://enjdigitalshop.odoo.com/" target="_blank" rel="noopener">
+        <span>Start Order</span>
+      </a>
+      <button class="menu-button" type="button" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span>
+      </button>
+    </div>
+
+    <div class="menu-panel" id="mobile-menu">
+      <a data-target="home" class="active" href="#home">Home</a>
+      <a data-target="company" href="#company">Company</a>
+      <a data-target="contact" href="#contact">Contact</a>
+      <a class="order-btn" href="https://enjdigitalshop.odoo.com/" target="_blank" rel="noopener">Start Order on Odoo Shop</a>
+    </div>
+  </nav>
+
+  <main>
+    <!-- ================= SECTION 1: HOME ================= -->
+    <section class="section page-section active" id="home">
+      <div class="hero">
+        <div class="hero-content">
+          <h1>High-quality prints, delivered right on time.</h1>
+          <p>Turning ideas into striking physical realities. As Maiduguri’s premier printing powerhouse, we specialize in high-impact print solutions for ambitious brands, corporate organizations, and creative individuals.</p>
+          <div class="hero-cta">
+            <a class="btn-primary" href="https://enjdigitalshop.odoo.com/" target="_blank" rel="noopener">
+              <span>Start Order</span>
+            </a>
+            <a class="btn-secondary" href="#company">
+              <span>Explore Company</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Services Grid -->
+      <div class="shell" style="margin-top: 80px;">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">What we do</p>
+            <h2>Print made to make an impact.</h2>
+          </div>
+          <p>Professional branding solutions tailored for corporate marketing, events, and personal project needs.</p>
+        </div>
+
+        <div class="services-grid">
+          <div class="service-card">
+            <div class="service-img">
+              <img src="/paper.jpeg" alt="Paper & Corporate Printing" onerror="this.src='/assets/aistudio/paper_f6713a43.jpeg'">
+              <span class="service-num">01</span>
+            </div>
+            <div class="service-title">
+              <h3>Paper &amp; Corporate Printing</h3>
+            </div>
+            <p>Elevate your brand touchpoints with crisp, high-resolution stationery and marketing collateral that leaves a lasting impression.</p>
+          </div>
+
+          <div class="service-card">
+            <div class="service-img">
+              <img src="/banner.jpeg" alt="Large-format & Outdoor Signage" onerror="this.src='/assets/aistudio/banner_f14a3920.jpeg'">
+              <span class="service-num">02</span>
+            </div>
+            <div class="service-title">
+              <h3>Large-format &amp; Outdoor Signage</h3>
+            </div>
+            <p>Turn heads and capture foot traffic with high-impact visuals designed to withstand the elements.</p>
+          </div>
+
+          <div class="service-card">
+            <div class="service-img">
+              <img src="/shirt.jpeg" alt="Custom Apparel & Textile Printing" onerror="this.src='/assets/aistudio/shirt_f6a3624f.jpeg'">
+              <span class="service-num">03</span>
+            </div>
+            <div class="service-title">
+              <h3>Custom Apparel &amp; Textile Printing</h3>
+            </div>
+            <p>Outfit your team, promote your brand, or launch your merch line with durable, vibrant apparel customization.</p>
+          </div>
+
+          <div class="service-card">
+            <div class="service-img">
+              <img src="/stitch.jpg" alt="Stitch & Embroidery" onerror="this.src='/assets/aistudio/stitch_2384090b.jpg'">
+              <span class="service-num">04</span>
+            </div>
+            <div class="service-title">
+              <h3>Stitch &amp; Embroidery</h3>
+            </div>
+            <p>Bring your brand to life with premium, textured thread work that adds depth, durability, and a classic look to any garment.</p>
+          </div>
+
+          <div class="service-card">
+            <div class="service-img">
+              <img src="/engrave.jpg" alt="Laser Engraving" onerror="this.src='/assets/aistudio/engrave_020d7bfe.jpg'">
+              <span class="service-num">05</span>
+            </div>
+            <div class="service-title">
+              <h3>Laser Engraving</h3>
+            </div>
+            <p>Achieve permanent, high-precision marking and dimensional cutting that delivers a rustic yet sophisticated touch to hard surfaces.</p>
+          </div>
+
+          <div class="service-card">
+            <div class="service-img">
+              <img src="/graphic.jpg" alt="Graphic Design & Creative Services" onerror="this.src='/assets/aistudio/graphic_363550c6.jpg'">
+              <span class="service-num">06</span>
+            </div>
+            <div class="service-title">
+              <h3>Graphic Design &amp; Creative</h3>
+            </div>
+            <p>Bring your vision to reality with strategic, professional design solutions built to optimize production and engage your target audience.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Impact in Numbers -->
+      <div class="shell" style="margin-top: 80px;">
+        <div class="impact-box">
+          <div class="section-head" style="margin-bottom: 0;">
+            <div>
+              <p class="eyebrow">Our impact</p>
+              <h2>In numbers.</h2>
+            </div>
+            <p>A quick look at the milestones we've achieved together with our amazing clients.</p>
+          </div>
+          <div class="stats-row">
+            <div class="stat-item"><strong>20k+</strong><span>Prints Delivered</span></div>
+            <div class="stat-item"><strong>5+</strong><span>Years of Excellence</span></div>
+            <div class="stat-item"><strong style="color:var(--orange);">99%</strong><span>Client Satisfaction</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Testimonials -->
+      <div class="shell" style="margin-top: 80px;">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Kind words</p>
+            <h2>Trusted by local brands.</h2>
+          </div>
+          <p>We care about the details just as much as the people and brands behind every print.</p>
+        </div>
+
+        <div class="quotes-grid">
+          <div class="quote-box">
+            <blockquote>“The clarity of the brochures exceeded all our expectations.”</blockquote>
+            <cite>Sabine Delcroix<span>Marketing Manager, Tech</span></cite>
+          </div>
+          <div class="quote-box highlight">
+            <blockquote>“The quality of our large-format banners and direct-to-film apparel completely exceeded expectations. They are our go-to-print partner for every event.”</blockquote>
+            <cite>Engr. Emmanuel I. Moses<span>CEO — ENJ Digital Concept</span></cite>
+          </div>
+          <div class="quote-box">
+            <blockquote>“The fastest turnaround on business cards we've ever seen, with absolute color accuracy and premium cardstock.”</blockquote>
+            <cite>Lars Vilanova<span>Founder of Creative Firm</span></cite>
+          </div>
+          <div class="quote-box">
+            <blockquote>“Sharp details, consistent colors, and fast turnaround. We finally found a reliable printing partner.”</blockquote>
+            <cite>David O.<span>Creative Director — Power Creative</span></cite>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SECTION 2: COMPANY ================= -->
+    <section class="section page-section" id="company">
+      <div class="shell">
+        <div class="intro-grid">
+          <div>
+            <p class="eyebrow">What we do</p>
+            <h2 style="font-size: clamp(38px, 5.5vw, 64px); line-height: 1.02; letter-spacing: -.055em; margin: 0;">One dependable partner for everyday needs.</h2>
+          </div>
+          <div>
+            <p style="color:var(--muted); font-size: 16px; line-height: 1.7; margin:0;">We supply a wide range of products and services to companies, individuals, hotels, churches, schools and government offices. Our service is organized around your requirements, with flexible quantities for items on our supply list.</p>
+            <div class="audience-tags">
+              <span>Companies</span><span>Individuals</span><span>Hotels</span><span>Churches</span><span>Schools</span><span>Government offices</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3 Core Pillars -->
+        <div class="pillars-grid">
+          <div class="pillar-card">
+            <span class="number">01 / GENERAL SUPPLY</span>
+            <h3>Products for work and life</h3>
+            <p>From office essentials and electronics to furniture, building materials, vehicles and safety equipment, we help source the items you need.</p>
+          </div>
+          <div class="pillar-card">
+            <span class="number">02 / RENEWABLE ENERGY</span>
+            <h3>Energy for a changing world</h3>
+            <p>We support the growing demand for renewable energy with quality-focused services and solutions for clean solar power systems.</p>
+          </div>
+          <div class="pillar-card">
+            <span class="number">03 / DIGITAL PRINTING</span>
+            <h3>Print, without the minimums</h3>
+            <p>Black-and-white and colour printing for everyday communications, marketing materials and large-format banners—even for smaller print runs.</p>
+          </div>
+        </div>
+
+        <!-- Supply Categories Grid -->
+        <p class="eyebrow">Supply categories</p>
+        <h2 style="font-size: clamp(34px, 4vw, 48px); margin-bottom: 30px;">A broad range of products.</h2>
+        <div class="supply-grid">
+          <div class="supply-item"><span><svg><use href="#icon-appliance"></use></svg></span>Home appliances</div>
+          <div class="supply-item"><span><svg><use href="#icon-office"></use></svg></span>Office equipment</div>
+          <div class="supply-item"><span><svg><use href="#icon-furniture"></use></svg></span>Home &amp; office furniture</div>
+          <div class="supply-item"><span><svg><use href="#icon-electronics"></use></svg></span>Electronics</div>
+          <div class="supply-item"><span><svg><use href="#icon-electrical"></use></svg></span>Electrical materials</div>
+          <div class="supply-item"><span><svg><use href="#icon-building"></use></svg></span>Building equipment</div>
+          <div class="supply-item"><span><svg><use href="#icon-vehicle"></use></svg></span>Vehicles</div>
+          <div class="supply-item"><span><svg><use href="#icon-safety"></use></svg></span>Safety equipment</div>
+          <div class="supply-item"><span><svg><use href="#icon-cleaning"></use></svg></span>Toiletries &amp; cleaning</div>
+          <div class="supply-item"><span><svg><use href="#icon-computer"></use></svg></span>Computers &amp; accessories</div>
+        </div>
+        <p style="color:var(--muted); font-size:14px; margin-top:20px; line-height:1.7;">
+          Need a particular item or bulk quantity? Get in touch with our supply procurement team. We can supply any quantity of items included in our product supply list.
+        </p>
+
+        <!-- Workplace Consumables -->
+        <div class="consumables-box">
+          <div>
+            <p class="eyebrow">For the workplace</p>
+            <h2>Office consumables &amp; equipment.</h2>
+          </div>
+          <div>
+            <p style="color:var(--muted); font-size:15px; line-height:1.8; margin:0;">
+              We provide everyday office supplies and equipment for written communication, recordkeeping, bookkeeping, cleaning and storage. That includes expendable daily-use products as well as the tools and furnishings that keep an organization running smoothly.
+            </p>
+            <div class="tags-row">
+              <span>Stationery</span><span>Paper products</span><span>Bookkeeping supplies</span><span>Cleaning supplies</span><span>Storage</span><span>Small machines</span><span>Computers</span><span>Office furniture</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Digital Printing Breakdown -->
+        <div style="margin-top: 60px;">
+          <div class="intro-grid" style="margin-bottom: 24px;">
+            <div>
+              <p class="eyebrow">Digital printing</p>
+              <h2>From a single flyer to a bold banner.</h2>
+            </div>
+            <p style="color:var(--muted); font-size:15px; line-height:1.7; margin:0;">
+              Send us your print-ready PDF and we’ll take care of the rest. Choose black or colour printing, with no minimum order requirement—so even a small print job is welcome.
+            </p>
+          </div>
+          <div class="supply-grid">
+            <div class="supply-item"><span><svg><use href="#icon-brochure"></use></svg></span>Brochures &amp; newsletters</div>
+            <div class="supply-item"><span><svg><use href="#icon-letter"></use></svg></span>Letters &amp; booklets</div>
+            <div class="supply-item"><span><svg><use href="#icon-flyer"></use></svg></span>Flyers</div>
+            <div class="supply-item"><span><svg><use href="#icon-promo"></use></svg></span>Promotional materials</div>
+            <div class="supply-item"><span><svg><use href="#icon-banner"></use></svg></span>Large-format banners</div>
+            <div class="supply-item"><span><svg><use href="#icon-print"></use></svg></span>Black &amp; colour printing</div>
+          </div>
+        </div>
+
+        <!-- Action CTA -->
+        <div class="action-cta">
+          <div>
+            <p class="eyebrow" style="color:var(--orange);">Let’s work together</p>
+            <h2>Tell us what you need. We’ll help with the rest.</h2>
+            <p>Contact ENJ Digital Concept to ask about product availability, supply quantities, renewable energy services or a custom print job.</p>
+          </div>
+          <a class="btn-light" href="#contact">Contact our team</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SECTION 3: CONTACT ================= -->
+    <section class="section page-section" id="contact">
+      <div class="shell">
+        <div style="max-width: 800px; margin-bottom: 40px;">
+          <p class="eyebrow">ENJ Digital Concept · Maiduguri, Nigeria</p>
+          <h1 style="font-size: clamp(40px, 6vw, 68px); line-height: 1; letter-spacing: -.06em; margin-bottom: 16px;">Let’s make something happen.</h1>
+          <p style="color:var(--muted); font-size: 16px; line-height: 1.7; margin:0;">Tell us about your print job, product supply needs or renewable energy enquiry. We’ll get back to you as soon as we can.</p>
+        </div>
+
+        <div class="contact-layout">
+          <aside class="details-panel">
+            <div>
+              <p class="eyebrow">Get in touch</p>
+              <h2 style="font-size: 26px; margin-bottom: 10px;">We’re here to help.</h2>
+              <p style="color:var(--muted); font-size:14px; line-height:1.7; margin:0;">Reach out directly or send us a message using the form. We serve businesses, organizations and individuals.</p>
+            </div>
+            <div>
+              <div class="detail-item">
+                <span class="detail-label">Email</span>
+                <a href="mailto:enjdigitalconcept@gmail.com">enjdigitalconcept@gmail.com</a>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Phone &amp; WhatsApp</span>
+                <a href="tel:+2348133535756">+234 (0) 813 353 5756</a>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Visit</span>
+                <address>No. 1 Thatcher Building, Jiddari Junction,<br>Maiduguri, Borno State, Nigeria</address>
+              </div>
+            </div>
+            <p style="font-size:12px; color:var(--muted); margin:0;">Business Hours: Monday – Saturday (8:00 AM – 9:00 PM WAT)</p>
+          </aside>
+
+          <section class="form-panel">
+            <h2>Send an enquiry</h2>
+            <p>Share a few details and your message will be dispatched directly to our team.</p>
+            <form id="enquiry-form" class="form-grid">
+              <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
+              <div class="form-field">
+                <label for="name">Your name *</label>
+                <input id="name" name="name" required autocomplete="name" placeholder="e.g. Fatima Ali">
+              </div>
+              <div class="form-field">
+                <label for="email">Email address *</label>
+                <input id="email" name="email" type="email" required autocomplete="email" placeholder="e.g. fatima@example.com">
+              </div>
+              <div class="form-field full">
+                <label for="service">What can we help with? *</label>
+                <select id="service" name="service" required>
+                  <option value="" disabled selected>Select a service</option>
+                  <option>Digital printing</option>
+                  <option>Product supply</option>
+                  <option>Renewable energy</option>
+                  <option>Custom apparel &amp; embroidery</option>
+                  <option>Laser engraving</option>
+                  <option>Other enquiry</option>
+                </select>
+              </div>
+              <div class="form-field full">
+                <label for="message">Your message *</label>
+                <textarea id="message" name="message" required placeholder="Describe your project, quantities, or timeframe..."></textarea>
+              </div>
+              <div class="form-actions">
+                <button class="btn-submit" type="submit">Send message</button>
+                <p class="form-status" id="form-status">We’ll send your message directly to ENJ Digital Concept.</p>
+              </div>
+            </form>
+          </section>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer>
+    <div class="shell">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">
+            <img src="/logo.png" alt="ENJ Logo" onerror="this.src='/assets/aistudio/logo_3018c959.png'">
+            <strong>ENJ Digital Concept</strong>
+          </div>
+          <p style="font-size:12px; color:var(--muted); line-height:1.6; max-width:320px;">
+            Your dependable partner for high-impact digital printing, corporate general supplies, and clean renewable energy solutions in Maiduguri, Borno State, Nigeria.
+          </p>
+        </div>
+        <div class="footer-col">
+          <h3>Visit us</h3>
+          <p>No. 1 Thatcher Building, Jiddari Junction,<br>Maiduguri, Borno State — Nigeria</p>
+          <a href="tel:+2348133535756">+234 (0) 813 353 5756</a>
+          <a href="mailto:enjdigitalconcept@gmail.com">enjdigitalconcept@gmail.com</a>
+        </div>
+        <div class="footer-col">
+          <h3>Newsletter</h3>
+          <form class="subscribe-box" id="subscribe-form">
+            <input type="email" placeholder="Your email address" required id="sub-email">
+            <button type="submit">Subscribe</button>
+          </form>
+          <p id="sub-status" style="font-size:11px; color:var(--muted);">Opens an email to request newsletter updates.</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 ENJ Digital Concept. All Rights Reserved</span>
+        <span>Made with care in Maiduguri, Nigeria</span>
+      </div>
+    </div>
+  </footer>
+  </div> <!-- end #page-wrapper -->
+
+  <!-- Top Animated Laser Progress Bar -->
+  <div id="top-progress"></div>
+
+  <!-- Full-Page Backdrop Blur & Cool High-Tech CMYK Loading Modal -->
+  <div id="page-loader">
+    <div class="cmyk-card">
+      <div class="cmyk-aura-1"></div>
+      <div class="cmyk-aura-2"></div>
+      <div class="cmyk-scan-line"></div>
+
+      <div class="cmyk-orbit-box">
+        <div class="cmyk-ring">
+          <span class="cmyk-dot c"></span>
+          <span class="cmyk-dot m"></span>
+          <span class="cmyk-dot y"></span>
+          <span class="cmyk-dot k"></span>
+        </div>
+        <img class="cmyk-logo-img" src="/logo.png" alt="ENJ Logo" onerror="this.src='/assets/aistudio/logo_3018c959.png'">
+      </div>
+
+      <div class="cmyk-badge">ENJ DIGITAL STUDIO</div>
+      <h3 id="loader-page-title">Entering Main Studio</h3>
+      <p>Rendering precision print views...</p>
+
+      <div class="cmyk-progress-track">
+        <div class="cmyk-progress-fill"></div>
+      </div>
+
+      <div class="cmyk-channels">
+        <span><i style="background:#06b6d4;"></i>C</span>
+        <span><i style="background:#ec4899;"></i>M</span>
+        <span><i style="background:#eab308;"></i>Y</span>
+        <span><i style="background:#f47b20;"></i>K</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Separate Page Navigation Handling
+    const navLinks = document.querySelectorAll('.nav-links a, .menu-panel a[data-target]');
+    const pages = {
+      home: document.getElementById('home'),
+      company: document.getElementById('company'),
+      contact: document.getElementById('contact')
+    };
+    const menuBtn = document.querySelector('.menu-button');
+    const menuPanel = document.getElementById('mobile-menu');
+
+    let isPageSwitching = false;
+    function showPage(pageId, immediate = false) {
+      if (!pages[pageId]) pageId = 'home';
+      
+      const pageWrapper = document.getElementById('page-wrapper');
+      const loader = document.getElementById('page-loader');
+      const topProg = document.getElementById('top-progress');
+      const pageTitleEl = document.getElementById('loader-page-title');
+
+      if (immediate) {
+        Object.keys(pages).forEach(id => {
+          if (pages[id]) pages[id].classList.toggle('active', id === pageId);
+        });
+        navLinks.forEach(link => {
+          link.classList.toggle('active', link.getAttribute('data-target') === pageId);
+        });
+        return;
+      }
+
+      if (isPageSwitching) return;
+      isPageSwitching = true;
+
+      if (pageTitleEl) {
+        pageTitleEl.textContent = pageId === 'company' ? 'Entering Company Profile' : pageId === 'contact' ? 'Opening Contact & Orders' : 'Entering Main Studio';
+      }
+
+      // Blur entire page and bring up cool loading modal
+      if (pageWrapper) pageWrapper.classList.add('page-blurred');
+      if (loader) loader.style.display = 'flex';
+      if (topProg) topProg.style.display = 'block';
+
+      setTimeout(() => {
+        Object.keys(pages).forEach(id => {
+          if (pages[id]) {
+            pages[id].classList.toggle('active', id === pageId);
+          }
+        });
+
+        navLinks.forEach(link => {
+          const isMatch = link.getAttribute('data-target') === pageId;
+          link.classList.toggle('active', isMatch);
+        });
+
+        window.scrollTo({ top: 0, behavior: 'instant' });
+        menuPanel.classList.remove('open');
+        menuBtn.setAttribute('aria-expanded', 'false');
+
+        if (pageId === 'company') {
+          document.title = 'Company — ENJ Digital Concept';
+        } else if (pageId === 'contact') {
+          document.title = 'Contact — ENJ Digital Concept';
+        } else {
+          document.title = 'ENJ Digital Concept — High-Quality Prints';
+        }
+
+        setTimeout(() => {
+          if (pageWrapper) pageWrapper.classList.remove('page-blurred');
+          if (loader) loader.style.display = 'none';
+          if (topProg) topProg.style.display = 'none';
+          isPageSwitching = false;
+        }, 80);
+      }, 600);
+    }
+
+    function syncHash(immediate = false) {
+      const hash = window.location.hash.replace('#', '').toLowerCase();
+      showPage(hash || 'home', immediate);
+    }
+
+    window.addEventListener('hashchange', () => syncHash(false));
+    syncHash(true);
+
+    navLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        const targetId = link.getAttribute('data-target');
+        if (targetId) {
+          e.preventDefault();
+          window.location.hash = targetId === 'home' ? '' : targetId;
+          showPage(targetId);
+        }
+      });
+    });
+
+    // In-page navigation links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', (e) => {
+        const target = anchor.getAttribute('href').replace('#', '').toLowerCase();
+        if (pages[target]) {
+          e.preventDefault();
+          window.location.hash = target === 'home' ? '' : target;
+          showPage(target);
+        }
+      });
+    });
+
+    // Mobile menu toggle
+    menuBtn.addEventListener('click', () => {
+      const isOpen = menuBtn.getAttribute('aria-expanded') === 'true';
+      menuBtn.setAttribute('aria-expanded', String(!isOpen));
+      menuPanel.classList.toggle('open', !isOpen);
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!menuPanel.contains(e.target) && !menuBtn.contains(e.target)) {
+        menuPanel.classList.remove('open');
+        menuBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    // Contact Form AJAX
+    const contactForm = document.getElementById('enquiry-form');
+    const formStatus = document.getElementById('form-status');
+    const submitBtn = contactForm.querySelector('.btn-submit');
+
+    contactForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!contactForm.reportValidity()) return;
+      const data = new FormData(contactForm);
+      const payload = Object.fromEntries(data.entries());
+      payload._subject = 'Website enquiry: ' + (payload.service || 'General');
+      payload._replyto = payload.email;
+
+      submitBtn.disabled = true;
+      formStatus.textContent = 'Sending your message…';
+      formStatus.className = 'form-status';
+
+      try {
+        const res = await fetch('https://formsubmit.co/ajax/enjdigitalconcept@gmail.com', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const json = await res.json().catch(() => ({}));
+        if (res.ok && (json.success === true || json.success === 'true')) {
+          contactForm.reset();
+          formStatus.textContent = 'Your message was sent successfully! We will get in touch shortly.';
+          formStatus.className = 'form-status success';
+        } else {
+          throw new Error();
+        }
+      } catch (err) {
+        formStatus.textContent = 'Could not send directly via web service. Please email us at enjdigitalconcept@gmail.com.';
+        formStatus.className = 'form-status error';
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+
+    // Newsletter subscription mailto
+    const subForm = document.getElementById('subscribe-form');
+    subForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('sub-email').value;
+      if (!email) return;
+      const subject = encodeURIComponent('Newsletter subscription request');
+      const body = encodeURIComponent('Please subscribe ' + email + ' to the ENJ newsletter.');
+      document.getElementById('sub-status').textContent = 'Opening your email app to confirm subscription…';
+      window.location.href = 'mailto:enjdigitalconcept@gmail.com?subject=' + subject + '&body=' + body;
+    });
+  </script>
+</body>
+</html>

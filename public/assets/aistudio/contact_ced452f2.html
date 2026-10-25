@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f5f7">
+  <meta name="description" content="Contact ENJ Digital Concept for print, product supply and renewable energy enquiries in Maiduguri, Nigeria.">
+  <title>Contact — ENJ Digital Concept</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --orange: #f47b20;
+      --orange-dark: #c95510;
+      --soft: #f5f5f7;
+      --ink: #1d1d1f;
+      --muted: #6e6e73;
+      --line: rgba(29,29,31,.12);
+      --display: "Space Grotesk", "Segoe UI", sans-serif;
+      --sans: "DM Sans", "Segoe UI", Arial, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; color: var(--ink); background: #fff; font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+    body::after { position: fixed; z-index: 19; inset: 0; content: ""; background: #fff; pointer-events: none; animation: page-reveal .22s ease-out forwards; }
+    body.page-leaving::after { animation: page-cover .16s ease-in forwards; }
+    @keyframes page-reveal { from { opacity: 1; } to { opacity: 0; } }
+    @keyframes page-cover { from { opacity: 0; } to { opacity: 1; } }
+    a { color: inherit; text-decoration: none; }
+    button,input,select,textarea { font: inherit; }
+    .shell { width: min(1240px,calc(100% - 64px)); margin-inline: auto; }
+    .nav {
+      position: fixed; top: 16px; left: 50%; z-index: 20; display: flex; align-items: center; gap: 24px;
+      width: min(1240px,calc(100% - 64px)); padding: 9px 12px 9px 18px;
+      border: 1px solid rgba(255,255,255,.55); border-radius: 999px; background: rgba(255,255,255,.96);
+      box-shadow: 0 8px 30px rgba(0,0,0,.14),inset 0 1px 0 rgba(255,255,255,.95);
+      -webkit-backdrop-filter: blur(32px) saturate(180%); backdrop-filter: blur(32px) saturate(180%);
+      transform: translateX(-50%);
+    }
+    .brand { display: inline-flex; flex: 0 0 auto; }
+    .brand img { display: block; width: 58px; height: 58px; border-radius: 50%; object-fit: cover; }
+    .links { display: flex; align-items: center; gap: clamp(20px,3vw,38px); margin-left: auto; margin-right: clamp(20px,3vw,38px); }
+    .links a { color: #424245; font-size: 13px; }
+    .links a:hover { color: var(--orange-dark); }
+    .links a.active { padding: 10px 13px; border-radius: 999px; color: var(--ink); background: rgba(244,123,32,.12); font-weight: 700; }
+    .order { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 18px; border-radius: 999px; color: #fff; background: var(--ink); font-size: 12px; font-weight: 600; white-space: nowrap; }
+    .order:hover { background: #3a3a3c; }
+    .menu-button { display: none; width: 42px; height: 42px; place-content: center; gap: 6px; padding: 0; border: 0; border-radius: 50%; background: rgba(29,29,31,.08); cursor: pointer; }
+    .menu-button span { width: 20px; height: 1.5px; background: var(--ink); transition: transform .2s ease; }
+    .menu-button[aria-expanded="true"] span:first-child { transform: translateY(3.75px) rotate(45deg); }
+    .menu-button[aria-expanded="true"] span:last-child { transform: translateY(-3.75px) rotate(-45deg); }
+    .menu-panel { position: absolute; top: calc(100% + 10px); right: 0; display: none; width: min(380px,100%); padding: 12px; border: 1px solid rgba(255,255,255,.7); border-radius: 20px; background: rgba(255,255,255,.98); box-shadow: 0 18px 54px rgba(0,0,0,.12); -webkit-backdrop-filter: blur(32px) saturate(180%); backdrop-filter: blur(32px) saturate(180%); }
+    .menu-panel.open { display: grid; }
+    .menu-panel a { padding: 15px 16px; border-radius: 12px; font-size: 20px; }
+    .menu-panel a:hover { background: var(--soft); }
+    .menu-panel a.active { background: rgba(244,123,32,.12); font-weight: 700; }
+    .menu-panel .order { justify-content: center; color: #fff; background: var(--ink); font-size: 13px; }
+    main { min-height: 80vh; padding: 170px 0 110px; }
+    .intro { max-width: 860px; margin-bottom: 48px; }
+    .eyebrow { margin: 0 0 18px; color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    h1,h2,p { margin-top: 0; }
+    h1,h2 { font-family: var(--display); }
+    h1 { max-width: 800px; margin-bottom: 18px; font-size: clamp(54px,8vw,96px); font-weight: 500; line-height: .98; letter-spacing: -.07em; }
+    .intro > p:last-child { max-width: 650px; margin: 0; color: var(--muted); font-size: 17px; line-height: 1.7; }
+    .contact-layout { display: grid; grid-template-columns: .8fr 1.2fr; gap: 18px; align-items: stretch; }
+    .details { display: flex; flex-direction: column; justify-content: space-between; gap: 32px; padding: clamp(28px,4vw,44px); border-radius: 22px; background: var(--soft); }
+    .details h2 { margin-bottom: 10px; font-size: 30px; font-weight: 500; letter-spacing: -.04em; }
+    .details p { margin-bottom: 0; color: var(--muted); font-size: 14px; line-height: 1.7; }
+    .detail-list { display: grid; gap: 20px; }
+    .detail-label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+    .detail-list a,.detail-list address { color: var(--ink); font-size: 14px; font-style: normal; line-height: 1.6; overflow-wrap: anywhere; }
+    .detail-list a:hover { color: var(--orange-dark); }
+    .form-panel { padding: clamp(28px,4vw,44px); border: 1px solid var(--line); border-radius: 22px; }
+    .form-panel h2 { margin-bottom: 8px; font-size: 30px; font-weight: 500; letter-spacing: -.04em; }
+    .form-panel > p { margin-bottom: 26px; color: var(--muted); font-size: 14px; line-height: 1.6; }
+    .contact-form { display: grid; grid-template-columns: 1fr 1fr; gap: 17px 14px; }
+    .field { display: grid; gap: 8px; }
+    .field.full { grid-column: 1 / -1; }
+    .field label { font-size: 12px; font-weight: 600; }
+    .field input,.field select,.field textarea { width: 100%; border: 1px solid #d2d2d7; border-radius: 12px; outline: none; padding: 13px 14px; color: var(--ink); background: #fff; font-size: 14px; transition: border-color .2s ease,box-shadow .2s ease; }
+    .field input,.field select { min-height: 48px; }
+    .field textarea { min-height: 142px; resize: vertical; }
+    .field input:focus,.field select:focus,.field textarea:focus { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(244,123,32,.13); }
+    .form-actions { grid-column: 1 / -1; display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+    .submit { min-height: 48px; padding: 0 22px; border: 0; border-radius: 999px; color: #fff; background: var(--ink); font-size: 13px; font-weight: 600; cursor: pointer; }
+    .submit:hover { background: #3a3a3c; }
+    .submit:disabled { cursor: wait; opacity: .65; }
+    .form-honeypot { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+    .form-note { margin: 0; color: var(--muted); font-size: 12px; }
+    footer { padding: 42px 0 24px; background: var(--soft); }
+    .footer-main { display: flex; justify-content: space-between; gap: 28px; padding-bottom: 30px; }
+    .footer-brand { display: flex; align-items: center; gap: 13px; }
+    .footer-brand img { width: 54px; height: 54px; border-radius: 50%; }
+    .footer-brand strong { font-family: var(--display); font-size: 18px; font-weight: 500; }
+    .footer-contact p,.footer-contact a { display: block; margin-bottom: 7px; color: #515154; font-size: 13px; line-height: 1.6; }
+    .footer-bottom { padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; }
+    @media (max-width: 760px) {
+      .shell { width: min(100% - 36px,600px); }
+      .nav { top: 10px; width: calc(100% - 28px); padding: 7px 9px 7px 13px; }
+      .brand img { width: 48px; height: 48px; }
+      .links,.nav > .order { display: none; }
+      .menu-button { display: grid; margin-left: auto; }
+      .menu-panel { width: 100%; }
+      main { padding: 132px 0 76px; }
+      .intro { margin-bottom: 32px; }
+      h1 { font-size: clamp(48px,12vw,72px); }
+      .intro > p:last-child { font-size: 14px; }
+      .contact-layout { grid-template-columns: 1fr; gap: 12px; }
+      .details,.form-panel { padding: 26px 22px; border-radius: 18px; }
+      .detail-list { gap: 16px; }
+      .contact-form { grid-template-columns: 1fr; gap: 15px; }
+      .field.full,.form-actions { grid-column: auto; }
+      .footer-main { flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      body::after { animation: none; opacity: 0; }
+    }
+    .skip-link { position: fixed; top: 12px; left: 12px; z-index: 30; padding: 12px 18px; border-radius: 999px; color: #fff; background: var(--ink); transform: translateY(-160%); transition: transform .2s ease; }
+    .skip-link:focus { transform: translateY(0); }
+    :focus-visible { outline: 3px solid var(--orange-dark); outline-offset: 4px; }
+    @media (prefers-reduced-motion: reduce) {
+      .skip-link { transition: none; }
+    }
+    body {
+      background:
+        radial-gradient(ellipse at 12% 30%, rgba(244,123,32,.08), transparent 34rem),
+        radial-gradient(ellipse at 90% 76%, rgba(124,156,200,.1), transparent 38rem),
+        #f6f7fa;
+    }
+    .nav {
+      border-color: rgba(255,255,255,.76);
+      background: rgba(255,255,255,.72);
+      box-shadow: 0 12px 36px rgba(31,38,52,.13), inset 0 1px 0 rgba(255,255,255,.96);
+    }
+    .menu-panel {
+      border-color: rgba(255,255,255,.82);
+      background: rgba(255,255,255,.74);
+      box-shadow: 0 18px 54px rgba(31,38,52,.16), inset 0 1px 0 rgba(255,255,255,.95);
+    }
+    .details, .form-panel {
+      border: 1px solid rgba(255,255,255,.84);
+      background: rgba(255,255,255,.58);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.95), 0 16px 44px rgba(31,38,52,.07);
+      -webkit-backdrop-filter: blur(24px) saturate(165%);
+      backdrop-filter: blur(24px) saturate(165%);
+    }
+    .field input, .field select, .field textarea {
+      border-color: rgba(255,255,255,.92);
+      background: rgba(255,255,255,.76);
+      box-shadow: inset 0 1px 2px rgba(31,38,52,.04);
+    }
+    footer { background: transparent; }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <nav class="nav" aria-label="Main navigation">
+    <a class="brand" href="index.html#home" aria-label="ENJ Digital Concept home">
+      <img src="https://static.wixstatic.com/media/acc89a_bdcf992ccfc24714a8a9b7ce4a4a0f8b~mv2.png" alt="ENJ Digital Concept">
+    </a>
+    <div class="links" aria-label="Page navigation">
+      <a data-nav="home" href="index.html#home">Home</a>
+      <a data-nav="company" href="company.html">Company</a>
+      <a data-nav="contact" href="contact.html">Contact</a>
+    </div>
+    <a class="order" href="https://enjdigitalshop.odoo.com/">Start Order</a>
+    <button class="menu-button" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="menu-panel"><span></span><span></span></button>
+    <div class="menu-panel" id="menu-panel">
+      <a data-nav="home" href="index.html#home">Home</a>
+      <a data-nav="company" href="company.html">Company</a>
+      <a data-nav="contact" href="contact.html">Contact</a>
+      <a class="order" href="https://enjdigitalshop.odoo.com/">Start Order</a>
+    </div>
+  </nav>
+
+  <main class="shell" id="main-content" tabindex="-1">
+    <div class="intro">
+      <p class="eyebrow">ENJ Digital Concept · Maiduguri, Nigeria</p>
+      <h1>Let’s make something happen.</h1>
+      <p>Tell us about your print job, product supply needs or renewable energy enquiry. We’ll get back to you as soon as we can.</p>
+    </div>
+    <div class="contact-layout" id="contact-form">
+      <aside class="details">
+        <div>
+          <p class="eyebrow">Get in touch</p>
+          <h2>We’re here to help.</h2>
+          <p>Reach out directly or send us a message using the form. We serve businesses, organizations and individuals.</p>
+        </div>
+        <div class="detail-list">
+          <div><span class="detail-label">Email</span><a href="mailto:enjdigitalconcept@gmail.com">enjdigitalconcept@gmail.com</a></div>
+          <div><span class="detail-label">Phone</span><a href="tel:+2348133535756">+234 (0) 813 353 5756</a></div>
+          <div><span class="detail-label">Visit</span><address>No. 1 Thatcher Building, Jiddari Junction,<br>Maiduguri, Borno State, Nigeria</address></div>
+        </div>
+      </aside>
+
+      <section class="form-panel" aria-labelledby="form-title">
+        <h2 id="form-title">Send an enquiry</h2>
+        <p>Share a few details and your message will be sent directly to our team.</p>
+        <form class="contact-form" id="enquiry-form">
+          <input class="form-honeypot" name="_honey" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <div class="field">
+            <label for="name">Your name</label>
+            <input id="name" name="name" autocomplete="name" required>
+          </div>
+          <div class="field">
+            <label for="email">Email address</label>
+            <input id="email" name="email" type="email" autocomplete="email" required>
+          </div>
+          <div class="field full">
+            <label for="service">What can we help with?</label>
+            <select id="service" name="service" required>
+              <option value="" selected disabled>Select a service</option>
+              <option>Digital printing</option>
+              <option>Product supply</option>
+              <option>Renewable energy</option>
+              <option>Other enquiry</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label for="message">Your message</label>
+            <textarea id="message" name="message" required></textarea>
+          </div>
+          <div class="form-actions">
+            <button class="submit" type="submit">Send message</button>
+            <p class="form-note" id="form-status" role="status" aria-live="polite">We’ll send your message directly to ENJ Digital Concept.</p>
+          </div>
+        </form>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div class="shell">
+      <div class="footer-main">
+        <a class="footer-brand" href="index.html#home">
+          <img src="https://static.wixstatic.com/media/acc89a_bdcf992ccfc24714a8a9b7ce4a4a0f8b~mv2.png" alt="">
+          <strong>ENJ Digital Concept</strong>
+        </a>
+        <div class="footer-contact">
+          <p>No. 1 Thatcher Building, Jiddari Junction,<br>Maiduguri, Borno State — Nigeria</p>
+          <a href="tel:+2348133535756">+234 (0) 813 353 5756</a>
+          <a href="mailto:enjdigitalconcept@gmail.com">enjdigitalconcept@gmail.com</a>
+        </div>
+      </div>
+      <div class="footer-bottom">© 2026 ENJ Digital Concept. All Rights Reserved</div>
+    </div>
+  </footer>
+  <script>
+    const menuButton = document.querySelector(".menu-button");
+    const menuPanel = document.querySelector(".menu-panel");
+
+    function updateActiveNavigation() {
+      const pageName = location.pathname.split("/").pop().toLowerCase();
+      const activePage = pageName === "contact.html" ? "contact"
+        : pageName === "company.html" ? "company" : "home";
+      document.querySelectorAll("[data-nav]").forEach((link) => {
+        const isActive = link.dataset.nav === activePage;
+        link.classList.toggle("active", isActive);
+        if (isActive) link.setAttribute("aria-current", "page");
+        else link.removeAttribute("aria-current");
+      });
+    }
+    updateActiveNavigation();
+
+    function setMenuOpen(isOpen) {
+      menuButton.setAttribute("aria-expanded", String(isOpen));
+      menuButton.setAttribute("aria-label", isOpen ? "Close navigation menu" : "Open navigation menu");
+      menuPanel.classList.toggle("open", isOpen);
+    }
+
+    menuButton.addEventListener("click", () => {
+      const isOpen = menuButton.getAttribute("aria-expanded") === "true";
+      setMenuOpen(!isOpen);
+    });
+
+    menuPanel.addEventListener("click", (event) => {
+      if (event.target.closest("a")) {
+        setMenuOpen(false);
+      }
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!menuPanel.contains(event.target) && !menuButton.contains(event.target)) setMenuOpen(false);
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && menuButton.getAttribute("aria-expanded") === "true") {
+        setMenuOpen(false);
+        menuButton.focus();
+      }
+    });
+
+    document.querySelectorAll("a[href]").forEach((link) => {
+      link.addEventListener("click", (event) => {
+        const destination = new URL(link.href, location.href);
+        if (!["http:", "https:"].includes(destination.protocol)) return;
+        if (destination.origin === location.origin && destination.pathname === location.pathname) return;
+        event.preventDefault();
+        document.body.classList.add("page-leaving");
+        const delay = matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 160;
+        window.setTimeout(() => { location.href = destination.href; }, delay);
+      });
+    });
+
+    document.querySelector("#enquiry-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      if (!form.reportValidity()) return;
+      const values = new FormData(form);
+      const button = form.querySelector(".submit");
+      const status = document.querySelector("#form-status");
+      const payload = Object.fromEntries(values.entries());
+      payload._subject = `Website enquiry: ${values.get("service")}`;
+      payload._replyto = values.get("email");
+
+      button.disabled = true;
+      status.textContent = "Sending your message…";
+      try {
+        const response = await fetch("https://formsubmit.co/ajax/enjdigitalconcept@gmail.com", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+        if (!response.ok || result.success !== true && result.success !== "true") {
+          throw new Error(result.message || `The form service returned ${response.status}.`);
+        }
+        form.reset();
+        status.textContent = "Your message was sent successfully. Thank you for contacting ENJ Digital Concept.";
+      } catch (error) {
+        console.error("Contact form submission failed:", error);
+        status.textContent = "We couldn’t send your message. Please try again or email enjdigitalconcept@gmail.com directly.";
+      } finally {
+        button.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
