@@ -473,15 +473,15 @@ export default function App() {
            ======================================================== */}
         {currentPage === 'home' && (
           <div className="animate-in fade-in duration-300">
-            {/* Hero Banner: Scaled down with generous vertical balance */}
-            <div className="w-full m-0 p-0 mb-12 sm:mb-16">
-              <div className="relative w-full min-h-[480px] sm:min-h-[520px] md:min-h-[560px] overflow-hidden text-white shadow-xl flex flex-col justify-center items-center px-4 sm:px-8 md:px-12 pt-24 sm:pt-28 pb-16 sm:pb-20 isolate">
+            {/* Hero Banner: Fullscreen viewport height (100dvh) fitting any screen before scrolling */}
+            <div className="w-full m-0 p-0 relative">
+              <div className="relative w-full h-[100dvh] min-h-[560px] overflow-hidden text-white flex flex-col justify-between items-center px-4 sm:px-8 md:px-12 pt-20 sm:pt-24 pb-6 sm:pb-8 isolate">
                 
-                {/* 1. Background Image */}
+                {/* 1. Background Image - Responsive cover for all screen aspect ratios */}
                 <img
                   src="/hero-bg.png"
                   alt="Industrial Digital Printing Press"
-                  className="absolute inset-0 w-full h-full object-cover object-center z-0 scale-105 transition-transform duration-1000 ease-out"
+                  className="absolute inset-0 w-full h-full object-cover object-center z-0 scale-102 transition-transform duration-1000 ease-out"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = '/assets/aistudio/image_699b0ca6.png';
                   }}
@@ -504,13 +504,16 @@ export default function App() {
                   }}
                 />
 
+                {/* Top spacer to balance navbar */}
+                <div className="h-2 sm:h-4 w-full" aria-hidden="true" />
+
                 {/* Center Content: Heading, Description, and CTAs */}
-                <div className="relative z-10 max-w-2xl mx-auto text-center flex flex-col items-center">
-                  <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-semibold leading-[1.12] tracking-tight mb-4 text-white drop-shadow-sm">
+                <div className="relative z-10 max-w-2xl mx-auto text-center flex flex-col items-center my-auto px-2">
+                  <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold leading-[1.12] tracking-tight mb-3 sm:mb-4 text-white drop-shadow-sm">
                     High-quality prints, delivered right on time.
                   </h1>
                   
-                  <p className="text-slate-200/90 text-xs sm:text-sm leading-relaxed max-w-lg mx-auto mb-8 font-normal drop-shadow-xs">
+                  <p className="text-slate-200/90 text-xs sm:text-sm md:text-base leading-relaxed max-w-lg mx-auto mb-6 sm:mb-8 font-normal drop-shadow-xs">
                     Turning ideas into striking physical realities. As Maiduguri’s premier printing powerhouse, we specialize in high-impact print solutions for ambitious brands, corporate organizations, and creative individuals.
                   </p>
 
@@ -530,11 +533,29 @@ export default function App() {
                     </button>
                   </div>
                 </div>
+
+                {/* Bottom Scroll Cue */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const el = document.getElementById('services-section');
+                    el?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="relative z-10 flex flex-col items-center gap-1.5 opacity-75 hover:opacity-100 transition-opacity cursor-pointer group pb-1"
+                  aria-label="Scroll to services"
+                >
+                  <span className="text-[10px] uppercase tracking-widest text-slate-300 font-medium group-hover:text-white transition-colors">
+                    Scroll to explore
+                  </span>
+                  <div className="w-4 h-7 rounded-full border border-white/40 group-hover:border-white/80 transition-colors flex justify-center pt-1.5">
+                    <span className="w-1 h-1.5 rounded-full bg-[#f47b20] animate-bounce" />
+                  </div>
+                </button>
               </div>
             </div>
 
             {/* Section: Print Services Grid - Contained with proper luxury whitespace */}
-            <div className="max-w-5xl mx-auto px-4 sm:px-6 mt-14 sm:mt-18">
+            <div id="services-section" className="max-w-5xl mx-auto px-4 sm:px-6 pt-12 sm:pt-16 pb-6">
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
                 <div>
                   <p className="text-[10px] font-bold tracking-widest text-[#6e6e73] uppercase mb-1.5">What we do</p>
@@ -704,7 +725,7 @@ export default function App() {
                   onClick={() => navigateTo('shop')}
                   className="whitespace-nowrap px-5 py-2.5 rounded-full bg-[#f47b20] hover:bg-[#c95510] text-white text-xs font-semibold tracking-wide transition-colors cursor-pointer shadow-xs"
                 >
-                  Launch Store App
+                  Start Order
                 </button>
               </div>
             </div>
