@@ -149,232 +149,152 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome }: 
   return (
     <div className="min-h-screen bg-[#fafafa] text-[#1d1d1f] flex flex-col pb-20 animate-in fade-in duration-200">
       
-      {/* Standalone Simple Shop Header */}
-      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-200/80 px-4 sm:px-6 py-2.5 shadow-xs">
-        <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
-          
-          {/* Back to main website & brand */}
-          <div className="flex items-center gap-2.5">
-            <button
-              onClick={onNavigateHome}
-              className="inline-flex items-center gap-1.5 px-3 py-1.2 rounded-full border border-gray-200 hover:bg-gray-100 text-xs font-semibold text-gray-700 transition-colors cursor-pointer"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Main Website</span>
-            </button>
+      {/* Floating Shop Navigation Header matching the website navbar */}
+      <header className="fixed top-3 sm:top-5 left-1/2 -translate-x-1/2 z-50 w-[min(780px,calc(100%-32px))] pointer-events-auto">
+        <nav className="glass-pill rounded-full px-2.5 sm:px-4 py-1.5 flex items-center justify-between gap-2 sm:gap-4 shadow-[0_16px_36px_-6px_rgba(0,0,0,0.14),0_3px_12px_rgba(0,0,0,0.06)] border border-white/85">
+          {/* 1. Main Website */}
+          <button
+            onClick={onNavigateHome}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-black/5 text-[#1d1d1f] hover:text-[#f47b20] text-xs font-semibold transition-colors cursor-pointer shrink-0"
+            title="Return to Main Website"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span className="text-[11px] sm:text-xs">Main Website</span>
+          </button>
 
-            <div className="flex items-center gap-1.5 pl-1">
-              <span className="w-2 h-2 rounded-full bg-[#f47b20] animate-pulse" />
-              <strong className="font-display text-sm font-bold text-[#1d1d1f]">
-                ENJ Store
-              </strong>
-            </div>
-          </div>
-
-          {/* Search bar & Cart */}
-          <div className="flex items-center gap-2.5">
-            <div className="relative hidden sm:block w-48 md:w-64">
-              <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                placeholder="Search items…"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-8 pr-3 py-1.2 text-xs bg-gray-50 border border-gray-200 rounded-full outline-none focus:border-[#f47b20] focus:bg-white transition-all"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              )}
-            </div>
-
-            {/* Paystack Powered Cart Button */}
-            <button
-              onClick={openCart}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#1d1d1f] hover:bg-[#3a3a3c] text-white text-xs font-semibold transition-all shadow-xs cursor-pointer"
-            >
-              <ShoppingCart className="w-3.5 h-3.5 text-[#f47b20]" />
-              <span>Cart</span>
-              {totalCartCount > 0 && (
-                <span className="px-1.5 py-0.2 rounded-full bg-[#f47b20] text-white text-[10px] font-bold">
-                  {totalCartCount}
-                </span>
-              )}
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile Search */}
-        <div className="sm:hidden mt-2 max-w-5xl mx-auto">
-          <div className="relative w-full">
-            <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          {/* 2. Search Panel */}
+          <div className="relative flex-1 max-w-xs sm:max-w-sm">
+            <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
-              placeholder="Search items…"
+              placeholder="Search products…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 text-xs bg-gray-50 border border-gray-200 rounded-full outline-none focus:border-[#f47b20]"
+              className="w-full pl-8 pr-7 py-1 text-xs bg-black/5 hover:bg-black/8 focus:bg-white border border-transparent focus:border-gray-200 rounded-full outline-none transition-all placeholder:text-gray-400 text-[#1d1d1f]"
             />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black p-0.5 cursor-pointer"
+                title="Clear search"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            )}
           </div>
-        </div>
+
+          {/* 3. Cart Icon */}
+          <button
+            onClick={openCart}
+            className="relative p-2 rounded-full bg-[#1d1d1f] hover:bg-[#3a3a3c] text-white transition-all shadow-xs cursor-pointer shrink-0 flex items-center justify-center hover:scale-105 active:scale-95"
+            aria-label="View shopping cart"
+            title="View shopping cart"
+          >
+            <ShoppingCart className="w-3.5 h-3.5 text-white" />
+            {totalCartCount > 0 && (
+              <span className="absolute -top-1 -right-1 px-1.2 py-0.2 min-w-4 h-4 rounded-full bg-[#f47b20] text-white text-[9px] font-bold flex items-center justify-center shadow-xs">
+                {totalCartCount}
+              </span>
+            )}
+          </button>
+        </nav>
       </header>
 
-      {/* Store Title & Paystack Assurance */}
-      <div className="max-w-5xl mx-auto w-full px-4 sm:px-6 pt-6 pb-4">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-gray-200 pb-4">
-          <div>
-            <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-[#1d1d1f]">
-              Digital Prints & Supplies
-            </h1>
-            <p className="text-xs text-[#6e6e73] mt-0.5">
-              Click any item to view photos, choose colors or sizes, and checkout via Paystack.
-            </p>
+      {/* Clean Category Filter Pills (direct access without unnecessary banner) */}
+      <div className="max-w-5xl mx-auto w-full px-4 sm:px-6 pt-18 sm:pt-20 pb-3">
+        <div className="flex items-center justify-between gap-3 overflow-x-auto pb-1 scrollbar-none">
+          <div className="flex items-center gap-1.5 shrink-0">
+            {CATEGORIES.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`whitespace-nowrap px-3 py-1.5 rounded-full text-xs transition-all cursor-pointer ${
+                  selectedCategory === cat
+                    ? 'bg-[#1d1d1f] text-white font-semibold shadow-xs'
+                    : 'bg-white hover:bg-gray-100 text-gray-600 border border-gray-200/90'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
           </div>
 
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/70 text-emerald-800 text-[11px] font-medium self-start sm:self-auto">
-            <CreditCard className="w-3 h-3 text-emerald-600" />
-            <span>Paystack Secure Checkout</span>
-          </div>
-        </div>
-
-        {/* Category Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pt-4 pb-1 scrollbar-none">
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs transition-all cursor-pointer ${
-                selectedCategory === cat
-                  ? 'bg-[#1d1d1f] text-white font-semibold shadow-xs'
-                  : 'bg-white hover:bg-gray-100 text-gray-700 border border-gray-200'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
+          <span className="text-[11px] text-gray-400 hidden md:inline shrink-0">
+            {filteredProducts.length} {filteredProducts.length === 1 ? 'item' : 'items'}
+          </span>
         </div>
       </div>
 
-      {/* Simple Product Grid */}
+      {/* Simple, Streamlined Product Grid */}
       <div className="max-w-5xl mx-auto w-full px-4 sm:px-6">
         {filteredProducts.length === 0 ? (
           <div className="text-center py-16 bg-white rounded-2xl border border-gray-200 my-4">
             <Package className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-            <p className="text-xs font-semibold text-gray-700">No products match your filter</p>
+            <p className="text-xs font-semibold text-gray-700">No products found</p>
             <button
               onClick={() => { setSelectedCategory('All'); setSearchQuery(''); }}
-              className="mt-2 px-3 py-1 rounded-full bg-gray-100 text-xs font-medium text-gray-800 hover:bg-gray-200"
+              className="mt-2 px-3 py-1 rounded-full bg-gray-100 text-xs font-medium text-gray-800 hover:bg-gray-200 cursor-pointer"
             >
               Reset Filters
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
             {filteredProducts.map((product) => {
               const isAdded = addedProductId === product.id;
-              const hasVariants = Boolean(
-                (product.availableColors && product.availableColors.length > 0) || 
-                (product.availableSizes && product.availableSizes.length > 0)
-              );
 
               return (
                 <div
                   key={product.id}
                   onClick={() => handleOpenProductDetail(product)}
-                  className="group bg-white rounded-2xl border border-gray-200/90 overflow-hidden shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between cursor-pointer"
+                  className="group bg-white rounded-2xl border border-gray-200/80 overflow-hidden shadow-xs hover:shadow-xl transition-shadow duration-300 flex flex-col justify-between cursor-pointer"
                 >
-                  {/* Image with quick view hint */}
-                  <div className="relative h-44 bg-gray-100 overflow-hidden">
+                  {/* Image */}
+                  <div className="relative aspect-4/3 bg-gray-100 overflow-hidden">
                     <img
                       src={product.imageUrl}
                       alt={product.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
                       loading="lazy"
                     />
-                    <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-xs text-white text-[10px] font-medium">
-                      {product.category}
-                    </span>
-
-                    {/* Has Options / Photos badge */}
-                    {product.gallery && product.gallery.length > 1 && (
-                      <span className="absolute bottom-2 left-2 px-2 py-0.5 rounded-md bg-white/90 backdrop-blur-xs text-[10px] font-semibold text-gray-800 shadow-xs">
-                        +{product.gallery.length} photos
+                    {product.compareAtPrice && product.compareAtPrice > product.price && (
+                      <span className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-[#f47b20] text-white text-[9px] font-bold">
+                        Sale
                       </span>
                     )}
-
-                    <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white text-[#1d1d1f] text-xs font-semibold shadow-md">
-                        <Eye className="w-3 h-3 text-[#f47b20]" />
-                        <span>View Details</span>
-                      </span>
-                    </div>
                   </div>
 
                   {/* Info */}
-                  <div className="p-3.5 flex-1 flex flex-col justify-between">
+                  <div className="p-3 flex-1 flex flex-col justify-between">
                     <div>
-                      <h3 className="font-semibold text-xs sm:text-sm text-[#1d1d1f] line-clamp-2 leading-snug group-hover:text-[#f47b20] transition-colors mb-1">
+                      <p className="text-[10px] text-gray-400 mb-0.5 uppercase tracking-wider font-medium">
+                        {product.category}
+                      </p>
+                      <h3 className="font-semibold text-xs sm:text-[13px] text-[#1d1d1f] line-clamp-2 leading-snug mb-1">
                         {product.title}
                       </h3>
-                      <p className="text-[11px] text-[#6e6e73] line-clamp-2 leading-relaxed mb-2.5">
-                        {product.description}
-                      </p>
-
-                      {/* Variant Preview Badges */}
-                      {hasVariants && (
-                        <div className="flex flex-wrap gap-1 mb-2">
-                          {product.availableColors && product.availableColors.length > 0 && (
-                            <span className="text-[10px] text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100">
-                              {product.availableColors.length} colors
-                            </span>
-                          )}
-                          {product.availableSizes && product.availableSizes.length > 0 && (
-                            <span className="text-[10px] text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100">
-                              {product.availableSizes.length} sizes
-                            </span>
-                          )}
-                        </div>
-                      )}
                     </div>
 
-                    <div className="pt-2.5 border-t border-gray-100 flex items-center justify-between gap-2 mt-auto">
-                      <div>
-                        <span className="font-display text-sm sm:text-base font-bold text-[#1d1d1f] block leading-tight">
-                          {formatNaira(product.price)}
-                        </span>
-                        <span className="text-[10px] text-gray-400">
-                          Min: {product.minOrderQty} {product.unit}
-                        </span>
-                      </div>
+                    <div className="pt-2 flex items-center justify-between gap-2 mt-auto">
+                      <span className="font-display text-xs sm:text-sm font-bold text-[#1d1d1f]">
+                        {formatNaira(product.price)}
+                      </span>
 
                       <button
+                        type="button"
                         onClick={(e) => handleQuickAdd(product, e)}
-                        className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                        className={`p-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
                           isAdded
                             ? 'bg-emerald-600 text-white'
-                            : 'bg-[#f47b20] hover:bg-[#c95510] text-white active:scale-95 shadow-xs'
+                            : 'bg-gray-100 hover:bg-[#f47b20] hover:text-white text-gray-700'
                         }`}
-                        title={hasVariants ? "Choose options" : "Add to Cart"}
+                        title="Add to Cart"
                       >
                         {isAdded ? (
-                          <>
-                            <Check className="w-3 h-3" />
-                            <span>Added</span>
-                          </>
-                        ) : hasVariants ? (
-                          <>
-                            <span>Select</span>
-                            <ChevronRight className="w-3 h-3" />
-                          </>
+                          <Check className="w-3.5 h-3.5" />
                         ) : (
-                          <>
-                            <Plus className="w-3 h-3 stroke-[2.5]" />
-                            <span>Add</span>
-                          </>
+                          <Plus className="w-3.5 h-3.5" />
                         )}
                       </button>
                     </div>
@@ -386,10 +306,9 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome }: 
         )}
       </div>
 
-      {/* Trust Footer Note */}
-      <div className="max-w-5xl mx-auto w-full px-4 sm:px-6 mt-12 text-center text-xs text-gray-400 flex items-center justify-center gap-2">
-        <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-        <span>Payments processed safely via Paystack. Direct delivery within Maiduguri & nationwide.</span>
+      {/* Minimal Footer */}
+      <div className="max-w-5xl mx-auto w-full px-4 sm:px-6 mt-10 text-center text-[11px] text-gray-400">
+        <span>ENJ Digital Concept Store • Instant Orders & Delivery</span>
       </div>
 
       {/* ========================================================
@@ -462,37 +381,56 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome }: 
                   )}
                 </div>
 
-                {/* Right: Product Details, Color, Size & Actions */}
+                {/* Right: Product Details, Options, & Actions */}
                 <div className="flex flex-col justify-between space-y-4">
-                  <div>
-                    <h2 className="font-display text-lg sm:text-xl font-bold text-[#1d1d1f] leading-snug mb-1.5">
-                      {selectedProduct.title}
-                    </h2>
-
-                    {/* Price Block */}
-                    <div className="flex items-baseline gap-2 mb-3">
-                      <span className="font-display text-2xl font-bold text-[#1d1d1f]">
-                        {formatNaira(selectedProduct.price)}
-                      </span>
-                      {selectedProduct.compareAtPrice && selectedProduct.compareAtPrice > selectedProduct.price && (
-                        <span className="text-xs text-gray-400 line-through">
-                          {formatNaira(selectedProduct.compareAtPrice)}
+                  <div className="space-y-3.5">
+                    
+                    {/* 1. Title & Price */}
+                    <div>
+                      <h2 className="font-display text-lg sm:text-xl font-bold text-[#1d1d1f] leading-snug">
+                        {selectedProduct.title}
+                      </h2>
+                      
+                      <div className="flex items-center gap-2.5 mt-1.5 flex-wrap">
+                        <span className="font-display text-2xl font-bold text-[#1d1d1f]">
+                          {formatNaira(selectedProduct.price)}
                         </span>
-                      )}
-                      <span className="text-[11px] text-gray-500">/ {selectedProduct.unit}</span>
+                        <span className="text-xs text-gray-500 font-medium">
+                          / {selectedProduct.unit}
+                        </span>
+                        {selectedProduct.compareAtPrice && selectedProduct.compareAtPrice > selectedProduct.price && (
+                          <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-semibold border border-emerald-200/80">
+                            Save {formatNaira(selectedProduct.compareAtPrice - selectedProduct.price)}
+                          </span>
+                        )}
+                      </div>
                     </div>
 
-                    {/* Full Description */}
-                    <p className="text-xs text-gray-600 leading-relaxed mb-4">
-                      {selectedProduct.description}
-                    </p>
+                    {/* 2. Simple & Understandable Description Box */}
+                    <div className="p-3.5 rounded-2xl bg-gray-50 border border-gray-100/90 text-xs text-gray-700 space-y-2.5">
+                      <p className="leading-relaxed text-gray-600">
+                        {selectedProduct.description}
+                      </p>
+                      
+                      {/* Simple Key Details Grid */}
+                      <div className="pt-2 border-t border-gray-200/60 grid grid-cols-2 gap-2 text-[11px]">
+                        <div className="flex items-center gap-1.5 text-gray-600">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                          <span>Quality Guaranteed</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-gray-600">
+                          <Package className="w-3.5 h-3.5 text-[#f47b20] shrink-0" />
+                          <span>Min: {selectedProduct.minOrderQty} {selectedProduct.unit}</span>
+                        </div>
+                      </div>
+                    </div>
 
-                    {/* CHOICE OF COLOR */}
+                    {/* 3. Choice of Color (if provided) */}
                     {selectedProduct.availableColors && selectedProduct.availableColors.length > 0 && (
-                      <div className="mb-4">
-                        <div className="flex items-center justify-between text-xs mb-1.5">
-                          <span className="font-semibold text-gray-700">Choice of Color:</span>
-                          <span className="font-bold text-[#f47b20]">{selectedColor}</span>
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-semibold text-gray-700">Choose Color:</span>
+                          <span className="font-bold text-[#f47b20] text-[11px]">{selectedColor}</span>
                         </div>
                         <div className="flex flex-wrap gap-1.5">
                           {selectedProduct.availableColors.map((color) => {
@@ -502,7 +440,7 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome }: 
                                 key={color}
                                 type="button"
                                 onClick={() => setSelectedColor(color)}
-                                className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 ${
+                                className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 ${
                                   isSelected
                                     ? 'bg-[#1d1d1f] text-white border-[#1d1d1f] shadow-xs'
                                     : 'bg-white hover:bg-gray-100 text-gray-700 border-gray-200'
@@ -517,12 +455,12 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome }: 
                       </div>
                     )}
 
-                    {/* CHOICE OF SIZE / DIMENSIONS */}
+                    {/* 4. Choice of Size / Specification (if provided) */}
                     {selectedProduct.availableSizes && selectedProduct.availableSizes.length > 0 && (
-                      <div className="mb-4">
-                        <div className="flex items-center justify-between text-xs mb-1.5">
-                          <span className="font-semibold text-gray-700">Choice of Size / Spec:</span>
-                          <span className="font-bold text-[#f47b20]">{selectedSize}</span>
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-semibold text-gray-700">Choose Size / Spec:</span>
+                          <span className="font-bold text-[#f47b20] text-[11px]">{selectedSize}</span>
                         </div>
                         <div className="flex flex-wrap gap-1.5">
                           {selectedProduct.availableSizes.map((size) => {
@@ -532,7 +470,7 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome }: 
                                 key={size}
                                 type="button"
                                 onClick={() => setSelectedSize(size)}
-                                className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 ${
+                                className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 ${
                                   isSelected
                                     ? 'bg-[#1d1d1f] text-white border-[#1d1d1f] shadow-xs'
                                     : 'bg-white hover:bg-gray-100 text-gray-700 border-gray-200'
@@ -547,27 +485,29 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome }: 
                       </div>
                     )}
 
-                    {/* Quantity Selector */}
-                    <div className="flex items-center justify-between text-xs pt-2 border-t border-gray-100">
+                    {/* 5. Quantity Stepper */}
+                    <div className="flex items-center justify-between text-xs p-3 rounded-xl bg-gray-50 border border-gray-100">
                       <div>
-                        <span className="font-semibold text-gray-700 block">Quantity</span>
-                        <span className="text-[10px] text-gray-400">Min. order: {selectedProduct.minOrderQty} {selectedProduct.unit}</span>
+                        <span className="font-semibold text-gray-800 block">Quantity</span>
+                        <span className="text-[10px] text-gray-400">Order amount in {selectedProduct.unit}</span>
                       </div>
-                      <div className="flex items-center border border-gray-200 rounded-lg bg-white">
+                      <div className="flex items-center border border-gray-200 rounded-lg bg-white shadow-2xs">
                         <button
                           type="button"
                           onClick={() => setModalQuantity(q => Math.max(selectedProduct.minOrderQty || 1, q - 1))}
-                          className="px-2.5 py-1 text-gray-600 hover:text-black cursor-pointer"
+                          className="px-2.5 py-1.5 text-gray-600 hover:text-black cursor-pointer"
+                          aria-label="Decrease quantity"
                         >
                           <Minus className="w-3 h-3" />
                         </button>
-                        <span className="px-2 text-xs font-bold text-gray-900">
+                        <span className="px-3 text-xs font-bold text-gray-900">
                           {modalQuantity}
                         </span>
                         <button
                           type="button"
                           onClick={() => setModalQuantity(q => q + 1)}
-                          className="px-2.5 py-1 text-gray-600 hover:text-black cursor-pointer"
+                          className="px-2.5 py-1.5 text-gray-600 hover:text-black cursor-pointer"
+                          aria-label="Increase quantity"
                         >
                           <Plus className="w-3 h-3" />
                         </button>
@@ -575,11 +515,11 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome }: 
                     </div>
                   </div>
 
-                  {/* Actions: Add to Cart & WhatsApp */}
-                  <div className="pt-3 border-t border-gray-100 space-y-2">
-                    <div className="flex items-center justify-between text-xs font-medium text-gray-500 mb-1">
-                      <span>Total Price:</span>
-                      <span className="font-display text-base font-bold text-[#1d1d1f]">
+                  {/* 6. Order Actions */}
+                  <div className="pt-2 border-t border-gray-100 space-y-2">
+                    <div className="flex items-center justify-between text-xs mb-1">
+                      <span className="text-gray-500 font-medium">Total:</span>
+                      <span className="font-display text-lg font-bold text-[#1d1d1f]">
                         {formatNaira(selectedProduct.price * modalQuantity)}
                       </span>
                     </div>
@@ -587,10 +527,10 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome }: 
                     <button
                       type="button"
                       onClick={handleModalAddToCart}
-                      className={`w-full py-2.5 rounded-full text-xs font-semibold shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                      className={`w-full py-2.5 rounded-full text-xs font-semibold shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer ${
                         isAddedInModal
                           ? 'bg-emerald-600 text-white'
-                          : 'bg-[#f47b20] hover:bg-[#c95510] text-white active:scale-95'
+                          : 'bg-[#f47b20] hover:bg-[#c95510] text-white active:scale-98'
                       }`}
                     >
                       {isAddedInModal ? (
@@ -600,7 +540,7 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome }: 
                         </>
                       ) : (
                         <>
-                          <ShoppingCart className="w-3.5 h-3.5" />
+                          <ShoppingCart className="w-4 h-4" />
                           <span>Add to Cart ({formatNaira(selectedProduct.price * modalQuantity)})</span>
                         </>
                       )}
@@ -608,7 +548,7 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome }: 
 
                     <a
                       href={`https://wa.me/2348133535756?text=${encodeURIComponent(
-                        `Hello ENJ Digital Concept! I am interested in: ${selectedProduct.title}\nQuantity: ${modalQuantity} ${selectedProduct.unit}${selectedColor ? `\nColor: ${selectedColor}` : ''}${selectedSize ? `\nSize/Spec: ${selectedSize}` : ''}\nPrice: ${formatNaira(selectedProduct.price * modalQuantity)}`
+                        `Hello ENJ Digital Concept! I am interested in: ${selectedProduct.title}\nQuantity: ${modalQuantity} ${selectedProduct.unit}${selectedColor ? `\nColor: ${selectedColor}` : ''}${selectedSize ? `\nSize/Spec: ${selectedSize}` : ''}\nTotal: ${formatNaira(selectedProduct.price * modalQuantity)}`
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"
