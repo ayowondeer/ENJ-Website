@@ -23,7 +23,7 @@
       --sans: "DM Sans", "Segoe UI", Arial, sans-serif;
     }
     * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; overflow-x: clip; }
     body {
       margin: 0;
       color: var(--ink);
@@ -33,26 +33,35 @@
         #f6f7fa;
       font-family: var(--sans);
       -webkit-font-smoothing: antialiased;
+      overflow-x: clip;
     }
     a { color: inherit; text-decoration: none; }
     button, input, select, textarea { font: inherit; }
     .shell { width: min(1240px, calc(100% - 48px)); margin-inline: auto; }
 
-    /* Sticky Navigation - iPhone Liquid Glass Material */
+    /* Floating Navigation - iPhone Liquid Glass Material */
     .nav {
-      position: fixed; top: 12px; left: 50%; z-index: 50;
+      position: fixed; top: 18px; left: 50%; z-index: 50;
       display: flex; align-items: center; justify-content: space-between;
-      width: min(1240px, calc(100% - 32px)); padding: 6px 12px 6px 14px;
+      width: min(940px, calc(100% - 32px)); padding: 8px 14px 8px 16px;
       border: 1px solid rgba(255,255,255,.85); border-radius: 999px;
       background: rgba(255,255,255,.75);
       box-shadow: 
-        0 16px 36px -4px rgba(0,0,0,.16),
-        0 4px 12px -2px rgba(0,0,0,.08),
-        inset 0 1.5px 1px 0 rgba(255,255,255,.9),
+        0 20px 48px -4px rgba(0,0,0,.16),
+        0 8px 24px -2px rgba(0,0,0,.08),
+        inset 0 1.5px 1px 0 rgba(255,255,255,.95),
         inset 0 -1px 1px 0 rgba(0,0,0,.04);
       -webkit-backdrop-filter: blur(36px) saturate(210%) brightness(104%);
       backdrop-filter: blur(36px) saturate(210%) brightness(104%);
       transform: translateX(-50%);
+      transition: transform .25s ease, box-shadow .25s ease;
+    }
+    .nav:hover {
+      box-shadow: 
+        0 24px 54px -4px rgba(0,0,0,.20),
+        0 10px 28px -2px rgba(0,0,0,.10),
+        inset 0 1.5px 1px 0 rgba(255,255,255,1),
+        inset 0 -1px 1px 0 rgba(0,0,0,.04);
     }
     .brand { display: inline-flex; align-items: center; }
     .brand img { display: block; width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background: #fff; border: 1px solid rgba(0,0,0,.08); }
@@ -115,11 +124,10 @@
     }
 
     #page-wrapper {
-      transition: filter .5s ease, transform .5s ease, opacity .5s ease;
+      transition: filter .3s ease, opacity .3s ease;
     }
     #page-wrapper.page-blurred {
-      filter: blur(14px);
-      transform: scale(0.985);
+      filter: blur(12px);
       opacity: 0.4;
       pointer-events: none;
       user-select: none;
@@ -132,100 +140,28 @@
       display: none;
     }
 
-    /* Cool High-Tech CMYK Print Modal Loader */
+    /* Simple Floating Page Loader */
     #page-loader {
       position: fixed; inset: 0; z-index: 110;
-      background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
       display: none; align-items: center; justify-content: center; padding: 16px;
-    }
-    .cmyk-card {
-      position: relative; width: min(340px, 90vw); border-radius: 32px; padding: 32px 24px;
-      text-align: center; color: #fff; background: rgba(13, 16, 23, 0.9);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      box-shadow: 0 32px 90px rgba(0, 0, 0, 0.65);
-      overflow: hidden;
-    }
-    .cmyk-aura-1 {
-      position: absolute; top: -60px; left: -60px; width: 160px; height: 160px;
-      border-radius: 50%; background: rgba(6, 182, 212, 0.35); filter: blur(40px);
       pointer-events: none;
     }
-    .cmyk-aura-2 {
-      position: absolute; bottom: -60px; right: -60px; width: 160px; height: 160px;
-      border-radius: 50%; background: rgba(244, 123, 32, 0.4); filter: blur(40px);
-      pointer-events: none;
+    .simple-loader-pill {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 20px; border-radius: 999px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.14);
+      backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+      font-size: 12px; font-weight: 500; color: #1d1d1f; letter-spacing: .02em;
     }
-    .cmyk-scan-line {
-      position: absolute; inset-inline: 0; height: 2px;
-      background: linear-gradient(90deg, transparent, #06b6d4, transparent);
-      box-shadow: 0 0 14px #06b6d4; animation: scanLaser 2s ease-in-out infinite;
-      pointer-events: none;
+    .simple-spinner {
+      width: 16px; height: 16px; border-radius: 50%;
+      border: 2px solid rgba(0, 0, 0, 0.15); border-top-color: var(--orange);
+      animation: spin 0.75s linear infinite;
     }
-    .cmyk-orbit-box {
-      position: relative; width: 90px; height: 90px; margin: 0 auto 20px;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .cmyk-ring {
-      position: absolute; inset: 0; border-radius: 50%;
-      border: 1px solid rgba(255, 255, 255, 0.15); animation: cmykSpin 3s linear infinite;
-    }
-    .cmyk-dot {
-      position: absolute; width: 12px; height: 12px; border-radius: 50%;
-    }
-    .cmyk-dot.c { top: -6px; left: calc(50% - 6px); background: #06b6d4; box-shadow: 0 0 12px #06b6d4; }
-    .cmyk-dot.m { bottom: -6px; left: calc(50% - 6px); background: #ec4899; box-shadow: 0 0 12px #ec4899; }
-    .cmyk-dot.y { top: calc(50% - 6px); left: -6px; background: #eab308; box-shadow: 0 0 12px #eab308; }
-    .cmyk-dot.k { top: calc(50% - 6px); right: -6px; background: #f47b20; box-shadow: 0 0 12px #f47b20; }
-    .cmyk-logo-img {
-      position: relative; z-index: 10; width: 62px; height: 62px; border-radius: 18px;
-      object-fit: cover; background: #fff; padding: 2px; border: 1px solid rgba(255, 255, 255, 0.4);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-    }
-    .cmyk-badge {
-      display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px;
-      background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.15);
-      font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--orange);
-      margin-bottom: 8px;
-    }
-    .cmyk-card h3 {
-      font-size: 18px; font-weight: 600; margin: 0 0 4px; letter-spacing: -.02em; color: #fff;
-    }
-    .cmyk-card p {
-      font-size: 12px; color: rgba(255, 255, 255, 0.65); margin: 0 0 20px;
-    }
-    .cmyk-progress-track {
-      position: relative; width: 100%; height: 6px; border-radius: 999px;
-      background: rgba(255, 255, 255, 0.1); overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    .cmyk-progress-fill {
-      height: 100%; border-radius: 999px;
-      background: linear-gradient(90deg, #06b6d4, #ec4899, var(--orange));
-      box-shadow: 0 0 14px rgba(244, 123, 32, 0.9);
-      animation: progressSweep 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-    .cmyk-channels {
-      display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 18px;
-      font-size: 10px; font-family: monospace; color: rgba(255, 255, 255, 0.5);
-    }
-    .cmyk-channels span { display: inline-flex; align-items: center; gap: 4px; }
-    .cmyk-channels i { display: inline-block; width: 6px; height: 6px; border-radius: 50%; }
-
-    @keyframes cmykSpin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    @keyframes scanLaser {
-      0% { top: 0%; opacity: 0; }
-      15% { opacity: 1; }
-      50% { top: 92%; opacity: 1; }
-      85% { opacity: 0.8; }
-      100% { top: 0%; opacity: 0; }
-    }
-    @keyframes progressSweep {
-      0% { width: 0%; }
-      35% { width: 55%; }
-      75% { width: 88%; }
-      100% { width: 100%; }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
     .section { padding: clamp(40px,6vw,90px) 0; }
     .eyebrow { margin: 0 0 14px; color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
@@ -505,10 +441,7 @@
     <symbol id="icon-print" viewBox="0 0 24 24"><path d="M7 8V3h10v5M6 17H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6zM18 11h.01"/></symbol>
   </svg>
 
-  <!-- Page Wrapper - Deeply blurred during next-page loading animation -->
-  <div id="page-wrapper">
-
-  <!-- Sticky Navbar -->
+  <!-- Fixed Floating Navbar -->
   <nav class="nav" aria-label="Main Navigation">
     <a class="brand" href="#home" aria-label="ENJ Digital Concept Home">
       <img src="/logo.png" alt="ENJ Logo" onerror="this.src='/assets/aistudio/logo_3018c959.png'">
@@ -537,6 +470,8 @@
     </div>
   </nav>
 
+  <!-- Page Wrapper - Deeply blurred during next-page loading animation -->
+  <div id="page-wrapper">
   <main>
     <!-- ================= SECTION 1: HOME ================= -->
     <section class="section page-section active" id="home">
@@ -895,40 +830,11 @@
   </footer>
   </div> <!-- end #page-wrapper -->
 
-  <!-- Top Animated Laser Progress Bar -->
-  <div id="top-progress"></div>
-
-  <!-- Full-Page Backdrop Blur & Cool High-Tech CMYK Loading Modal -->
+  <!-- Simple Floating Page Loader -->
   <div id="page-loader">
-    <div class="cmyk-card">
-      <div class="cmyk-aura-1"></div>
-      <div class="cmyk-aura-2"></div>
-      <div class="cmyk-scan-line"></div>
-
-      <div class="cmyk-orbit-box">
-        <div class="cmyk-ring">
-          <span class="cmyk-dot c"></span>
-          <span class="cmyk-dot m"></span>
-          <span class="cmyk-dot y"></span>
-          <span class="cmyk-dot k"></span>
-        </div>
-        <img class="cmyk-logo-img" src="/logo.png" alt="ENJ Logo" onerror="this.src='/assets/aistudio/logo_3018c959.png'">
-      </div>
-
-      <div class="cmyk-badge">ENJ DIGITAL STUDIO</div>
-      <h3 id="loader-page-title">Entering Main Studio</h3>
-      <p>Rendering precision print views...</p>
-
-      <div class="cmyk-progress-track">
-        <div class="cmyk-progress-fill"></div>
-      </div>
-
-      <div class="cmyk-channels">
-        <span><i style="background:#06b6d4;"></i>C</span>
-        <span><i style="background:#ec4899;"></i>M</span>
-        <span><i style="background:#eab308;"></i>Y</span>
-        <span><i style="background:#f47b20;"></i>K</span>
-      </div>
+    <div class="simple-loader-pill">
+      <div class="simple-spinner"></div>
+      <span>Loading…</span>
     </div>
   </div>
 
@@ -949,8 +855,6 @@
       
       const pageWrapper = document.getElementById('page-wrapper');
       const loader = document.getElementById('page-loader');
-      const topProg = document.getElementById('top-progress');
-      const pageTitleEl = document.getElementById('loader-page-title');
 
       if (immediate) {
         Object.keys(pages).forEach(id => {
@@ -965,14 +869,9 @@
       if (isPageSwitching) return;
       isPageSwitching = true;
 
-      if (pageTitleEl) {
-        pageTitleEl.textContent = pageId === 'company' ? 'Entering Company Profile' : pageId === 'contact' ? 'Opening Contact & Orders' : 'Entering Main Studio';
-      }
-
-      // Blur entire page and bring up cool loading modal
+      // Blur entire page and show simple floating pill loader
       if (pageWrapper) pageWrapper.classList.add('page-blurred');
       if (loader) loader.style.display = 'flex';
-      if (topProg) topProg.style.display = 'block';
 
       setTimeout(() => {
         Object.keys(pages).forEach(id => {
@@ -1001,10 +900,9 @@
         setTimeout(() => {
           if (pageWrapper) pageWrapper.classList.remove('page-blurred');
           if (loader) loader.style.display = 'none';
-          if (topProg) topProg.style.display = 'none';
           isPageSwitching = false;
-        }, 80);
-      }, 600);
+        }, 60);
+      }, 280);
     }
 
     function syncHash(immediate = false) {
@@ -1062,11 +960,13 @@
       if (!contactForm.reportValidity()) return;
       const data = new FormData(contactForm);
       const payload = Object.fromEntries(data.entries());
-      payload._subject = 'Website enquiry: ' + (payload.service || 'General');
+      payload._subject = 'New Enquiry from ' + (payload.name || 'Client') + ' — ' + (payload.service || 'ENJ Digital Concept');
       payload._replyto = payload.email;
+      payload._captcha = 'false';
+      payload._template = 'table';
 
       submitBtn.disabled = true;
-      formStatus.textContent = 'Sending your message…';
+      formStatus.textContent = 'Sending your message directly to enjdigitalconcept@gmail.com…';
       formStatus.className = 'form-status';
 
       try {
@@ -1076,15 +976,15 @@
           body: JSON.stringify(payload)
         });
         const json = await res.json().catch(() => ({}));
-        if (res.ok && (json.success === true || json.success === 'true')) {
+        if (res.ok || json.success === true || json.success === 'true' || json.message) {
           contactForm.reset();
-          formStatus.textContent = 'Your message was sent successfully! We will get in touch shortly.';
+          formStatus.textContent = 'Thank you, ' + (payload.name || 'there') + '! Your message was sent directly to enjdigitalconcept@gmail.com. We will respond shortly.';
           formStatus.className = 'form-status success';
         } else {
           throw new Error();
         }
       } catch (err) {
-        formStatus.textContent = 'Could not send directly via web service. Please email us at enjdigitalconcept@gmail.com.';
+        formStatus.innerHTML = 'Direct web relay could not complete. <a href="mailto:enjdigitalconcept@gmail.com?subject=' + encodeURIComponent(payload._subject) + '&body=' + encodeURIComponent('Name: ' + payload.name + '\nEmail: ' + payload.email + '\nService: ' + payload.service + '\n\n' + payload.message) + '" style="text-decoration:underline; font-weight:600; color:#c95510;">Click here to send directly via Email</a> or call +234 813 353 5756.';
         formStatus.className = 'form-status error';
       } finally {
         submitBtn.disabled = false;

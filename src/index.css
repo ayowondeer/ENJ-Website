@@ -15,6 +15,7 @@
   html {
     scroll-behavior: smooth;
     font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    overflow-x: clip;
   }
 
   body {
@@ -24,6 +25,7 @@
       radial-gradient(ellipse at 14% 28%, rgba(244, 123, 32, 0.08), transparent 34rem),
       radial-gradient(ellipse at 90% 72%, rgba(124, 156, 200, 0.1), transparent 38rem);
     -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
   }
 
   h1, h2, h3, .font-display {
@@ -37,9 +39,18 @@
   -webkit-backdrop-filter: blur(36px) saturate(210%) brightness(104%);
   border: 1px solid rgba(255, 255, 255, 0.85);
   box-shadow: 
-    0 16px 36px -4px rgba(0, 0, 0, 0.16),
-    0 4px 12px -2px rgba(0, 0, 0, 0.08),
-    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.9),
+    0 20px 48px -4px rgba(0, 0, 0, 0.16),
+    0 8px 24px -2px rgba(0, 0, 0, 0.08),
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.04);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+}
+
+.glass-pill:hover {
+  box-shadow: 
+    0 24px 54px -4px rgba(0, 0, 0, 0.20),
+    0 10px 28px -2px rgba(0, 0, 0, 0.10),
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 1),
     inset 0 -1px 1px 0 rgba(0, 0, 0, 0.04);
 }
 

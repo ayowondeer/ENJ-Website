@@ -1,0 +1,52 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "Store items offered by ENJ Digital Concept including print, signage, supplies, and solar systems.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "maxLength": 150 },
+        "description": { "type": "string", "maxLength": 2000 },
+        "category": { "type": "string", "maxLength": 100 },
+        "price": { "type": "number" },
+        "compareAtPrice": { "type": "number" },
+        "minOrderQty": { "type": "number" },
+        "unit": { "type": "string", "maxLength": 50 },
+        "imageUrl": { "type": "string", "maxLength": 1000 },
+        "inStock": { "type": "boolean" },
+        "featured": { "type": "boolean" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" },
+        "createdBy": { "type": "string", "maxLength": 128 }
+      },
+      "required": ["title", "description", "category", "price", "imageUrl", "inStock"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Customer quote or order submission placed via ENJ Digital Concept store.",
+      "type": "object",
+      "properties": {
+        "customerName": { "type": "string", "maxLength": 120 },
+        "customerEmail": { "type": "string", "maxLength": 150 },
+        "customerPhone": { "type": "string", "maxLength": 50 },
+        "customerAddress": { "type": "string", "maxLength": 300 },
+        "notes": { "type": "string", "maxLength": 1000 },
+        "itemsSummary": { "type": "string", "maxLength": 2000 },
+        "totalAmount": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending", "processing", "completed", "cancelled"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["customerName", "customerEmail", "customerPhone", "itemsSummary", "totalAmount", "status"]
+    }
+  },
+  "firestore": {
+    "/products/{productId}": {
+      "schema": "Product",
+      "description": "Public catalog of products sold by ENJ Digital Concept."
+    },
+    "/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Incoming customer orders and direct purchase inquiries."
+    }
+  }
+}
