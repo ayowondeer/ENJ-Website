@@ -329,7 +329,7 @@ export default function CartDrawer({
                 <input
                   type="text"
                   required
-                  placeholder="Aliyu Mohammed"
+                  placeholder="Emmanuel Moses"
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
                   className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-[#f47b20] outline-none text-xs"
@@ -343,7 +343,7 @@ export default function CartDrawer({
                 <input
                   type="email"
                   required
-                  placeholder="aliyu@example.com"
+                  placeholder="emmanuel@example.com"
                   value={customerEmail}
                   onChange={(e) => setCustomerEmail(e.target.value)}
                   className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-[#f47b20] outline-none text-xs"

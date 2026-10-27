@@ -20,7 +20,8 @@ import {
   db, 
   ProductItem, 
   CartItem, 
-  INITIAL_PRODUCTS 
+  INITIAL_PRODUCTS,
+  isProductDeleted
 } from '../firebase';
 import { collection, onSnapshot } from 'firebase/firestore';
 
@@ -29,6 +30,7 @@ interface ShopViewProps {
   addToCart: (product: ProductItem, qty?: number, color?: string, size?: string) => void;
   openCart: () => void;
   onNavigateHome: () => void;
+  onNavigateAdmin?: () => void;
 }
 
 const CATEGORIES = [
@@ -48,7 +50,70 @@ export const formatNaira = (amount: number) => {
   }).format(amount);
 };
 
-export default function ShopView({ cart, addToCart, openCart, onNavigateHome }: ShopViewProps) {
+// Maps color names to rich circles (no text labels on buttons)
+export const getColorStyle = (name: string): { background: string; isLight: boolean; border?: string } => {
+  const lower = name.toLowerCase();
+  if (lower.includes('black') || lower.includes('obsidian') || lower.includes('dark')) {
+    return { background: '#18181b', isLight: false };
+  }
+  if (lower.includes('white') || lower.includes('polar') || lower.includes('ivory')) {
+    return { background: '#ffffff', isLight: true, border: '#e5e7eb' };
+  }
+  if (lower.includes('navy') || lower.includes('deep blue')) {
+    return { background: '#1e3a8a', isLight: false };
+  }
+  if (lower.includes('royal blue') || lower.includes('blue') || lower.includes('cyan')) {
+    return { background: '#2563eb', isLight: false };
+  }
+  if (lower.includes('gold') || lower.includes('yellow') || lower.includes('amber')) {
+    return { background: 'linear-gradient(135deg, #f59e0b 0%, #b45309 100%)', isLight: false };
+  }
+  if (lower.includes('green') || lower.includes('emerald')) {
+    return { background: '#059669', isLight: false };
+  }
+  if (lower.includes('orange')) {
+    return { background: '#f47b20', isLight: false };
+  }
+  if (lower.includes('red') || lower.includes('crimson')) {
+    return { background: '#dc2626', isLight: false };
+  }
+  if (lower.includes('wood') || lower.includes('mahogany') || lower.includes('brown')) {
+    return { background: '#78350f', isLight: false };
+  }
+  if (lower.includes('warm') || lower.includes('3000k')) {
+    return { background: '#fef08a', isLight: true, border: '#fde047' };
+  }
+  if (lower.includes('cool') || lower.includes('6500k')) {
+    return { background: '#e0f2fe', isLight: true, border: '#7dd3fc' };
+  }
+  return { background: '#4b5563', isLight: false };
+};
+
+// Formats size for clean display: X, XL, 2XL, L, M, and clean numbers/specs
+export const formatSizeLabel = (rawSize: string): string => {
+  const trimmed = rawSize.trim();
+  const lower = trimmed.toLowerCase();
+  if (lower === 'small' || lower === 's') return 'S';
+  if (lower === 'medium' || lower === 'm') return 'M';
+  if (lower === 'large' || lower === 'l') return 'L';
+  if (lower === 'extra large' || lower === 'xl') return 'XL';
+  if (lower === '2x large' || lower === 'xxl' || lower === '2xl') return '2XL';
+  if (lower === '3x large' || lower === 'xxxl' || lower === '3xl') return '3XL';
+  if (lower === 'extra small' || lower === 'xs') return 'XS';
+
+  // Simplify descriptions with parentheses
+  if (trimmed.includes('(')) {
+    const main = trimmed.split('(')[0].trim();
+    const inside = trimmed.match(/\((.*?)\)/)?.[1] || '';
+    if (main.toLowerCase().startsWith('standard') || main.toLowerCase().startsWith('large')) {
+      return inside.replace(/\s*x\s*/gi, '×');
+    }
+    return main.replace(/\s*x\s*/gi, '×');
+  }
+  return trimmed.replace(/\s*x\s*/gi, '×');
+};
+
+export default function ShopView({ cart, addToCart, openCart, onNavigateHome, onNavigateAdmin }: ShopViewProps) {
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
@@ -70,18 +135,36 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome }: 
       collection(db, 'products'),
       (snapshot) => {
         if (!snapshot.empty) {
-          const loaded: ProductItem[] = snapshot.docs.map((d) => ({
-            id: d.id,
-            ...(d.data() as Omit<ProductItem, 'id'>)
-          }));
+          const loaded: ProductItem[] = snapshot.docs
+            .map((d) => ({
+              id: d.id,
+              ...(d.data() as Omit<ProductItem, 'id'>)
+            }))
+            .filter((p) => !(p as any).isDeleted && !(p as any).deleted && !isProductDeleted(p.id, p.title));
           setProducts(loaded);
         } else {
-          setProducts(INITIAL_PRODUCTS.map((p, idx) => ({ id: `default-${idx}`, ...p })));
+          if (localStorage.getItem('enj_catalog_initialized_v1') === 'true') {
+            setProducts([]);
+          } else {
+            setProducts(
+              INITIAL_PRODUCTS
+                .map((p, idx) => ({ id: `prod-seed-${idx + 1}`, ...p }))
+                .filter((p) => !isProductDeleted(p.id, p.title))
+            );
+          }
         }
       },
       (error) => {
         console.warn('Firestore products notice:', error);
-        setProducts(INITIAL_PRODUCTS.map((p, idx) => ({ id: `default-${idx}`, ...p })));
+        if (localStorage.getItem('enj_catalog_initialized_v1') === 'true') {
+          setProducts([]);
+        } else {
+          setProducts(
+            INITIAL_PRODUCTS
+              .map((p, idx) => ({ id: `prod-seed-${idx + 1}`, ...p }))
+              .filter((p) => !isProductDeleted(p.id, p.title))
+          );
+        }
       }
     );
 
@@ -306,9 +389,18 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome }: 
         )}
       </div>
 
-      {/* Minimal Footer */}
-      <div className="max-w-5xl mx-auto w-full px-4 sm:px-6 mt-10 text-center text-[11px] text-gray-400">
-        <span>ENJ Digital Concept Store • Instant Orders & Delivery</span>
+      {/* Shop Footer with Direct Merchant Admin Portal Link */}
+      <div className="max-w-5xl mx-auto w-full px-4 sm:px-6 mt-12 pt-6 border-t border-gray-200/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-500">
+        <span className="text-[11px] text-gray-400">ENJ Digital Concept Store • Instant Orders & Delivery</span>
+        {onNavigateAdmin && (
+          <button
+            onClick={onNavigateAdmin}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gray-100 hover:bg-[#1d1d1f] hover:text-white text-gray-700 text-xs font-semibold transition-colors cursor-pointer shadow-2xs"
+          >
+            <ShieldCheck className="w-3.5 h-3.5 text-[#f47b20]" />
+            <span>Admin Portal (Upload Products)</span>
+          </button>
+        )}
       </div>
 
       {/* ========================================================
@@ -425,29 +517,37 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome }: 
                       </div>
                     </div>
 
-                    {/* 3. Choice of Color (if provided) */}
+                    {/* 3. Choice of Color (Circle Color Indicators - No Text on buttons) */}
                     {selectedProduct.availableColors && selectedProduct.availableColors.length > 0 && (
                       <div className="space-y-1.5">
                         <div className="flex items-center justify-between text-xs">
-                          <span className="font-semibold text-gray-700">Choose Color:</span>
-                          <span className="font-bold text-[#f47b20] text-[11px]">{selectedColor}</span>
+                          <span className="font-semibold text-gray-700">Color:</span>
+                          <span className="font-bold text-[#1d1d1f] text-[11px]">{selectedColor}</span>
                         </div>
-                        <div className="flex flex-wrap gap-1.5">
+                        <div className="flex items-center gap-2.5 flex-wrap pt-0.5">
                           {selectedProduct.availableColors.map((color) => {
                             const isSelected = selectedColor === color;
+                            const style = getColorStyle(color);
                             return (
                               <button
                                 key={color}
                                 type="button"
                                 onClick={() => setSelectedColor(color)}
-                                className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 ${
-                                  isSelected
-                                    ? 'bg-[#1d1d1f] text-white border-[#1d1d1f] shadow-xs'
-                                    : 'bg-white hover:bg-gray-100 text-gray-700 border-gray-200'
+                                title={color}
+                                className={`w-7 h-7 rounded-full transition-all cursor-pointer relative flex items-center justify-center ${
+                                  isSelected 
+                                    ? 'ring-2 ring-offset-2 ring-[#1d1d1f] scale-110 shadow-sm' 
+                                    : 'hover:scale-105 opacity-85 hover:opacity-100 shadow-2xs'
                                 }`}
+                                style={{
+                                  background: style.background,
+                                  border: style.border ? `1px solid ${style.border}` : '1px solid rgba(0,0,0,0.12)'
+                                }}
+                                aria-label={color}
                               >
-                                {isSelected && <Check className="w-3 h-3 text-[#f47b20]" />}
-                                <span>{color}</span>
+                                {isSelected && (
+                                  <Check className={`w-3.5 h-3.5 ${style.isLight ? 'text-black' : 'text-white'}`} strokeWidth={3} />
+                                )}
                               </button>
                             );
                           })}
@@ -455,29 +555,35 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome }: 
                       </div>
                     )}
 
-                    {/* 4. Choice of Size / Specification (if provided) */}
+                    {/* 4. Choice of Size / Specification (Normal X, XL, 2XL, L, M, and numbers for others) */}
                     {selectedProduct.availableSizes && selectedProduct.availableSizes.length > 0 && (
                       <div className="space-y-1.5">
                         <div className="flex items-center justify-between text-xs">
-                          <span className="font-semibold text-gray-700">Choose Size / Spec:</span>
-                          <span className="font-bold text-[#f47b20] text-[11px]">{selectedSize}</span>
+                          <span className="font-semibold text-gray-700">Size / Spec:</span>
+                          <span className="font-bold text-[#1d1d1f] text-[11px]">{selectedSize}</span>
                         </div>
-                        <div className="flex flex-wrap gap-1.5">
+                        <div className="flex items-center gap-1.5 flex-wrap">
                           {selectedProduct.availableSizes.map((size) => {
                             const isSelected = selectedSize === size;
+                            const label = formatSizeLabel(size);
+                            const isAlphaSize = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'].includes(label);
                             return (
                               <button
                                 key={size}
                                 type="button"
                                 onClick={() => setSelectedSize(size)}
-                                className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 ${
+                                className={`transition-all cursor-pointer font-bold rounded-lg text-xs flex items-center justify-center ${
+                                  isAlphaSize 
+                                    ? 'w-9 h-9 border' 
+                                    : 'px-3 py-1.5 border font-semibold'
+                                } ${
                                   isSelected
-                                    ? 'bg-[#1d1d1f] text-white border-[#1d1d1f] shadow-xs'
+                                    ? 'bg-[#1d1d1f] text-white border-[#1d1d1f] shadow-xs scale-102'
                                     : 'bg-white hover:bg-gray-100 text-gray-700 border-gray-200'
                                 }`}
+                                title={size}
                               >
-                                {isSelected && <Check className="w-3 h-3 text-[#f47b20]" />}
-                                <span>{size}</span>
+                                {label}
                               </button>
                             );
                           })}

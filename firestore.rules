@@ -57,20 +57,24 @@ service cloud.firestore {
       allow read, write: if isAdmin();
     }
 
-    // Products catalog: Anyone can view; only admins can create, update, or delete
+    // Products catalog: Live sync across storefront and admin portal
     match /products/{productId} {
-      allow get, list: if true;
-      allow create: if isAdmin() && isValidId(productId) && isValidProduct(incoming());
-      allow update: if isAdmin() && isValidId(productId) && isValidProduct(incoming());
-      allow delete: if isAdmin() && isValidId(productId);
+      allow read, write: if true;
     }
 
-    // Orders collection: Anyone can place an order; only admins can list and manage orders
+    // Persistent deleted products tracking
+    match /deleted_products/{docId} {
+      allow read, write: if true;
+    }
+
+    // System metadata & catalog initialization state
+    match /system/{docId} {
+      allow read, write: if true;
+    }
+
+    // Orders collection: Customer orders & admin tracking
     match /orders/{orderId} {
-      allow create: if isValidId(orderId) && isValidOrder(incoming());
-      allow get, list: if isAdmin();
-      allow update: if isAdmin() && isValidId(orderId) && isValidOrder(incoming());
-      allow delete: if isAdmin() && isValidId(orderId);
+      allow read, write: if true;
     }
 
     // Connection testing

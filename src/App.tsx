@@ -21,8 +21,7 @@ import {
   RotateCcw, 
   ArrowRight,
   ShieldCheck,
-  Store,
-  Lock
+  Store
 } from 'lucide-react';
 import ShopView from './components/ShopView';
 import AdminPortal from './components/AdminPortal';
@@ -297,6 +296,7 @@ export default function App() {
           addToCart={addToCart}
           openCart={() => setIsCartOpen(true)}
           onNavigateHome={() => navigateTo('home')}
+          onNavigateAdmin={() => navigateTo('admin')}
         />
         <CartDrawer
           isOpen={isCartOpen}
@@ -848,7 +848,7 @@ export default function App() {
             {/* General Supply Section */}
             <div className="mb-12">
               <div className="flex items-center gap-2.5 mb-4">
-                <span className="w-7 h-7 rounded-full bg-[#f47b20]/15 text-[#f47b20] flex items-center justify-center">
+                <span className="w-7 h-7 rounded-full bg-black/5 text-[#1d1d1f] flex items-center justify-center">
                   <Package className="w-3.5 h-3.5" />
                 </span>
                 <h2 className="font-display text-xl sm:text-2xl font-medium text-[#1d1d1f]">General supply</h2>
@@ -872,7 +872,7 @@ export default function App() {
                   { title: 'Computers & ICT accessories', desc: 'Laptops, desktops, keyboards, mice, storage drives and networking parts.', icon: 'icon-computer' }
                 ].map((item, idx) => (
                   <div key={idx} className="p-4 rounded-2xl bg-white/70 border border-white/90 shadow-xs hover:shadow-sm transition-shadow">
-                    <span className="w-8 h-8 rounded-full bg-[#fff1e6] flex items-center justify-center text-[#c95510] mb-3">
+                    <span className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-[#1d1d1f] mb-3">
                       <svg className="w-4 h-4"><use href={`#${item.icon}`}></use></svg>
                     </span>
                     <h3 className="font-display text-sm font-semibold text-[#1d1d1f] mb-1">{item.title}</h3>
@@ -885,8 +885,8 @@ export default function App() {
             {/* Renewable Energy Solutions */}
             <div className="mb-12 p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-[#1d1d1f] to-[#2d2d30] text-white">
               <div className="max-w-xl">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/10 text-[#f47b20] text-[11px] font-semibold mb-3">
-                  <SunMedium className="w-3 h-3" />
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/10 text-white/80 text-[11px] font-medium mb-3">
+                  <SunMedium className="w-3 h-3 text-white/70" />
                   Renewable Energy
                 </span>
                 <h2 className="font-display text-2xl sm:text-3xl font-medium tracking-tight mb-3">
@@ -899,7 +899,7 @@ export default function App() {
                   onClick={() => navigateTo('shop')}
                   className="px-5 py-2.5 rounded-full bg-[#f47b20] hover:bg-[#c95510] text-white text-xs font-semibold tracking-wide transition-colors cursor-pointer"
                 >
-                  View Solar Products in Store
+                  Explore
                 </button>
               </div>
             </div>
@@ -907,7 +907,6 @@ export default function App() {
             {/* Callout */}
             <div className="p-6 sm:p-8 rounded-2xl bg-[#171717] text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-md mb-12">
               <div>
-                <p className="text-[10px] font-bold tracking-widest text-[#f47b20] uppercase mb-1">Let’s work together</p>
                 <h2 className="font-display text-xl sm:text-2xl font-medium max-w-md">
                   Tell us what you need. We’ll help with the rest.
                 </h2>
@@ -940,7 +939,7 @@ export default function App() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-[0.85fr_1.15fr] gap-6 items-stretch mb-10">
-              <aside className="p-6 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/90 shadow-xs flex flex-col justify-between gap-6">
+              <aside className="p-6 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/90 shadow-xs flex flex-col gap-6">
                 <div>
                   <p className="text-[10px] font-bold tracking-widest text-[#6e6e73] uppercase mb-1">Get in touch</p>
                   <h2 className="font-display text-xl font-medium text-[#1d1d1f] mb-2">We’re here to help.</h2>
@@ -949,43 +948,27 @@ export default function App() {
                   </p>
                 </div>
 
-                <div className="space-y-4">
-                  <div>
-                    <span className="block text-[10px] font-bold tracking-widest text-[#6e6e73] uppercase mb-1">Direct Hotline</span>
-                    <a href="tel:+2348133535756" className="text-sm font-semibold text-[#1d1d1f] hover:text-[#c95510] transition-colors flex items-center gap-1.5">
-                      <Phone className="w-3.5 h-3.5 text-[#f47b20]" />
-                      +234 (0) 813 353 5756
-                    </a>
-                  </div>
-
-                  <div>
-                    <span className="block text-[10px] font-bold tracking-widest text-[#6e6e73] uppercase mb-1">Official Email</span>
-                    <a href="mailto:enjdigitalconcept@gmail.com" className="text-sm font-semibold text-[#1d1d1f] hover:text-[#c95510] transition-colors flex items-center gap-1.5">
-                      <Mail className="w-3.5 h-3.5 text-[#f47b20]" />
-                      enjdigitalconcept@gmail.com
-                    </a>
-                  </div>
-
-                  <div>
-                    <span className="block text-[10px] font-bold tracking-widest text-[#6e6e73] uppercase mb-1">Visit Studio</span>
-                    <p className="text-xs text-[#1d1d1f] font-medium leading-relaxed flex items-start gap-1.5">
-                      <MapPin className="w-3.5 h-3.5 text-[#f47b20] shrink-0 mt-0.5" />
-                      No. 1 Thatcher Building, Jiddari Junction, Maiduguri, Borno State
-                    </p>
-                  </div>
-                </div>
-
-                <div className="p-3 rounded-xl bg-orange-50 border border-orange-200/60">
-                  <span className="block text-xs font-bold text-[#c95510] mb-0.5">Need instant prices?</span>
-                  <p className="text-[11px] text-[#515154]">
-                    Visit our separate Store App to browse items and checkout via Paystack.
-                  </p>
-                  <button
-                    onClick={() => navigateTo('shop')}
-                    className="mt-1.5 text-xs font-bold text-[#c95510] hover:underline"
+                <div className="space-y-3.5 pt-1">
+                  <a 
+                    href="tel:+2348133535756" 
+                    className="text-xs font-medium text-[#1d1d1f] hover:text-[#c95510] transition-colors flex items-center gap-2.5"
                   >
-                    Open Store App →
-                  </button>
+                    <Phone className="w-4 h-4 text-[#f47b20] shrink-0" />
+                    <span>+234 (0) 813 353 5756</span>
+                  </a>
+
+                  <a 
+                    href="mailto:enjdigitalconcept@gmail.com" 
+                    className="text-xs font-medium text-[#1d1d1f] hover:text-[#c95510] transition-colors flex items-center gap-2.5"
+                  >
+                    <Mail className="w-4 h-4 text-[#f47b20] shrink-0" />
+                    <span>enjdigitalconcept@gmail.com</span>
+                  </a>
+
+                  <div className="text-xs font-medium text-[#1d1d1f] flex items-start gap-2.5 leading-relaxed">
+                    <MapPin className="w-4 h-4 text-[#f47b20] shrink-0 mt-0.5" />
+                    <span>No. 1 Thatcher Building, Jiddari Junction, Maiduguri, Borno State</span>
+                  </div>
                 </div>
               </aside>
 
@@ -1050,7 +1033,7 @@ export default function App() {
                           required
                           value={formData.name}
                           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                          placeholder="e.g. Aliyu Mohammed"
+                          placeholder="e.g. Emmanuel Moses"
                           className="w-full px-3.5 py-2.5 rounded-xl bg-[#f5f5f7] border border-transparent focus:border-[#f47b20] focus:bg-white text-xs outline-none transition-all"
                         />
                       </div>
@@ -1065,7 +1048,7 @@ export default function App() {
                             required
                             value={formData.email}
                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                            placeholder="aliyu@example.com"
+                            placeholder="emmanuel@example.com"
                             className="w-full px-3.5 py-2.5 rounded-xl bg-[#f5f5f7] border border-transparent focus:border-[#f47b20] focus:bg-white text-xs outline-none transition-all"
                           />
                         </div>
@@ -1175,7 +1158,7 @@ export default function App() {
           FOOTER - Compact, Clean, Luxury
          ======================================================== */}
       <footer className="max-w-5xl mx-auto px-4 sm:px-6 w-full pb-10 pt-8 border-t border-black/10 mt-auto">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 pb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pb-8">
           
           {/* Brand Info */}
           <div className="md:col-span-2">
@@ -1191,17 +1174,9 @@ export default function App() {
                 <span className="block text-[10px] text-[#6e6e73]">Ideas Made Visible</span>
               </div>
             </div>
-            <p className="text-xs text-[#6e6e73] leading-relaxed max-w-sm mb-3">
+            <p className="text-xs text-[#6e6e73] leading-relaxed max-w-sm">
               Digital printing, general product supplies, and clean renewable energy solutions in Maiduguri, Borno State, Nigeria.
             </p>
-
-            <button
-              onClick={() => navigateTo('shop')}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#f47b20] hover:bg-[#c95510] text-white text-xs font-semibold cursor-pointer shadow-xs"
-            >
-              <Store className="w-3 h-3" />
-              <span>Launch Store App</span>
-            </button>
           </div>
 
           {/* Quick Location & Direct Contact */}
@@ -1218,61 +1193,11 @@ export default function App() {
               enjdigitalconcept@gmail.com
             </a>
           </div>
-
-          {/* Links & Merchant Portal */}
-          <div>
-            <h3 className="text-[10px] font-bold tracking-widest text-[#6e6e73] uppercase mb-2">Portals & Admin</h3>
-            <ul className="space-y-1.5 text-xs">
-              <li>
-                <button
-                  onClick={() => navigateTo('shop')}
-                  className="text-[#515154] hover:text-[#f47b20] transition-colors cursor-pointer flex items-center gap-1"
-                >
-                  <Store className="w-3 h-3 text-[#f47b20]" />
-                  <span>Online Store (Paystack)</span>
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => navigateTo('admin')}
-                  className="text-gray-400 hover:text-black transition-colors cursor-pointer flex items-center gap-1"
-                >
-                  <Lock className="w-3 h-3 text-gray-400" />
-                  <span>Merchant Admin Portal</span>
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => navigateTo('company')}
-                  className="text-[#515154] hover:text-[#f47b20] transition-colors cursor-pointer"
-                >
-                  Corporate Profile
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => navigateTo('contact')}
-                  className="text-[#515154] hover:text-[#f47b20] transition-colors cursor-pointer"
-                >
-                  Contact & Inquiries
-                </button>
-              </li>
-            </ul>
-          </div>
         </div>
 
         {/* Footer Bottom Bar */}
-        <div className="pt-4 border-t border-black/10 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-[#6e6e73]">
+        <div className="pt-4 border-t border-black/10 flex items-center justify-between text-[11px] text-[#6e6e73]">
           <span>© 2026 ENJ Digital Concept. All Rights Reserved.</span>
-          <div className="flex items-center gap-3">
-            <span>Made with care in Maiduguri, Nigeria</span>
-            <button
-              onClick={() => navigateTo('admin')}
-              className="text-gray-400 hover:text-gray-600 text-[10px]"
-            >
-              Merchant Login
-            </button>
-          </div>
         </div>
       </footer>
       </div>

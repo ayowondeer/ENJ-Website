@@ -11,6 +11,7 @@ import {
   getFirestore, 
   collection, 
   doc, 
+  setDoc,
   getDocFromServer,
   getDocs, 
   addDoc, 
@@ -280,19 +281,121 @@ export const INITIAL_PRODUCTS: Omit<ProductItem, 'id'>[] = [
   }
 ];
 
-// Helper to seed store if empty
-export async function seedProductsIfEmpty(): Promise<ProductItem[]> {
-  const productsCol = collection(db, 'products');
+// Persistent tracker for deleted products to ensure they never reappear on refresh
+const LOCAL_DELETED_KEY = 'enj_deleted_product_records_v1';
+const LOCAL_INIT_KEY = 'enj_catalog_initialized_v1';
+
+export interface DeletedRecord {
+  id: string;
+  title: string;
+}
+
+export function getDeletedRecords(): DeletedRecord[] {
   try {
-    const snapshot = await getDocs(productsCol);
-    if (!snapshot.empty) {
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ProductItem));
+    const raw = localStorage.getItem(LOCAL_DELETED_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function isProductDeleted(id: string, title?: string): boolean {
+  const records = getDeletedRecords();
+  const cleanTitle = title?.trim().toLowerCase();
+  return records.some(r => r.id === id || (cleanTitle && r.title.toLowerCase() === cleanTitle));
+}
+
+export function markProductAsDeletedLocally(id: string, title: string) {
+  try {
+    const records = getDeletedRecords();
+    const cleanTitle = title.trim().toLowerCase();
+    if (!records.some(r => r.id === id || r.title.toLowerCase() === cleanTitle)) {
+      records.push({ id, title: cleanTitle });
+      localStorage.setItem(LOCAL_DELETED_KEY, JSON.stringify(records));
     }
   } catch (err) {
-    console.warn("Could not query Firestore products (using defaults):", err);
-    return INITIAL_PRODUCTS.map((p, idx) => ({ id: `default-${idx}`, ...p }));
+    console.warn("Could not save to localStorage:", err);
+  }
+}
+
+// Complete delete function: marks persistent local state, Firestore deleted records, and deletes doc
+export async function deleteProductPermanently(target: ProductItem): Promise<void> {
+  // 1. Instantly record locally so refresh never restores it
+  markProductAsDeletedLocally(target.id, target.title);
+
+  // 2. Record in Firestore deleted collection for cross-device persistence
+  try {
+    await setDoc(doc(db, 'deleted_products', target.id), {
+      id: target.id,
+      title: target.title,
+      deletedAt: new Date().toISOString()
+    });
+  } catch (e) {
+    console.warn("Deleted doc backup notice:", e);
   }
 
-  // If empty and user can write (or we provide initial client-side fallback)
-  return INITIAL_PRODUCTS.map((p, idx) => ({ id: `seed-${idx}`, ...p }));
+  // 3. Delete document from Firestore
+  try {
+    await deleteDoc(doc(db, 'products', target.id));
+  } catch (e) {
+    console.warn("Direct delete notice:", e);
+  }
 }
+
+// Helper to seed store on first startup with stable IDs. Never re-seeds if initialized or deleted.
+export async function seedProductsIfEmpty(): Promise<ProductItem[]> {
+  const isAlreadyInitialized = localStorage.getItem(LOCAL_INIT_KEY) === 'true';
+  const initDocRef = doc(db, 'system', 'catalog_init');
+
+  try {
+    // Check Firestore system initialization record
+    const snapshot = await getDocs(collection(db, 'products'));
+    
+    if (!snapshot.empty) {
+      localStorage.setItem(LOCAL_INIT_KEY, 'true');
+      return snapshot.docs
+        .map(d => ({ id: d.id, ...(d.data() as Omit<ProductItem, 'id'>) }))
+        .filter(p => !isProductDeleted(p.id, p.title));
+    }
+
+    // If already marked as initialized (e.g. merchant deleted all products), do not re-seed!
+    if (isAlreadyInitialized) {
+      return [];
+    }
+
+    // Seed into Firestore using deterministic IDs so they are consistent across sessions
+    const seededList: ProductItem[] = [];
+    for (let idx = 0; idx < INITIAL_PRODUCTS.length; idx++) {
+      const p = INITIAL_PRODUCTS[idx];
+      const prodId = `prod-seed-${idx + 1}`;
+
+      // Skip any product that was previously deleted
+      if (isProductDeleted(prodId, p.title)) continue;
+
+      const payload = {
+        ...p,
+        createdAt: new Date().toISOString()
+      };
+      await setDoc(doc(db, 'products', prodId), payload);
+      seededList.push({ id: prodId, ...payload });
+    }
+
+    localStorage.setItem(LOCAL_INIT_KEY, 'true');
+    try {
+      await setDoc(initDocRef, { initialized: true, timestamp: new Date().toISOString() });
+    } catch (e) {
+      console.warn("System init marker notice:", e);
+    }
+
+    return seededList;
+  } catch (err) {
+    console.warn("Could not query or seed Firestore products:", err);
+    if (isAlreadyInitialized) return [];
+    return INITIAL_PRODUCTS
+      .map((p, idx) => ({ id: `prod-seed-${idx + 1}`, ...p }))
+      .filter(p => !isProductDeleted(p.id, p.title));
+  }
+}
+
+// Automatically ensure Firestore has store catalog on start
+seedProductsIfEmpty();
