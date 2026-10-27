@@ -38,7 +38,7 @@ const CATEGORIES = [
   'Digital Printing',
   'Signage & Displays',
   'Solar & Renewable Energy',
-  'Apparel & Merchandiseggg',
+  'Apparel & Merchandise',
   'Corporate Supplies'
 ];
 
