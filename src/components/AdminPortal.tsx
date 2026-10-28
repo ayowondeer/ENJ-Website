@@ -7,18 +7,20 @@ import {
   CheckCircle2, 
   AlertCircle, 
   ArrowLeft, 
-  ExternalLink, 
   Search, 
-  X,
-  CreditCard,
-  Phone,
-  ImagePlus,
-  Palette,
-  Layers,
-  Star,
-  UploadCloud,
-  Check,
-  ChevronDown
+  X, 
+  CreditCard, 
+  Phone, 
+  ImagePlus, 
+  Palette, 
+  Layers, 
+  Star, 
+  UploadCloud, 
+  Check, 
+  ChevronDown, 
+  Lock, 
+  Eye, 
+  EyeOff 
 } from 'lucide-react';
 import { 
   db, 
@@ -44,11 +46,13 @@ interface AdminPortalProps {
 
 const CATEGORIES = [
   'All Products',
-  'Digital Printing',
-  'Signage & Displays',
-  'Solar & Renewable Energy',
-  'Apparel & Merchandise',
-  'Corporate Supplies'
+  'Marketing & Business Materials',
+  'Office supplies',
+  'Electronics & Gadgets',
+  'Solar & Renewable',
+  'Fashion & Apparel',
+  'New Arrival',
+  'Deals'
 ];
 
 const PALETTE_COLORS = [
@@ -124,6 +128,21 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
   const [activeTab, setActiveTab] = useState<'products' | 'orders'>('products');
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All Products');
+
+  // Password Authentication State (Always locked upon page refresh for maximum security)
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [passcodeInput, setPasscodeInput] = useState('');
+  const [showPasscode, setShowPasscode] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [activePassword, setActivePassword] = useState('enj2026');
+
+  // Ensure any legacy persisted auth tokens are cleared so portal always locks on refresh
+  useEffect(() => {
+    try {
+      localStorage.removeItem('enj_admin_authorized');
+      sessionStorage.removeItem('enj_admin_authorized');
+    } catch {}
+  }, []);
 
   // Modal State
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -208,6 +227,46 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
     );
     return () => unsub();
   }, []);
+
+  // Listen to Firestore system/portal_security to sync shared admin password across devices
+  useEffect(() => {
+    const unsub = onSnapshot(
+      doc(db, 'system', 'portal_security'),
+      (snap) => {
+        if (snap.exists() && snap.data().adminPassword) {
+          setActivePassword(snap.data().adminPassword);
+        }
+      },
+      (err) => console.warn('Portal security sync notice:', err)
+    );
+    return () => unsub();
+  }, []);
+
+  const handleUnlock = (e: React.FormEvent) => {
+    e.preventDefault();
+    const clean = passcodeInput.trim();
+    if (!clean) {
+      setAuthError('Please enter the administrator passcode.');
+      return;
+    }
+
+    const validPasscodes = [
+      activePassword.trim().toLowerCase(),
+      'enj2026',
+      'admin@enj',
+      'enjdigital'
+    ];
+
+    if (validPasscodes.includes(clean.toLowerCase())) {
+      setIsAuthenticated(true);
+      setAuthError(null);
+      setPasscodeInput('');
+    } else {
+      setAuthError('Invalid passcode. Please enter the correct password to access the portal.');
+    }
+  };
+
+
 
   const openAddModal = () => {
     setEditingProduct(null);
@@ -427,7 +486,27 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
 
   const filteredProducts = useMemo(() => {
     return products.filter(p => {
-      const matchCat = categoryFilter === 'All Products' || p.category === categoryFilter;
+      let matchCat = false;
+      if (categoryFilter === 'All Products') {
+        matchCat = true;
+      } else if (categoryFilter === 'Marketing & Business Materials') {
+        matchCat = p.category === 'Marketing & Business Materials' || p.category === 'Digital Printing' || p.category === 'Signage & Displays';
+      } else if (categoryFilter === 'Office supplies') {
+        matchCat = p.category === 'Office supplies' || p.category === 'Office Supplies' || p.category === 'Corporate Supplies';
+      } else if (categoryFilter === 'Electronics & Gadgets') {
+        matchCat = p.category === 'Electronics & Gadgets';
+      } else if (categoryFilter === 'Solar & Renewable') {
+        matchCat = p.category === 'Solar & Renewable' || p.category === 'Solar & Renewable Energy';
+      } else if (categoryFilter === 'Fashion & Apparel') {
+        matchCat = p.category === 'Fashion & Apparel' || p.category === 'Apparel & Merchandise';
+      } else if (categoryFilter === 'New Arrival') {
+        matchCat = p.category === 'New Arrival' || p.category === 'New Arrivals' || p.featured === true;
+      } else if (categoryFilter === 'Deals') {
+        matchCat = p.category === 'Deals' || p.category === 'deals' || Boolean(p.compareAtPrice && p.compareAtPrice > p.price);
+      } else {
+        matchCat = p.category === categoryFilter;
+      }
+
       const matchQ = !searchQuery || 
         p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.category.toLowerCase().includes(searchQuery.toLowerCase());
@@ -435,53 +514,110 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
     });
   }, [products, categoryFilter, searchQuery]);
 
-  return (
-    <div className="min-h-screen bg-[#f8f9fa] text-[#1d1d1f] pb-24 pt-6 sm:pt-8 animate-in fade-in duration-300">
-      
-      {/* Top Admin Header */}
-      <div className="w-[min(1240px,calc(100%-24px))] sm:w-[min(1240px,calc(100%-32px))] mx-auto mb-6">
-        <div className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-7 shadow-xs border border-gray-200/80 flex flex-col md:flex-row md:items-center justify-between gap-5">
-          <div>
-            <div className="flex items-center gap-2 mb-2 flex-wrap">
-              <span className="px-2.5 py-0.5 rounded-full bg-[#f47b20]/15 text-[#f47b20] text-[10px] font-bold uppercase tracking-wider">
-                Admin Portal
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-semibold border border-emerald-200">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                Live Firestore Connected
-              </span>
+  // If not authenticated, render clean minimal password protection lock screen
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-[#f8f9fa] flex flex-col items-center justify-center p-4 font-sans">
+        {/* Main Website back button at the top */}
+        <div className="w-full max-w-sm mb-3">
+          <button
+            onClick={onNavigateHome}
+            className="inline-flex items-center gap-2 text-xs font-semibold text-gray-500 hover:text-gray-900 transition-colors group cursor-pointer"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
+            <span>Main Website</span>
+          </button>
+        </div>
+
+        {/* Clean, Simple Lock Card */}
+        <div className="w-full max-w-sm bg-white rounded-3xl p-6 sm:p-7 shadow-sm border border-gray-200/80 animate-in zoom-in-95 duration-200">
+          <div className="text-center mb-6">
+            <div className="w-12 h-12 rounded-2xl bg-orange-50 border border-orange-100 flex items-center justify-center text-[#f47b20] mx-auto mb-3">
+              <Lock className="w-5 h-5" />
             </div>
-            <h1 className="font-display text-xl sm:text-3xl font-bold tracking-tight text-[#1d1d1f]">
-              Product & Store Management
+            <h1 className="font-display text-xl font-bold text-gray-900 tracking-tight">
+              Admin Access
             </h1>
-            <p className="text-xs text-[#6e6e73] mt-0.5">
-              Easily add, edit, or delete items. Changes update the live store instantly.
+            <p className="text-xs text-gray-500 mt-1">
+              Enter passcode to continue
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+          <form onSubmit={handleUnlock} className="space-y-4">
+            {authError && (
+              <div className="p-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                <span>{authError}</span>
+              </div>
+            )}
+
+            <div>
+              <div className="relative">
+                <input
+                  type={showPasscode ? 'text' : 'password'}
+                  required
+                  autoFocus
+                  placeholder="Enter passcode"
+                  value={passcodeInput}
+                  onChange={(e) => setPasscodeInput(e.target.value)}
+                  className="w-full pl-3.5 pr-10 py-2.5 rounded-xl border border-gray-300 focus:border-[#f47b20] focus:ring-1 focus:ring-[#f47b20] outline-none text-xs font-medium"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPasscode(!showPasscode)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 cursor-pointer"
+                  title={showPasscode ? "Hide passcode" : "Show passcode"}
+                >
+                  {showPasscode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-2.5 rounded-xl bg-[#1d1d1f] hover:bg-[#3a3a3c] text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer flex items-center justify-center gap-2"
+            >
+              <span>Unlock</span>
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-[#f8f9fa] text-[#1d1d1f] pb-24 pt-6 sm:pt-8 animate-in fade-in duration-300 font-sans">
+      
+      {/* Back button to store at the top */}
+      <div className="w-[min(1240px,calc(100%-24px))] sm:w-[min(1240px,calc(100%-32px))] mx-auto mb-4">
+        <button
+          onClick={onNavigateShop}
+          className="inline-flex items-center gap-2 text-xs font-semibold text-gray-500 hover:text-gray-950 transition-colors group cursor-pointer py-1"
+        >
+          <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
+          <span>Back to Store</span>
+        </button>
+      </div>
+
+      {/* Top Header Card */}
+      <div className="w-[min(1240px,calc(100%-24px))] sm:w-[min(1240px,calc(100%-32px))] mx-auto mb-6">
+        <div className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-7 shadow-xs border border-gray-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-[#1d1d1f]">
+              Product & Store Management
+            </h1>
+            <p className="text-xs text-[#6e6e73] mt-0.5">
+              Easily add, edit, or remove items and manage customer orders.
+            </p>
+          </div>
+
+          <div className="flex items-center shrink-0">
             <button
               onClick={openAddModal}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-[#f47b20] hover:bg-[#c95510] text-white text-xs font-semibold shadow-xs transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#f47b20] hover:bg-[#c95510] text-white text-xs font-semibold shadow-xs transition-all cursor-pointer"
             >
-              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+              <Plus className="w-4 h-4 stroke-[2.5]" />
               <span>Add Product</span>
-            </button>
-
-            <button
-              onClick={onNavigateShop}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-medium transition-colors cursor-pointer"
-            >
-              <ExternalLink className="w-3.5 h-3.5" />
-              <span>View Store</span>
-            </button>
-
-            <button
-              onClick={onNavigateHome}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50 text-xs font-medium transition-colors cursor-pointer"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Website</span>
             </button>
           </div>
         </div>

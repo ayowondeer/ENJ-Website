@@ -35,11 +35,13 @@ interface ShopViewProps {
 
 const CATEGORIES = [
   'All',
-  'Digital Printing',
-  'Signage & Displays',
-  'Solar & Renewable Energy',
-  'Apparel & Merchandise',
-  'Corporate Supplies'
+  'Marketing & Business Materials',
+  'Office supplies',
+  'Electronics & Gadgets',
+  'Solar & Renewable',
+  'Fashion & Apparel',
+  'New Arrival',
+  'Deals'
 ];
 
 export const formatNaira = (amount: number) => {
@@ -173,7 +175,47 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
 
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
-      const matchCat = selectedCategory === 'All' || p.category === selectedCategory;
+      let matchCat = false;
+      if (selectedCategory === 'All') {
+        matchCat = true;
+      } else if (selectedCategory === 'Marketing & Business Materials') {
+        matchCat = p.category === 'Marketing & Business Materials' ||
+          p.category === 'Digital Printing' ||
+          p.category === 'Signage & Displays' ||
+          p.category?.toLowerCase().includes('marketing') ||
+          p.category?.toLowerCase().includes('print');
+      } else if (selectedCategory === 'Office supplies') {
+        matchCat = p.category === 'Office supplies' ||
+          p.category === 'Office Supplies' ||
+          p.category === 'Corporate Supplies' ||
+          p.category?.toLowerCase().includes('office');
+      } else if (selectedCategory === 'Electronics & Gadgets') {
+        matchCat = p.category === 'Electronics & Gadgets' ||
+          p.category?.toLowerCase().includes('gadget') ||
+          p.category?.toLowerCase().includes('electronic');
+      } else if (selectedCategory === 'Solar & Renewable') {
+        matchCat = p.category === 'Solar & Renewable' ||
+          p.category === 'Solar & Renewable Energy' ||
+          p.category?.toLowerCase().includes('solar') ||
+          p.category?.toLowerCase().includes('renewable') ||
+          p.category?.toLowerCase().includes('inverter');
+      } else if (selectedCategory === 'Fashion & Apparel') {
+        matchCat = p.category === 'Fashion & Apparel' ||
+          p.category === 'Apparel & Merchandise' ||
+          p.category?.toLowerCase().includes('apparel') ||
+          p.category?.toLowerCase().includes('fashion');
+      } else if (selectedCategory === 'New Arrival') {
+        matchCat = p.category === 'New Arrival' ||
+          p.category === 'New Arrivals' ||
+          p.featured === true;
+      } else if (selectedCategory === 'Deals') {
+        matchCat = p.category === 'Deals' ||
+          p.category === 'deals' ||
+          Boolean(p.compareAtPrice && p.compareAtPrice > p.price);
+      } else {
+        matchCat = p.category?.toLowerCase() === selectedCategory.toLowerCase();
+      }
+
       const matchQuery = searchQuery === '' || 
         p.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
         p.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -205,7 +247,7 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
     setTimeout(() => setAddedProductId(null), 1400);
   };
 
-  // Add from Modal with selected color and size
+  // Add from Modal with selected color and size (do not pop cart drawer, only update cart count)
   const handleModalAddToCart = () => {
     if (!selectedProduct) return;
     addToCart(selectedProduct, modalQuantity, selectedColor || undefined, selectedSize || undefined);
@@ -213,8 +255,7 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
     setTimeout(() => {
       setIsAddedInModal(false);
       setSelectedProduct(null);
-      openCart();
-    }, 450);
+    }, 600);
   };
 
   // Build gallery image list (combining main imageUrl and gallery array)
@@ -331,27 +372,27 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
                 <div
                   key={product.id}
                   onClick={() => handleOpenProductDetail(product)}
-                  className="group bg-white rounded-2xl border border-gray-200/80 overflow-hidden shadow-xs hover:shadow-xl transition-shadow duration-300 flex flex-col justify-between cursor-pointer"
+                  className="group bg-white rounded-2xl border border-gray-200/80 overflow-hidden shadow-xs hover:shadow-lg transition-all duration-200 flex flex-col justify-between cursor-pointer hover:border-gray-300"
                 >
                   {/* Image */}
-                  <div className="relative aspect-4/3 bg-gray-100 overflow-hidden">
+                  <div className="relative aspect-4/3 bg-gray-50 overflow-hidden">
                     <img
                       src={product.imageUrl}
                       alt={product.title}
-                      className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
+                      className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-105"
                       loading="lazy"
                     />
                     {product.compareAtPrice && product.compareAtPrice > product.price && (
-                      <span className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-[#f47b20] text-white text-[9px] font-bold">
-                        Sale
+                      <span className="absolute top-2 right-2 px-2 py-0.5 rounded-md bg-[#f47b20] text-white text-[9px] font-bold shadow-xs">
+                        Deal
                       </span>
                     )}
                   </div>
 
                   {/* Info */}
-                  <div className="p-3 flex-1 flex flex-col justify-between">
+                  <div className="p-3.5 flex-1 flex flex-col justify-between">
                     <div>
-                      <p className="text-[10px] text-gray-400 mb-0.5 uppercase tracking-wider font-medium">
+                      <p className="text-[10px] text-gray-400 mb-0.5 uppercase tracking-wider font-semibold">
                         {product.category}
                       </p>
                       <h3 className="font-semibold text-xs sm:text-[13px] text-[#1d1d1f] line-clamp-2 leading-snug mb-1">
@@ -359,25 +400,31 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
                       </h3>
                     </div>
 
-                    <div className="pt-2 flex items-center justify-between gap-2 mt-auto">
-                      <span className="font-display text-xs sm:text-sm font-bold text-[#1d1d1f]">
-                        {formatNaira(product.price)}
-                      </span>
+                    <div className="pt-2 flex items-center justify-between gap-2 mt-auto border-t border-gray-100">
+                      <div>
+                        <span className="font-display text-xs sm:text-sm font-bold text-[#1d1d1f] block tabular-nums leading-tight">
+                          {formatNaira(product.price)}
+                        </span>
+                        <span className="text-[10px] text-gray-400 block">
+                          Min: {product.minOrderQty || 1} {product.unit}
+                        </span>
+                      </div>
 
                       <button
                         type="button"
                         onClick={(e) => handleQuickAdd(product, e)}
-                        className={`p-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+                        className={`w-8 h-8 rounded-xl text-xs font-semibold transition-all flex items-center justify-center cursor-pointer shrink-0 ${
                           isAdded
-                            ? 'bg-emerald-600 text-white'
-                            : 'bg-gray-100 hover:bg-[#f47b20] hover:text-white text-gray-700'
+                            ? 'bg-emerald-600 text-white scale-105'
+                            : 'bg-gray-100 hover:bg-[#f47b20] hover:text-white text-gray-700 active:scale-95'
                         }`}
                         title="Add to Cart"
+                        aria-label={`Add ${product.title} to cart`}
                       >
                         {isAdded ? (
-                          <Check className="w-3.5 h-3.5" />
+                          <Check className="w-4 h-4" />
                         ) : (
-                          <Plus className="w-3.5 h-3.5" />
+                          <Plus className="w-4 h-4" />
                         )}
                       </button>
                     </div>
@@ -389,18 +436,10 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
         )}
       </div>
 
-      {/* Shop Footer with Direct Merchant Admin Portal Link */}
+      {/* Shop Footer */}
       <div className="max-w-5xl mx-auto w-full px-4 sm:px-6 mt-12 pt-6 border-t border-gray-200/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-500">
         <span className="text-[11px] text-gray-400">ENJ Digital Concept Store • Instant Orders & Delivery</span>
-        {onNavigateAdmin && (
-          <button
-            onClick={onNavigateAdmin}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gray-100 hover:bg-[#1d1d1f] hover:text-white text-gray-700 text-xs font-semibold transition-colors cursor-pointer shadow-2xs"
-          >
-            <ShieldCheck className="w-3.5 h-3.5 text-[#f47b20]" />
-            <span>Admin Portal (Upload Products)</span>
-          </button>
-        )}
+        <span className="text-[11px] text-gray-400">Maiduguri, Borno State</span>
       </div>
 
       {/* ========================================================
@@ -416,13 +455,18 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="px-5 py-3.5 border-b border-gray-100 flex items-center justify-between shrink-0">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#f47b20] bg-orange-50 px-2.5 py-0.5 rounded-full border border-orange-200">
-                {selectedProduct.category}
-              </span>
+            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-2 text-xs text-gray-500">
+                <span className="font-semibold text-[#f47b20] uppercase tracking-wider text-[11px]">
+                  {selectedProduct.category}
+                </span>
+                <span aria-hidden="true" className="text-gray-300">·</span>
+                <span>{selectedProduct.inStock ? 'Ready Stock' : 'Custom Production'}</span>
+              </div>
               <button 
                 onClick={() => setSelectedProduct(null)}
-                className="p-1 rounded-full text-gray-400 hover:text-black hover:bg-gray-100 transition-colors"
+                className="p-1.5 rounded-full text-gray-400 hover:text-black hover:bg-gray-100 transition-colors cursor-pointer"
+                aria-label="Close modal"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -441,7 +485,7 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
                       className="w-full h-full object-cover transition-all duration-300"
                     />
                     {selectedProduct.compareAtPrice && selectedProduct.compareAtPrice > selectedProduct.price && (
-                      <span className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-md bg-[#f47b20] text-white text-[10px] font-bold shadow-xs">
+                      <span className="absolute top-2.5 right-2.5 px-2.5 py-0.5 rounded-md bg-[#f47b20] text-white text-[10px] font-bold shadow-xs">
                         Special Price
                       </span>
                     )}
@@ -450,8 +494,8 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
                   {/* Multiple Pictures Thumbnails */}
                   {productImages.length > 1 && (
                     <div>
-                      <span className="block text-[10px] font-semibold text-gray-400 mb-1.5">
-                        More Pictures ({productImages.length}):
+                      <span className="block text-[10px] font-semibold text-gray-400 mb-1.5 uppercase tracking-wider">
+                        Product Gallery ({productImages.length}):
                       </span>
                       <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
                         {productImages.map((img, idx) => (
@@ -483,16 +527,16 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
                         {selectedProduct.title}
                       </h2>
                       
-                      <div className="flex items-center gap-2.5 mt-1.5 flex-wrap">
-                        <span className="font-display text-2xl font-bold text-[#1d1d1f]">
+                      <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                        <span className="font-display text-2xl font-bold text-[#1d1d1f] tabular-nums">
                           {formatNaira(selectedProduct.price)}
                         </span>
                         <span className="text-xs text-gray-500 font-medium">
                           / {selectedProduct.unit}
                         </span>
                         {selectedProduct.compareAtPrice && selectedProduct.compareAtPrice > selectedProduct.price && (
-                          <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-semibold border border-emerald-200/80">
-                            Save {formatNaira(selectedProduct.compareAtPrice - selectedProduct.price)}
+                          <span className="text-xs font-semibold text-emerald-700 ml-1">
+                            (Save {formatNaira(selectedProduct.compareAtPrice - selectedProduct.price)})
                           </span>
                         )}
                       </div>

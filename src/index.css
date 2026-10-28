@@ -162,3 +162,187 @@
   animation: progressSweep 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* ========================================================
+   APPLE HUMAN INTERFACE GUIDELINES (HIG) ANIMATIONS & SPRINGS
+   ======================================================== */
+
+:root {
+  --ios-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --ios-sheet-spring: cubic-bezier(0.32, 0.72, 0, 1);
+  --ios-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ios-quick-bounce: cubic-bezier(0.34, 1.45, 0.64, 1);
+}
+
+/* iOS-style spring transitions */
+.spring-ios {
+  transition-timing-function: cubic-bezier(0.34, 1.45, 0.64, 1);
+}
+
+.apple-interactive {
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, opacity 0.15s ease;
+  will-change: transform;
+}
+
+.apple-interactive:hover {
+  transform: scale(1.035);
+}
+
+.apple-interactive:active {
+  transform: scale(0.93);
+  transition-duration: 0.08s;
+}
+
+/* Snappy, tactile bouncy buttons and pills */
+.apple-bounce {
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.15s ease, color 0.15s ease, box-shadow 0.2s ease;
+  will-change: transform;
+}
+
+.apple-bounce:hover {
+  transform: scale(1.045);
+}
+
+.apple-bounce:active {
+  transform: scale(0.91);
+  transition-duration: 0.08s;
+}
+
+.nav-pill-btn {
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  will-change: transform;
+}
+
+.nav-pill-btn:hover {
+  transform: scale(1.06);
+}
+
+.nav-pill-btn:active {
+  transform: scale(0.90);
+  transition-duration: 0.08s;
+}
+
+/* Quick, bouncy page entrance with subtle overshoot */
+@keyframes iosBounceEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.965);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-3px) scale(1.012);
+  }
+  85% {
+    transform: translateY(1px) scale(0.998);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes iosFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes iosSlideUpBounce {
+  0% {
+    opacity: 0;
+    transform: translateY(22px) scale(0.97);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(-3px) scale(1.008);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes drawerSpringRight {
+  0% {
+    transform: translateX(100%);
+  }
+  75% {
+    transform: translateX(-8px);
+  }
+  92% {
+    transform: translateX(2px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.animate-ios-enter {
+  animation: iosBounceEnter 0.32s cubic-bezier(0.34, 1.45, 0.64, 1) both;
+}
+
+.animate-ios-fade {
+  animation: iosFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-ios-slide-up {
+  animation: iosSlideUpBounce 0.35s cubic-bezier(0.34, 1.45, 0.64, 1) both;
+}
+
+.animate-drawer-bounce {
+  animation: drawerSpringRight 0.3s cubic-bezier(0.34, 1.35, 0.64, 1) both;
+}
+
+/* Stagger animation helpers */
+.stagger-1 { animation-delay: 40ms; }
+.stagger-2 { animation-delay: 80ms; }
+.stagger-3 { animation-delay: 120ms; }
+.stagger-4 { animation-delay: 160ms; }
+
+/* Snappy Apple-style scroll reveal with spring settle */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(18px) scale(0.985);
+  transition: opacity 0.45s cubic-bezier(0.34, 1.4, 0.64, 1), transform 0.45s cubic-bezier(0.34, 1.4, 0.64, 1);
+  will-change: opacity, transform;
+}
+
+.scroll-reveal.is-revealed {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Smooth translucent Apple scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.18);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.32);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+/* Accessibility: Respect Reduced Motion Preferences */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .scroll-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

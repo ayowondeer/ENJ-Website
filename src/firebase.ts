@@ -139,7 +139,7 @@ export interface OrderItem {
 export const INITIAL_PRODUCTS: Omit<ProductItem, 'id'>[] = [
   {
     title: "Luxury Matte Laminated Business Cards (Pack of 100)",
-    category: "Digital Printing",
+    category: "Marketing & Business Materials",
     description: "Premium 350gsm art card with dual-sided velvet matte lamination and optional spot UV gloss accents. Ideal for executives, founders, and corporate teams.",
     price: 18500,
     compareAtPrice: 22000,
@@ -158,7 +158,7 @@ export const INITIAL_PRODUCTS: Omit<ProductItem, 'id'>[] = [
   },
   {
     title: "Heavy-Duty Roll-Up Banner Stand (Big Base 85x200cm)",
-    category: "Signage & Displays",
+    category: "Marketing & Business Materials",
     description: "High-resolution full-color eco-solvent digital print on anti-curl banner media, mounted in an anodized aluminum wide-base mechanism with carrying bag.",
     price: 38000,
     compareAtPrice: 45000,
@@ -175,7 +175,7 @@ export const INITIAL_PRODUCTS: Omit<ProductItem, 'id'>[] = [
   },
   {
     title: "5KVA / 48V Pure Sine Wave Hybrid Solar Inverter System",
-    category: "Solar & Renewable Energy",
+    category: "Solar & Renewable",
     description: "Commercial & residential grade hybrid inverter with integrated MPPT solar charge controller. Designed for Maiduguri and North-East climatic conditions.",
     price: 685000,
     compareAtPrice: 750000,
@@ -192,7 +192,7 @@ export const INITIAL_PRODUCTS: Omit<ProductItem, 'id'>[] = [
   },
   {
     title: "Corporate Branded Monogrammed Polo Shirts",
-    category: "Apparel & Merchandise",
+    category: "Fashion & Apparel",
     description: "High-density combed cotton pique knit polo with precision multi-color embroidery of your company logo on chest and sleeve. Color-fast and durable.",
     price: 12500,
     compareAtPrice: 15000,
@@ -211,7 +211,7 @@ export const INITIAL_PRODUCTS: Omit<ProductItem, 'id'>[] = [
   },
   {
     title: "3D Acrylic LED Backlit Frontage Channel Lettering",
-    category: "Signage & Displays",
+    category: "Marketing & Business Materials",
     description: "Dimensional fabricated acrylic letters with weatherproof Samsung LED module internal illumination. Built for retail banks, hospitals, and corporate facades.",
     price: 145000,
     compareAtPrice: 175000,
@@ -229,7 +229,7 @@ export const INITIAL_PRODUCTS: Omit<ProductItem, 'id'>[] = [
   },
   {
     title: "Full Color A5 Marketing Flyers (Gloss Art 150gsm)",
-    category: "Digital Printing",
+    category: "Marketing & Business Materials",
     description: "Crisp, vibrant commercial color offset & digital flyer printing. Double sided or single sided with sharp details and rich saturation.",
     price: 32000,
     compareAtPrice: 38000,
@@ -246,7 +246,7 @@ export const INITIAL_PRODUCTS: Omit<ProductItem, 'id'>[] = [
   },
   {
     title: "Laser-Engraved Wooden & Crystal Executive Award Plaques",
-    category: "Corporate Supplies",
+    category: "Office supplies",
     description: "Bespoke recognition awards crafted with polished optical crystal and seasoned mahogany base, personalized with laser engraving and metallic foil inlays.",
     price: 28500,
     compareAtPrice: 35000,
@@ -263,8 +263,26 @@ export const INITIAL_PRODUCTS: Omit<ProductItem, 'id'>[] = [
     featured: false
   },
   {
+    title: "Smart High-Speed Wireless POS & Thermal Barcode Printer",
+    category: "Electronics & Gadgets",
+    description: "Multi-interface Bluetooth and Wi-Fi direct thermal receipt and barcode printer. Compatible with Android, iOS, Windows, and retail inventory systems.",
+    price: 48000,
+    compareAtPrice: 55000,
+    minOrderQty: 1,
+    unit: "unit",
+    imageUrl: "https://images.unsplash.com/photo-1526738549149-8e07eca6c147?auto=format&fit=crop&w=800&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1526738549149-8e07eca6c147?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80"
+    ],
+    availableColors: ["Matte Black", "Office Ivory"],
+    availableSizes: ["58mm Thermal Model", "80mm Auto-Cutter Model"],
+    inStock: true,
+    featured: true
+  },
+  {
     title: "Heavy-Duty Vinyl Vehicle Fleet Branding (Per Vehicle)",
-    category: "Signage & Displays",
+    category: "Marketing & Business Materials",
     description: "Outdoor cast vehicle wrap vinyl with UV protective overlaminate. Installed by certified technicians for trucks, delivery vans, and company sedans.",
     price: 195000,
     compareAtPrice: 230000,

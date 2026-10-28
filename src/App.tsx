@@ -27,12 +27,20 @@ import ShopView from './components/ShopView';
 import AdminPortal from './components/AdminPortal';
 import CartDrawer from './components/CartDrawer';
 import { CartItem, ProductItem } from './firebase';
+import { 
+  TestimonialItem, 
+  getLocalTestimonials, 
+  fetchLiveTestimonials 
+} from './data/testimonials';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<'home' | 'shop' | 'company' | 'contact' | 'admin'>('home');
   const [targetPage, setTargetPage] = useState<'home' | 'shop' | 'company' | 'contact' | 'admin' | null>(null);
   const [isPageLoading, setIsPageLoading] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Testimonials State (dynamically editable, with Nigerian names)
+  const [testimonials, setTestimonials] = useState<TestimonialItem[]>(() => getLocalTestimonials());
 
   // Cart State (stored in localStorage for seamless persistence)
   const [cart, setCart] = useState<CartItem[]>(() => {
@@ -115,10 +123,72 @@ export default function App() {
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterStatus, setNewsletterStatus] = useState('');
 
+  // Testimonials live sync
+  useEffect(() => {
+    fetchLiveTestimonials().then(setTestimonials);
+
+    const handleTestimonialsUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent<TestimonialItem[]>;
+      if (customEvent.detail) {
+        setTestimonials(customEvent.detail);
+      }
+    };
+
+    window.addEventListener('enj_testimonials_changed', handleTestimonialsUpdate);
+    return () => window.removeEventListener('enj_testimonials_changed', handleTestimonialsUpdate);
+  }, []);
+
+  // Scroll Position State for Apple Fluid Parallax Effect
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setScrollY(window.scrollY);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Apple HIG Scroll-Reveal Observer for all sections and cards
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-revealed');
+          }
+        });
+      },
+      { threshold: 0.08, rootMargin: '0px 0px -30px 0px' }
+    );
+
+    const timer = setTimeout(() => {
+      const elements = document.querySelectorAll('.scroll-reveal');
+      elements.forEach((el) => observer.observe(el));
+    }, 60);
+
+    return () => {
+      clearTimeout(timer);
+      observer.disconnect();
+    };
+  }, [currentPage]);
+
   // Sync hash routing and browser back/forward buttons
   useEffect(() => {
+    const getCleanHash = () => {
+      return window.location.hash.replace(/^#\/?/, '').replace(/\/$/, '').toLowerCase();
+    };
+
     const handleHashChange = () => {
-      const hash = window.location.hash.replace('#', '').toLowerCase();
+      const hash = getCleanHash();
       const target: 'home' | 'shop' | 'company' | 'contact' | 'admin' = 
         hash === 'shop' ? 'shop' :
         hash === 'admin' ? 'admin' :
@@ -127,16 +197,8 @@ export default function App() {
 
       setCurrentPage((prev) => {
         if (prev !== target) {
-          setTargetPage(target);
-          setIsPageLoading(true);
-          setTimeout(() => {
-            setCurrentPage(target);
-            window.scrollTo({ top: 0, behavior: 'instant' });
-            setTimeout(() => {
-              setIsPageLoading(false);
-              setTargetPage(null);
-            }, 60);
-          }, 240);
+          window.scrollTo({ top: 0, behavior: 'instant' });
+          return target;
         }
         return prev;
       });
@@ -154,7 +216,7 @@ export default function App() {
       }
     };
 
-    const initial = window.location.hash.replace('#', '').toLowerCase();
+    const initial = getCleanHash();
     if (initial === 'shop' || initial === 'admin' || initial === 'company' || initial === 'contact') {
       setCurrentPage(initial);
       if (initial === 'shop') document.title = 'Store & Products — ENJ Digital Concept';
@@ -168,37 +230,27 @@ export default function App() {
   }, []);
 
   const navigateTo = (page: 'home' | 'shop' | 'company' | 'contact' | 'admin') => {
-    if (page === currentPage && !isPageLoading) {
+    if (page === currentPage) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
     setMobileMenuOpen(false);
-    setTargetPage(page);
-    setIsPageLoading(true);
+    setCurrentPage(page);
+    window.location.hash = page === 'home' ? '' : page;
+    window.scrollTo({ top: 0, behavior: 'instant' });
 
-    setTimeout(() => {
-      setCurrentPage(page);
-      window.location.hash = page === 'home' ? '' : page;
-      window.scrollTo({ top: 0, behavior: 'instant' });
-
-      if (page === 'shop') {
-        document.title = 'Store & Products — ENJ Digital Concept';
-      } else if (page === 'admin') {
-        document.title = 'Merchant Admin — ENJ Store Manager';
-      } else if (page === 'company') {
-        document.title = 'Company — ENJ Digital Concept';
-      } else if (page === 'contact') {
-        document.title = 'Contact — ENJ Digital Concept';
-      } else {
-        document.title = 'ENJ Digital Concept — High-Quality Prints';
-      }
-
-      setTimeout(() => {
-        setIsPageLoading(false);
-        setTargetPage(null);
-      }, 60);
-    }, 240);
+    if (page === 'shop') {
+      document.title = 'Store & Products — ENJ Digital Concept';
+    } else if (page === 'admin') {
+      document.title = 'Merchant Admin — ENJ Store Manager';
+    } else if (page === 'company') {
+      document.title = 'Company — ENJ Digital Concept';
+    } else if (page === 'contact') {
+      document.title = 'Contact — ENJ Digital Concept';
+    } else {
+      document.title = 'ENJ Digital Concept — High-Quality Prints';
+    }
   };
 
   const handleContactSubmit = async (e: React.FormEvent) => {
@@ -290,7 +342,7 @@ export default function App() {
   // If on the dedicated Shop App: render the isolated clean ShopView
   if (currentPage === 'shop') {
     return (
-      <div className="selection:bg-[#f47b20] selection:text-white">
+      <div className="animate-ios-enter selection:bg-[#f47b20] selection:text-white">
         <ShopView
           cart={cart}
           addToCart={addToCart}
@@ -313,7 +365,7 @@ export default function App() {
   // If on the dedicated Store Owner / Merchant Portal: render AdminPortal
   if (currentPage === 'admin') {
     return (
-      <div className="selection:bg-[#f47b20] selection:text-white">
+      <div className="animate-ios-enter selection:bg-[#f47b20] selection:text-white">
         <AdminPortal
           onNavigateHome={() => navigateTo('home')}
           onNavigateShop={() => navigateTo('shop')}
@@ -350,13 +402,13 @@ export default function App() {
           {/* Logo Icon Only */}
           <button 
             onClick={() => navigateTo('home')} 
-            className="flex items-center text-left focus:outline-none cursor-pointer group"
+            className="flex items-center text-left focus:outline-none cursor-pointer group apple-bounce"
             aria-label="ENJ Digital Concept Home"
           >
             <img 
               src="/logo.png" 
               alt="ENJ Logo" 
-              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover bg-white border border-gray-100 shadow-xs transition-transform duration-200 group-hover:scale-105"
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover bg-white border border-gray-100 shadow-xs transition-transform duration-200 group-hover:scale-110 active:scale-90"
               onError={(e) => {
                 (e.target as HTMLImageElement).src = '/assets/aistudio/logo_3018c959.png';
               }}
@@ -367,9 +419,9 @@ export default function App() {
           <div className="hidden md:flex items-center gap-1 bg-black/5 p-0.5 rounded-full border border-black/5">
             <button
               onClick={() => navigateTo('home')}
-              className={`px-3 py-1 text-[11px] font-semibold rounded-full transition-all duration-200 cursor-pointer ${
+              className={`px-3 py-1 text-[11px] font-semibold rounded-full cursor-pointer nav-pill-btn ${
                 currentPage === 'home'
-                  ? 'bg-white text-[#1d1d1f] shadow-xs font-bold'
+                  ? 'bg-white text-[#1d1d1f] shadow-xs font-bold scale-[1.02]'
                   : 'text-[#515154] hover:text-[#c95510]'
               }`}
             >
@@ -377,9 +429,9 @@ export default function App() {
             </button>
             <button
               onClick={() => navigateTo('company')}
-              className={`px-3 py-1 text-[11px] font-semibold rounded-full transition-all duration-200 cursor-pointer ${
+              className={`px-3 py-1 text-[11px] font-semibold rounded-full cursor-pointer nav-pill-btn ${
                 currentPage === 'company'
-                  ? 'bg-white text-[#1d1d1f] shadow-xs font-bold'
+                  ? 'bg-white text-[#1d1d1f] shadow-xs font-bold scale-[1.02]'
                   : 'text-[#515154] hover:text-[#c95510]'
               }`}
             >
@@ -387,9 +439,9 @@ export default function App() {
             </button>
             <button
               onClick={() => navigateTo('contact')}
-              className={`px-3 py-1 text-[11px] font-semibold rounded-full transition-all duration-200 cursor-pointer ${
+              className={`px-3 py-1 text-[11px] font-semibold rounded-full cursor-pointer nav-pill-btn ${
                 currentPage === 'contact'
-                  ? 'bg-white text-[#1d1d1f] shadow-xs font-bold'
+                  ? 'bg-white text-[#1d1d1f] shadow-xs font-bold scale-[1.02]'
                   : 'text-[#515154] hover:text-[#c95510]'
               }`}
             >
@@ -401,7 +453,7 @@ export default function App() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => navigateTo('shop')}
-              className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-[#1d1d1f] hover:bg-[#3a3a3c] text-white text-[11px] font-semibold tracking-wide transition-colors shadow-xs cursor-pointer"
+              className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-[#1d1d1f] hover:bg-[#3a3a3c] text-white text-[11px] font-semibold tracking-wide shadow-xs cursor-pointer apple-bounce"
             >
               <span>Start Order</span>
             </button>
@@ -409,7 +461,7 @@ export default function App() {
             {/* Mobile Menu Toggle Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-1 rounded-full bg-black/5 hover:bg-black/10 text-[#1d1d1f] transition-colors cursor-pointer"
+              className="md:hidden p-1 rounded-full bg-black/5 hover:bg-black/10 text-[#1d1d1f] transition-colors cursor-pointer apple-bounce"
               aria-label="Toggle navigation menu"
               aria-expanded={mobileMenuOpen}
             >
@@ -420,10 +472,10 @@ export default function App() {
 
         {/* Floating Mobile Dropdown Panel */}
         {mobileMenuOpen && (
-          <div className="md:hidden mt-2 p-3 bg-white/95 backdrop-blur-2xl border border-white/80 rounded-2xl shadow-xl flex flex-col gap-1 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="md:hidden mt-2 p-3 bg-white/95 backdrop-blur-2xl border border-white/80 rounded-2xl shadow-xl flex flex-col gap-1 animate-ios-slide-up">
             <button
               onClick={() => navigateTo('home')}
-              className={`w-full text-left px-3.5 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+              className={`w-full text-left px-3.5 py-2 rounded-xl text-xs font-medium cursor-pointer apple-bounce ${
                 currentPage === 'home' ? 'bg-[#f47b20]/15 text-[#1d1d1f] font-bold' : 'hover:bg-gray-100 text-[#424245]'
               }`}
             >
@@ -431,7 +483,7 @@ export default function App() {
             </button>
             <button
               onClick={() => navigateTo('company')}
-              className={`w-full text-left px-3.5 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+              className={`w-full text-left px-3.5 py-2 rounded-xl text-xs font-medium cursor-pointer apple-bounce ${
                 currentPage === 'company' ? 'bg-[#f47b20]/15 text-[#1d1d1f] font-bold' : 'hover:bg-gray-100 text-[#424245]'
               }`}
             >
@@ -439,7 +491,7 @@ export default function App() {
             </button>
             <button
               onClick={() => navigateTo('contact')}
-              className={`w-full text-left px-3.5 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer ${
+              className={`w-full text-left px-3.5 py-2 rounded-xl text-xs font-medium cursor-pointer apple-bounce ${
                 currentPage === 'contact' ? 'bg-[#f47b20]/15 text-[#1d1d1f] font-bold' : 'hover:bg-gray-100 text-[#424245]'
               }`}
             >
@@ -448,7 +500,7 @@ export default function App() {
             <div className="pt-1.5 border-t border-gray-100 flex flex-col gap-1">
               <button
                 onClick={() => navigateTo('shop')}
-                className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-[#f47b20] text-white text-xs font-semibold shadow-xs"
+                className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-[#f47b20] text-white text-xs font-semibold shadow-xs cursor-pointer apple-bounce"
               >
                 <Store className="w-3.5 h-3.5" />
                 <span>Visit Online Store</span>
@@ -458,15 +510,12 @@ export default function App() {
         )}
       </header>
 
-      {/* Entire Page Content: blurred when navigating between pages */}
+      {/* Entire Page Content: fast, snappy bouncy transition per view */}
       <div 
-        className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ease-out ${
-          isPageLoading 
-            ? 'filter blur-[10px] md:blur-[14px] opacity-40 pointer-events-none select-none' 
-            : 'filter-none opacity-100'
-        }`}
+        key={currentPage}
+        className="flex-1 flex flex-col min-h-screen animate-ios-enter"
       >
-        <main className={`flex-1 ${currentPage === 'home' ? 'pt-0' : 'pt-20 sm:pt-24'} pb-16 transition-all duration-300 ease-out`}>
+        <main className={`flex-1 ${currentPage === 'home' ? 'pt-0' : 'pt-20 sm:pt-24'} pb-16`}>
 
         {/* ========================================================
             PAGE 1: HOME PAGE
@@ -477,15 +526,27 @@ export default function App() {
             <div className="w-full m-0 p-0 relative">
               <div className="relative w-full h-[100dvh] min-h-[560px] overflow-hidden text-white flex flex-col justify-between items-center px-4 sm:px-8 md:px-12 pt-20 sm:pt-24 pb-6 sm:pb-8 isolate">
                 
-                {/* 1. Background Image - Responsive cover for all screen aspect ratios */}
-                <img
-                  src="/hero-bg.png"
-                  alt="Industrial Digital Printing Press"
-                  className="absolute inset-0 w-full h-full object-cover object-center z-0 scale-102 transition-transform duration-1000 ease-out"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/assets/aistudio/image_699b0ca6.png';
+                {/* 1. Background Image with Apple Fluid Parallax Effect */}
+                <div 
+                  className="absolute inset-0 w-full h-[120%] pointer-events-none select-none overflow-hidden"
+                  style={{
+                    transform: `translate3d(0, ${Math.min(scrollY * 0.22, 180)}px, 0)`,
+                    willChange: 'transform'
                   }}
-                />
+                >
+                  <img
+                    src="/hero-bg.png"
+                    alt="Industrial Digital Printing Press"
+                    style={{
+                      transform: `scale(${1.02 + Math.min(scrollY * 0.00035, 0.08)})`,
+                      willChange: 'transform'
+                    }}
+                    className="w-full h-full object-cover object-center transition-transform duration-75 ease-out"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/assets/aistudio/image_699b0ca6.png';
+                    }}
+                  />
+                </div>
 
                 {/* 2. Cinematic Dark Gradient Overlay */}
                 <div 
@@ -507,27 +568,34 @@ export default function App() {
                 {/* Top spacer to balance navbar */}
                 <div className="h-2 sm:h-4 w-full" aria-hidden="true" />
 
-                {/* Center Content: Heading, Description, and CTAs */}
-                <div className="relative z-10 max-w-2xl mx-auto text-center flex flex-col items-center my-auto px-2">
+                {/* Center Content: Heading, Description, and CTAs with Parallax Depth */}
+                <div 
+                  className="relative z-10 max-w-2xl mx-auto text-center flex flex-col items-center my-auto px-2 transition-transform duration-75 ease-out"
+                  style={{
+                    transform: `translate3d(0, ${Math.min(scrollY * 0.1, 75)}px, 0)`,
+                    opacity: Math.max(1 - scrollY / 650, 0),
+                    willChange: 'transform, opacity'
+                  }}
+                >
                   <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold leading-[1.12] tracking-tight mb-3 sm:mb-4 text-white drop-shadow-sm">
                     High-quality prints, delivered right on time.
                   </h1>
                   
                   <p className="text-slate-200/90 text-xs sm:text-sm md:text-base leading-relaxed max-w-lg mx-auto mb-6 sm:mb-8 font-normal drop-shadow-xs">
-                    Turning ideas into striking physical realities. As Maiduguri’s premier printing powerhouse, we specialize in high-impact print solutions for ambitious brands, corporate organizations, and creative individuals.
+                    Turning ideas into striking physical realities. As a premier printing powerhouse, we specialize in high-impact print solutions for ambitious brands, corporate organizations, and creative individuals.
                   </p>
 
                   <div className="flex flex-wrap items-center justify-center gap-3">
                     <button
                       onClick={() => navigateTo('shop')}
-                      className="inline-flex items-center justify-center px-6 py-2.5 rounded-full bg-[#f47b20] hover:bg-[#c95510] text-white text-xs font-semibold shadow-md transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                      className="inline-flex items-center justify-center px-6 py-2.5 rounded-full bg-[#f47b20] hover:bg-[#c95510] text-white text-xs font-semibold shadow-md transition-all hover:scale-105 active:scale-95 cursor-pointer apple-interactive"
                     >
                       <span>Start Order</span>
                     </button>
 
                     <button
                       onClick={() => navigateTo('company')}
-                      className="inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-black/40 hover:bg-black/60 text-white border border-white/25 text-xs font-medium backdrop-blur-md transition-all hover:border-white/50 cursor-pointer hover:scale-105 active:scale-95"
+                      className="inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-black/40 hover:bg-black/60 text-white border border-white/25 text-xs font-medium backdrop-blur-md transition-all hover:border-white/50 cursor-pointer hover:scale-105 active:scale-95 apple-interactive"
                     >
                       <span>Explore Company</span>
                     </button>
@@ -555,7 +623,7 @@ export default function App() {
             </div>
 
             {/* Section: Print Services Grid - Contained with proper luxury whitespace */}
-            <div id="services-section" className="max-w-5xl mx-auto px-4 sm:px-6 pt-12 sm:pt-16 pb-6">
+            <div id="services-section" className="max-w-5xl mx-auto px-4 sm:px-6 pt-12 sm:pt-16 pb-6 scroll-reveal">
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
                 <div>
                   <p className="text-[10px] font-bold tracking-widest text-[#6e6e73] uppercase mb-1.5">What we do</p>
@@ -719,7 +787,7 @@ export default function App() {
               <div className="mt-10 p-6 rounded-2xl bg-white/50 border border-black/5 flex flex-col md:flex-row items-center justify-between gap-4">
                 <div>
                   <h3 className="font-display text-lg font-medium text-[#1d1d1f]">Visit our separate online store app</h3>
-                  <p className="text-[#6e6e73] text-xs mt-0.5">Browse live print products, compare prices in Naira, and pay instantly via Paystack.</p>
+                  <p className="text-[#6e6e73] text-xs mt-0.5">Browse live print products, compare prices in Naira, and pay securely online.</p>
                 </div>
                 <button
                   onClick={() => navigateTo('shop')}
@@ -731,7 +799,7 @@ export default function App() {
             </div>
 
             {/* Section: Impact in Numbers - Compact and Elegant */}
-            <div className="max-w-5xl mx-auto px-4 sm:px-6 mt-16 sm:mt-20">
+            <div className="max-w-5xl mx-auto px-4 sm:px-6 mt-16 sm:mt-20 scroll-reveal">
               <div className="rounded-3xl p-6 sm:p-10 md:p-12 bg-white/70 backdrop-blur-xl border border-white/80 shadow-xs">
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
                   <div>
@@ -761,7 +829,7 @@ export default function App() {
             </div>
 
             {/* Section: Testimonials */}
-            <div className="max-w-5xl mx-auto px-4 sm:px-6 mt-16 sm:mt-20">
+            <div className="max-w-5xl mx-auto px-4 sm:px-6 mt-16 sm:mt-20 scroll-reveal">
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
                 <div>
                   <p className="text-[10px] font-bold tracking-widest text-[#6e6e73] uppercase mb-1.5">Kind words</p>

@@ -33,9 +33,9 @@ export interface PaystackConfig {
   onClose: () => void;
 }
 
-// Configurable test key; can be overridden via VITE_PAYSTACK_PUBLIC_KEY
+// User-configured Paystack public key; can be overridden via VITE_PAYSTACK_PUBLIC_KEY
 export const PAYSTACK_PUBLIC_KEY = 
-  (import.meta as any).env?.VITE_PAYSTACK_PUBLIC_KEY || 'pk_test_d3a8fc485c290163351d3fcda69fbbd279cf733e';
+  (import.meta as any).env?.VITE_PAYSTACK_PUBLIC_KEY || 'pk_test_bbeaa3c12b1b10b7a933fb32f0f729498d5a124c';
 
 export function payWithPaystack({
   email,
