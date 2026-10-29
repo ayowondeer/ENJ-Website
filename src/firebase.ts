@@ -107,6 +107,7 @@ export interface ProductItem {
   availableSizes?: string[];
   inStock: boolean;
   featured?: boolean;
+  position?: number;
   createdAt?: string;
   updatedAt?: string;
   createdBy?: string;
@@ -357,6 +358,36 @@ export async function deleteProductPermanently(target: ProductItem): Promise<voi
     await deleteDoc(doc(db, 'products', target.id));
   } catch (e) {
     console.warn("Direct delete notice:", e);
+  }
+}
+
+// Helper to permanently delete an order from Firestore and localStorage
+export async function deleteOrderPermanently(orderId: string): Promise<void> {
+  try {
+    const key = 'enj_deleted_orders_v1';
+    const existing = JSON.parse(localStorage.getItem(key) || '[]');
+    if (!existing.includes(orderId)) {
+      existing.push(orderId);
+      localStorage.setItem(key, JSON.stringify(existing));
+    }
+  } catch (e) {
+    console.warn("Local deleted order mark notice:", e);
+  }
+
+  try {
+    await deleteDoc(doc(db, 'orders', orderId));
+  } catch (e) {
+    console.warn("Direct order delete notice:", e);
+  }
+}
+
+export function isOrderDeleted(orderId: string): boolean {
+  try {
+    const key = 'enj_deleted_orders_v1';
+    const existing = JSON.parse(localStorage.getItem(key) || '[]');
+    return existing.includes(orderId);
+  } catch {
+    return false;
   }
 }
 

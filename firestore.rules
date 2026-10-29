@@ -77,6 +77,11 @@ service cloud.firestore {
       allow read, write: if true;
     }
 
+    // Testimonials collection: dynamic reviews & authentic client feedback
+    match /testimonials/{testimonialId} {
+      allow read, write: if true;
+    }
+
     // Connection testing
     match /test/{docId} {
       allow read: if true;

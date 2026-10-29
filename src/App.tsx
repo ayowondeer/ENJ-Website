@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   CheckCircle2, 
   Phone, 
@@ -21,7 +21,12 @@ import {
   RotateCcw, 
   ArrowRight,
   ShieldCheck,
-  Store
+  Store,
+  ChevronLeft,
+  ChevronRight,
+  RefreshCw,
+  Play,
+  Pause
 } from 'lucide-react';
 import ShopView from './components/ShopView';
 import AdminPortal from './components/AdminPortal';
@@ -39,7 +44,7 @@ export default function App() {
   const [isPageLoading, setIsPageLoading] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Testimonials State (dynamically editable, with Nigerian names)
+  // Testimonials State (authentic Nigerian names, horizontally scrollable)
   const [testimonials, setTestimonials] = useState<TestimonialItem[]>(() => getLocalTestimonials());
 
   // Cart State (stored in localStorage for seamless persistence)
@@ -397,18 +402,18 @@ export default function App() {
       </svg>
 
       {/* Floating Pill Navigation Header: Scaled for a refined, compact, luxury feel */}
-      <header className="fixed top-3 sm:top-5 left-1/2 -translate-x-1/2 z-50 w-[min(780px,calc(100%-32px))] pointer-events-auto">
-        <nav className="glass-pill rounded-full px-3 sm:px-4 py-1.5 flex items-center justify-between shadow-[0_16px_36px_-6px_rgba(0,0,0,0.14),0_3px_12px_rgba(0,0,0,0.06)] border border-white/85">
+      <header className="fixed top-3 sm:top-5 left-1/2 -translate-x-1/2 z-50 w-[min(780px,calc(100%-24px))] sm:w-[min(780px,calc(100%-32px))] pointer-events-auto">
+        <nav className="glass-pill rounded-full px-3 sm:px-4 py-2 sm:py-1.5 flex items-center justify-between shadow-[0_16px_36px_-6px_rgba(0,0,0,0.14),0_3px_12px_rgba(0,0,0,0.06)] border border-white/85">
           {/* Logo Icon Only */}
           <button 
             onClick={() => navigateTo('home')} 
-            className="flex items-center text-left focus:outline-none cursor-pointer group apple-bounce"
+            className="flex items-center text-left focus:outline-none cursor-pointer group apple-bounce p-0.5 touch-action-btn"
             aria-label="ENJ Digital Concept Home"
           >
             <img 
               src="/logo.png" 
               alt="ENJ Logo" 
-              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover bg-white border border-gray-100 shadow-xs transition-transform duration-200 group-hover:scale-110 active:scale-90"
+              className="w-8 h-8 sm:w-8 sm:h-8 rounded-full object-cover bg-white border border-gray-100 shadow-xs transition-transform duration-200 group-hover:scale-110 active:scale-90"
               onError={(e) => {
                 (e.target as HTMLImageElement).src = '/assets/aistudio/logo_3018c959.png';
               }}
@@ -453,29 +458,29 @@ export default function App() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => navigateTo('shop')}
-              className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-[#1d1d1f] hover:bg-[#3a3a3c] text-white text-[11px] font-semibold tracking-wide shadow-xs cursor-pointer apple-bounce"
+              className="inline-flex items-center px-4 py-2 sm:py-1.5 rounded-full bg-[#1d1d1f] hover:bg-[#3a3a3c] text-white text-xs font-semibold tracking-wide shadow-xs cursor-pointer touch-action-btn apple-bounce min-h-[38px] sm:min-h-0"
             >
               <span>Start Order</span>
             </button>
 
-            {/* Mobile Menu Toggle Button */}
+            {/* Mobile Menu Toggle Button (Generous finger tap hitbox 42x42px) */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-1 rounded-full bg-black/5 hover:bg-black/10 text-[#1d1d1f] transition-colors cursor-pointer apple-bounce"
+              className="md:hidden w-10 h-10 rounded-full bg-black/5 hover:bg-black/10 active:bg-black/15 text-[#1d1d1f] flex items-center justify-center transition-all cursor-pointer touch-action-btn"
               aria-label="Toggle navigation menu"
               aria-expanded={mobileMenuOpen}
             >
-              {mobileMenuOpen ? <X className="w-3.5 h-3.5" /> : <Menu className="w-3.5 h-3.5" />}
+              {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
             </button>
           </div>
         </nav>
 
-        {/* Floating Mobile Dropdown Panel */}
+        {/* Floating Mobile Dropdown Panel with comfortable touch targets */}
         {mobileMenuOpen && (
-          <div className="md:hidden mt-2 p-3 bg-white/95 backdrop-blur-2xl border border-white/80 rounded-2xl shadow-xl flex flex-col gap-1 animate-ios-slide-up">
+          <div className="md:hidden mt-2 p-2.5 bg-white/95 backdrop-blur-2xl border border-white/80 rounded-2xl shadow-xl flex flex-col gap-1.5 animate-ios-slide-up">
             <button
               onClick={() => navigateTo('home')}
-              className={`w-full text-left px-3.5 py-2 rounded-xl text-xs font-medium cursor-pointer apple-bounce ${
+              className={`w-full text-left px-4 py-3.5 rounded-xl text-sm font-semibold cursor-pointer touch-action-btn ${
                 currentPage === 'home' ? 'bg-[#f47b20]/15 text-[#1d1d1f] font-bold' : 'hover:bg-gray-100 text-[#424245]'
               }`}
             >
@@ -483,7 +488,7 @@ export default function App() {
             </button>
             <button
               onClick={() => navigateTo('company')}
-              className={`w-full text-left px-3.5 py-2 rounded-xl text-xs font-medium cursor-pointer apple-bounce ${
+              className={`w-full text-left px-4 py-3.5 rounded-xl text-sm font-semibold cursor-pointer touch-action-btn ${
                 currentPage === 'company' ? 'bg-[#f47b20]/15 text-[#1d1d1f] font-bold' : 'hover:bg-gray-100 text-[#424245]'
               }`}
             >
@@ -491,24 +496,33 @@ export default function App() {
             </button>
             <button
               onClick={() => navigateTo('contact')}
-              className={`w-full text-left px-3.5 py-2 rounded-xl text-xs font-medium cursor-pointer apple-bounce ${
+              className={`w-full text-left px-4 py-3.5 rounded-xl text-sm font-semibold cursor-pointer touch-action-btn ${
                 currentPage === 'contact' ? 'bg-[#f47b20]/15 text-[#1d1d1f] font-bold' : 'hover:bg-gray-100 text-[#424245]'
               }`}
             >
               Contact
             </button>
-            <div className="pt-1.5 border-t border-gray-100 flex flex-col gap-1">
+            <div className="pt-2 border-t border-gray-100 flex flex-col gap-1">
               <button
                 onClick={() => navigateTo('shop')}
-                className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-[#f47b20] text-white text-xs font-semibold shadow-xs cursor-pointer apple-bounce"
+                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-[#f47b20] hover:bg-[#c95510] active:scale-[0.98] text-white text-sm font-semibold shadow-xs cursor-pointer touch-action-btn"
               >
-                <Store className="w-3.5 h-3.5" />
+                <Store className="w-4 h-4" />
                 <span>Visit Online Store</span>
               </button>
             </div>
           </div>
         )}
       </header>
+
+      {/* Backdrop for mobile menu to close on outside touch */}
+      {mobileMenuOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-black/25 backdrop-blur-2xs md:hidden" 
+          onClick={() => setMobileMenuOpen(false)} 
+          aria-hidden="true"
+        />
+      )}
 
       {/* Entire Page Content: fast, snappy bouncy transition per view */}
       <div 
@@ -585,17 +599,17 @@ export default function App() {
                     Turning ideas into striking physical realities. As a premier printing powerhouse, we specialize in high-impact print solutions for ambitious brands, corporate organizations, and creative individuals.
                   </p>
 
-                  <div className="flex flex-wrap items-center justify-center gap-3">
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-3 w-full sm:w-auto px-4 sm:px-0">
                     <button
                       onClick={() => navigateTo('shop')}
-                      className="inline-flex items-center justify-center px-6 py-2.5 rounded-full bg-[#f47b20] hover:bg-[#c95510] text-white text-xs font-semibold shadow-md transition-all hover:scale-105 active:scale-95 cursor-pointer apple-interactive"
+                      className="w-full sm:w-auto inline-flex items-center justify-center px-7 py-3 sm:py-2.5 rounded-full bg-[#f47b20] hover:bg-[#c95510] text-white text-xs sm:text-sm font-semibold shadow-md transition-all touch-action-btn cursor-pointer"
                     >
                       <span>Start Order</span>
                     </button>
 
                     <button
                       onClick={() => navigateTo('company')}
-                      className="inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-black/40 hover:bg-black/60 text-white border border-white/25 text-xs font-medium backdrop-blur-md transition-all hover:border-white/50 cursor-pointer hover:scale-105 active:scale-95 apple-interactive"
+                      className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 sm:py-2.5 rounded-full bg-black/40 hover:bg-black/60 text-white border border-white/25 text-xs sm:text-sm font-medium backdrop-blur-md transition-all touch-action-btn cursor-pointer"
                     >
                       <span>Explore Company</span>
                     </button>
@@ -641,7 +655,7 @@ export default function App() {
                 {/* 01 */}
                 <div 
                   onClick={() => navigateTo('shop')} 
-                  className="group rounded-2xl p-3 bg-white/70 backdrop-blur-md border border-white/90 shadow-xs hover:shadow-lg transition-all duration-300 cursor-pointer"
+                  className="group rounded-2xl p-3 bg-white/70 backdrop-blur-md border border-white/90 shadow-xs hover:shadow-lg transition-all duration-300 cursor-pointer touch-action-card"
                 >
                   <div className="relative h-44 sm:h-48 rounded-xl overflow-hidden bg-gray-100 mb-3">
                     <img 
@@ -665,7 +679,7 @@ export default function App() {
                 {/* 02 */}
                 <div 
                   onClick={() => navigateTo('shop')}
-                  className="group rounded-2xl p-3 bg-white/70 backdrop-blur-md border border-white/90 shadow-xs hover:shadow-lg transition-all duration-300 cursor-pointer"
+                  className="group rounded-2xl p-3 bg-white/70 backdrop-blur-md border border-white/90 shadow-xs hover:shadow-lg transition-all duration-300 cursor-pointer touch-action-card"
                 >
                   <div className="relative h-44 sm:h-48 rounded-xl overflow-hidden bg-gray-100 mb-3">
                     <img 
@@ -689,7 +703,7 @@ export default function App() {
                 {/* 03 */}
                 <div 
                   onClick={() => navigateTo('shop')}
-                  className="group rounded-2xl p-3 bg-white/70 backdrop-blur-md border border-white/90 shadow-xs hover:shadow-lg transition-all duration-300 cursor-pointer"
+                  className="group rounded-2xl p-3 bg-white/70 backdrop-blur-md border border-white/90 shadow-xs hover:shadow-lg transition-all duration-300 cursor-pointer touch-action-card"
                 >
                   <div className="relative h-44 sm:h-48 rounded-xl overflow-hidden bg-gray-100 mb-3">
                     <img 
@@ -713,7 +727,7 @@ export default function App() {
                 {/* 04 */}
                 <div 
                   onClick={() => navigateTo('shop')}
-                  className="group rounded-2xl p-3 bg-white/70 backdrop-blur-md border border-white/90 shadow-xs hover:shadow-lg transition-all duration-300 cursor-pointer"
+                  className="group rounded-2xl p-3 bg-white/70 backdrop-blur-md border border-white/90 shadow-xs hover:shadow-lg transition-all duration-300 cursor-pointer touch-action-card"
                 >
                   <div className="relative h-44 sm:h-48 rounded-xl overflow-hidden bg-gray-100 mb-3">
                     <img 
@@ -737,7 +751,7 @@ export default function App() {
                 {/* 05 */}
                 <div 
                   onClick={() => navigateTo('shop')}
-                  className="group rounded-2xl p-3 bg-white/70 backdrop-blur-md border border-white/90 shadow-xs hover:shadow-lg transition-all duration-300 cursor-pointer"
+                  className="group rounded-2xl p-3 bg-white/70 backdrop-blur-md border border-white/90 shadow-xs hover:shadow-lg transition-all duration-300 cursor-pointer touch-action-card"
                 >
                   <div className="relative h-44 sm:h-48 rounded-xl overflow-hidden bg-gray-100 mb-3">
                     <img 
@@ -761,7 +775,7 @@ export default function App() {
                 {/* 06 */}
                 <div 
                   onClick={() => navigateTo('shop')}
-                  className="group rounded-2xl p-3 bg-white/70 backdrop-blur-md border border-white/90 shadow-xs hover:shadow-lg transition-all duration-300 cursor-pointer"
+                  className="group rounded-2xl p-3 bg-white/70 backdrop-blur-md border border-white/90 shadow-xs hover:shadow-lg transition-all duration-300 cursor-pointer touch-action-card"
                 >
                   <div className="relative h-44 sm:h-48 rounded-xl overflow-hidden bg-gray-100 mb-3">
                     <img 
@@ -784,16 +798,16 @@ export default function App() {
               </div>
 
               {/* Explore Store Banner */}
-              <div className="mt-10 p-6 rounded-2xl bg-white/50 border border-black/5 flex flex-col md:flex-row items-center justify-between gap-4">
-                <div>
-                  <h3 className="font-display text-lg font-medium text-[#1d1d1f]">Visit our separate online store app</h3>
+              <div className="mt-10 p-5 sm:p-6 rounded-2xl bg-white/50 border border-black/5 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="text-center sm:text-left">
+                  <h3 className="font-display text-lg font-medium text-[#1d1d1f]">Visit our Online Store</h3>
                   <p className="text-[#6e6e73] text-xs mt-0.5">Browse live print products, compare prices in Naira, and pay securely online.</p>
                 </div>
                 <button
                   onClick={() => navigateTo('shop')}
-                  className="whitespace-nowrap px-5 py-2.5 rounded-full bg-[#f47b20] hover:bg-[#c95510] text-white text-xs font-semibold tracking-wide transition-colors cursor-pointer shadow-xs"
+                  className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3.5 sm:py-2.5 rounded-full bg-[#f47b20] hover:bg-[#c95510] text-white text-xs font-semibold tracking-wide transition-colors cursor-pointer shadow-xs touch-action-btn"
                 >
-                  Start Order
+                  <span>Start Order</span>
                 </button>
               </div>
             </div>
@@ -807,30 +821,30 @@ export default function App() {
                     <h2 className="font-display text-2xl sm:text-3xl font-medium tracking-tight text-[#1d1d1f]">In numbers.</h2>
                   </div>
                   <p className="text-[#6e6e73] text-xs max-w-xs leading-relaxed">
-                    Milestones achieved together with clients across northern Nigeria.
+                    Milestones achieved together with clients across Nigeria.
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-black/10">
-                  <div className="space-y-1">
+                  <div className="space-y-1 pb-4 border-b border-black/10 md:border-b-0 md:pb-0">
                     <span className="block font-display text-3xl sm:text-4xl font-light tracking-tight text-[#1d1d1f]">20k+</span>
                     <span className="text-xs font-medium text-[#6e6e73]">Prints & Orders Delivered</span>
                   </div>
-                  <div className="space-y-1 md:border-l md:border-black/10 md:pl-6">
+                  <div className="space-y-1 pb-4 border-b border-black/10 md:border-b-0 md:pb-0 md:border-l md:border-black/10 md:pl-6">
                     <span className="block font-display text-3xl sm:text-4xl font-light tracking-tight text-[#1d1d1f]">5+</span>
                     <span className="text-xs font-medium text-[#6e6e73]">Years of Industry Excellence</span>
                   </div>
                   <div className="space-y-1 md:border-l md:border-black/10 md:pl-6">
-                    <span className="block font-display text-3xl sm:text-4xl font-light tracking-tight text-[#f47b20]">99%</span>
+                    <span className="block font-display text-3xl sm:text-4xl font-light tracking-tight text-[#1d1d1f]">99%</span>
                     <span className="text-xs font-medium text-[#6e6e73]">Client Satisfaction Rating</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Section: Testimonials */}
+            {/* Section: Testimonials - Horizontally Scrollable Cards with Nigerian Brands */}
             <div className="max-w-5xl mx-auto px-4 sm:px-6 mt-16 sm:mt-20 scroll-reveal">
-              <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+              <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-7">
                 <div>
                   <p className="text-[10px] font-bold tracking-widest text-[#6e6e73] uppercase mb-1.5">Kind words</p>
                   <h2 className="font-display text-2xl sm:text-3xl font-medium tracking-tight text-[#1d1d1f]">
@@ -842,46 +856,39 @@ export default function App() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <figure className="p-6 rounded-2xl bg-white border border-black/5 shadow-xs flex flex-col justify-between">
-                  <blockquote className="font-display text-base sm:text-lg text-[#1d1d1f] font-normal leading-snug mb-6">
-                    “The clarity of the brochures exceeded all our expectations.”
-                  </blockquote>
-                  <figcaption className="text-xs font-semibold text-[#1d1d1f]">
-                    Sabine Delcroix
-                    <span className="block text-[11px] font-normal text-[#6e6e73] mt-0.5">Marketing Manager, Tech</span>
-                  </figcaption>
-                </figure>
+              {/* Horizontal Scrollable Testimonial Cards Track */}
+              <div 
+                className="flex items-stretch gap-4 sm:gap-5 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory touch-momentum -mx-4 px-4 sm:mx-0 sm:px-0"
+                style={{ WebkitOverflowScrolling: 'touch' }}
+              >
+                {testimonials.map((item) => (
+                  <figure 
+                    key={item.id}
+                    className={`w-[290px] sm:w-[360px] md:w-[390px] shrink-0 snap-start p-6 sm:p-7 rounded-3xl shadow-xs flex flex-col justify-between transition-all duration-300 hover:shadow-md touch-action-card relative overflow-hidden group min-h-[200px] ${
+                      item.highlight 
+                        ? 'bg-[#fff0df]/60 border border-[#f47b20]/25' 
+                        : 'bg-white border border-black/5'
+                    }`}
+                  >
+                    <div className="absolute top-2.5 right-4 font-serif text-5xl sm:text-6xl leading-none text-black/5 select-none pointer-events-none group-hover:text-[#f47b20]/15 transition-colors">
+                      “
+                    </div>
 
-                <figure className="p-6 rounded-2xl bg-[#fff0df]/60 border border-[#f47b20]/20 shadow-xs flex flex-col justify-between">
-                  <blockquote className="font-display text-base sm:text-lg text-[#1d1d1f] font-normal leading-snug mb-6">
-                    “The quality of our large-format banners completely exceeded expectations. Our go-to-print partner.”
-                  </blockquote>
-                  <figcaption className="text-xs font-semibold text-[#1d1d1f]">
-                    Engr. Emmanuel I. Moses
-                    <span className="block text-[11px] font-normal text-[#6e6e73] mt-0.5">CEO — ENJ Digital Concept</span>
-                  </figcaption>
-                </figure>
+                    <blockquote className="font-display text-base sm:text-lg text-[#1d1d1f] font-normal leading-snug mb-6 relative z-10">
+                      “{item.quote.replace(/^“|”$/g, '')}”
+                    </blockquote>
 
-                <figure className="p-6 rounded-2xl bg-white border border-black/5 shadow-xs flex flex-col justify-between">
-                  <blockquote className="font-display text-base sm:text-lg text-[#1d1d1f] font-normal leading-snug mb-6">
-                    “The fastest turnaround on business cards we've ever seen, with absolute color accuracy.”
-                  </blockquote>
-                  <figcaption className="text-xs font-semibold text-[#1d1d1f]">
-                    Lars Vilanova
-                    <span className="block text-[11px] font-normal text-[#6e6e73] mt-0.5">Founder of Creative Firm</span>
-                  </figcaption>
-                </figure>
-
-                <figure className="p-6 rounded-2xl bg-white border border-black/5 shadow-xs flex flex-col justify-between">
-                  <blockquote className="font-display text-base sm:text-lg text-[#1d1d1f] font-normal leading-snug mb-6">
-                    “Sharp details, consistent colors, and fast turnaround. A truly reliable partner.”
-                  </blockquote>
-                  <figcaption className="text-xs font-semibold text-[#1d1d1f]">
-                    David O.
-                    <span className="block text-[11px] font-normal text-[#6e6e73] mt-0.5">Creative Director — Power Creative</span>
-                  </figcaption>
-                </figure>
+                    <figcaption className="text-xs font-semibold text-[#1d1d1f] relative z-10 flex items-center justify-between border-t border-black/5 pt-3 mt-auto">
+                      <div>
+                        <span className="block font-bold text-sm text-gray-900">{item.author}</span>
+                        <span className="block text-[11px] font-normal text-[#6e6e73] mt-0.5">{item.role}</span>
+                      </div>
+                      <span className="px-2.5 py-1 rounded-full bg-black/5 text-[10px] font-medium text-gray-600 shrink-0">
+                        Verified Client
+                      </span>
+                    </figcaption>
+                  </figure>
+                ))}
               </div>
             </div>
           </div>
@@ -939,7 +946,7 @@ export default function App() {
                   { title: 'Cleaning detergents', desc: 'Disinfectants, mops, industrial cleaners, trash cans and paper towels.', icon: 'icon-cleaning' },
                   { title: 'Computers & ICT accessories', desc: 'Laptops, desktops, keyboards, mice, storage drives and networking parts.', icon: 'icon-computer' }
                 ].map((item, idx) => (
-                  <div key={idx} className="p-4 rounded-2xl bg-white/70 border border-white/90 shadow-xs hover:shadow-sm transition-shadow">
+                  <div key={idx} className="p-4 rounded-2xl bg-white/70 border border-white/90 shadow-xs hover:shadow-sm transition-shadow touch-action-card">
                     <span className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-[#1d1d1f] mb-3">
                       <svg className="w-4 h-4"><use href={`#${item.icon}`}></use></svg>
                     </span>
@@ -965,9 +972,9 @@ export default function App() {
                 </p>
                 <button
                   onClick={() => navigateTo('shop')}
-                  className="px-5 py-2.5 rounded-full bg-[#f47b20] hover:bg-[#c95510] text-white text-xs font-semibold tracking-wide transition-colors cursor-pointer"
+                  className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3.5 sm:py-2.5 rounded-full bg-[#f47b20] hover:bg-[#c95510] text-white text-xs font-semibold tracking-wide transition-colors cursor-pointer touch-action-btn"
                 >
-                  Explore
+                  <span>Explore Solar Supplies</span>
                 </button>
               </div>
             </div>
@@ -981,9 +988,9 @@ export default function App() {
               </div>
               <button
                 onClick={() => navigateTo('contact')}
-                className="whitespace-nowrap px-6 py-2.5 rounded-full bg-white text-[#1d1d1f] hover:bg-gray-100 font-bold text-xs tracking-wider uppercase transition-colors cursor-pointer"
+                className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3.5 sm:py-2.5 rounded-full bg-white text-[#1d1d1f] hover:bg-gray-100 font-bold text-xs tracking-wider uppercase transition-colors cursor-pointer touch-action-btn"
               >
-                Contact Our Team
+                <span>Contact Our Team</span>
               </button>
             </div>
           </div>
@@ -1016,10 +1023,10 @@ export default function App() {
                   </p>
                 </div>
 
-                <div className="space-y-3.5 pt-1">
+                <div className="space-y-2 pt-1">
                   <a 
                     href="tel:+2348133535756" 
-                    className="text-xs font-medium text-[#1d1d1f] hover:text-[#c95510] transition-colors flex items-center gap-2.5"
+                    className="text-xs font-medium text-[#1d1d1f] hover:text-[#c95510] transition-colors flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-black/5 active:bg-black/10 touch-action-btn"
                   >
                     <Phone className="w-4 h-4 text-[#f47b20] shrink-0" />
                     <span>+234 (0) 813 353 5756</span>
@@ -1027,13 +1034,13 @@ export default function App() {
 
                   <a 
                     href="mailto:enjdigitalconcept@gmail.com" 
-                    className="text-xs font-medium text-[#1d1d1f] hover:text-[#c95510] transition-colors flex items-center gap-2.5"
+                    className="text-xs font-medium text-[#1d1d1f] hover:text-[#c95510] transition-colors flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-black/5 active:bg-black/10 touch-action-btn"
                   >
                     <Mail className="w-4 h-4 text-[#f47b20] shrink-0" />
                     <span>enjdigitalconcept@gmail.com</span>
                   </a>
 
-                  <div className="text-xs font-medium text-[#1d1d1f] flex items-start gap-2.5 leading-relaxed">
+                  <div className="text-xs font-medium text-[#1d1d1f] flex items-start gap-2.5 p-2.5 leading-relaxed">
                     <MapPin className="w-4 h-4 text-[#f47b20] shrink-0 mt-0.5" />
                     <span>No. 1 Thatcher Building, Jiddari Junction, Maiduguri, Borno State</span>
                   </div>
@@ -1102,7 +1109,7 @@ export default function App() {
                           value={formData.name}
                           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                           placeholder="e.g. Emmanuel Moses"
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-[#f5f5f7] border border-transparent focus:border-[#f47b20] focus:bg-white text-xs outline-none transition-all"
+                          className="w-full px-4 py-3 sm:py-2.5 rounded-xl bg-[#f5f5f7] border border-transparent focus:border-[#f47b20] focus:bg-white text-sm sm:text-xs outline-none transition-all"
                         />
                       </div>
 
@@ -1117,7 +1124,7 @@ export default function App() {
                             value={formData.email}
                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                             placeholder="emmanuel@example.com"
-                            className="w-full px-3.5 py-2.5 rounded-xl bg-[#f5f5f7] border border-transparent focus:border-[#f47b20] focus:bg-white text-xs outline-none transition-all"
+                            className="w-full px-4 py-3 sm:py-2.5 rounded-xl bg-[#f5f5f7] border border-transparent focus:border-[#f47b20] focus:bg-white text-sm sm:text-xs outline-none transition-all"
                           />
                         </div>
 
@@ -1128,7 +1135,7 @@ export default function App() {
                           <select
                             value={formData.service}
                             onChange={(e) => setFormData({ ...formData, service: e.target.value })}
-                            className="w-full px-3.5 py-2.5 rounded-xl bg-[#f5f5f7] border border-transparent focus:border-[#f47b20] focus:bg-white text-xs outline-none transition-all cursor-pointer"
+                            className="w-full px-4 py-3 sm:py-2.5 rounded-xl bg-[#f5f5f7] border border-transparent focus:border-[#f47b20] focus:bg-white text-sm sm:text-xs outline-none transition-all cursor-pointer"
                           >
                             <option value="General Enquiry">General Enquiry</option>
                             <option value="Digital Printing">Digital Printing</option>
@@ -1151,7 +1158,7 @@ export default function App() {
                           value={formData.message}
                           onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                           placeholder="Tell us about the project, quantities, dimensions, or timeline..."
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-[#f5f5f7] border border-transparent focus:border-[#f47b20] focus:bg-white text-xs outline-none transition-all resize-y leading-relaxed"
+                          className="w-full px-4 py-3 sm:py-2.5 rounded-xl bg-[#f5f5f7] border border-transparent focus:border-[#f47b20] focus:bg-white text-sm sm:text-xs outline-none transition-all resize-y leading-relaxed"
                         />
                       </div>
 
@@ -1164,18 +1171,18 @@ export default function App() {
                           <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
                             <a
                               href={`mailto:enjdigitalconcept@gmail.com?subject=${encodeURIComponent(`Website enquiry from ${formData.name || 'Client'}: ${formData.service || 'General'}`)}&body=${encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\nService: ${formData.service}\n\nMessage:\n${formData.message}`)}`}
-                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-red-600 hover:bg-red-700 text-white font-medium text-[11px] transition-colors"
+                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium text-xs transition-colors touch-action-btn"
                             >
-                              <Mail className="w-3 h-3" />
+                              <Mail className="w-3.5 h-3.5" />
                               Open Mail App
                             </a>
                             <a
                               href={`https://wa.me/2348133535756?text=${encodeURIComponent(`Hello ENJ Digital Concept! My name is ${formData.name || 'a customer'}. I would like to enquire about ${formData.service || 'your services'}: ${formData.message}`)}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white border border-red-300 hover:bg-red-100 text-red-800 font-medium text-[11px] transition-colors"
+                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white border border-red-300 hover:bg-red-100 text-red-800 font-medium text-xs transition-colors touch-action-btn"
                             >
-                              <Phone className="w-3 h-3" />
+                              <Phone className="w-3.5 h-3.5" />
                               Send via WhatsApp
                             </a>
                           </div>
@@ -1186,17 +1193,17 @@ export default function App() {
                         <button
                           type="submit"
                           disabled={isSubmitting}
-                          className="inline-flex items-center justify-center px-6 py-2.5 rounded-full bg-[#1d1d1f] hover:bg-[#3a3a3c] text-white text-xs font-semibold tracking-wide transition-colors disabled:opacity-60 cursor-pointer shadow-xs"
+                          className="w-full sm:w-auto inline-flex items-center justify-center px-7 py-3.5 sm:py-2.5 rounded-full bg-[#1d1d1f] hover:bg-[#3a3a3c] text-white text-xs sm:text-sm font-semibold tracking-wide transition-all touch-action-btn disabled:opacity-60 cursor-pointer shadow-xs"
                         >
                           {isSubmitting ? (
                             <>
-                              <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
+                              <Loader2 className="w-4 h-4 animate-spin mr-2" />
                               <span>Sending…</span>
                             </>
                           ) : (
-                            <span className="inline-flex items-center gap-1.5">
+                            <span className="inline-flex items-center gap-2">
                               <span>Send Message</span>
-                              <Send className="w-3 h-3" />
+                              <Send className="w-3.5 h-3.5" />
                             </span>
                           )}
                         </button>

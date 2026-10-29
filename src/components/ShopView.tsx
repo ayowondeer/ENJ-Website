@@ -220,6 +220,11 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
         p.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
         p.description.toLowerCase().includes(searchQuery.toLowerCase());
       return matchCat && matchQuery;
+    }).sort((a, b) => {
+      const posA = a.position !== undefined ? a.position : 99999;
+      const posB = b.position !== undefined ? b.position : 99999;
+      if (posA !== posB) return posA - posB;
+      return 0;
     });
   }, [products, selectedCategory, searchQuery]);
 
@@ -274,12 +279,12 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
     <div className="min-h-screen bg-[#fafafa] text-[#1d1d1f] flex flex-col pb-20 animate-in fade-in duration-200">
       
       {/* Floating Shop Navigation Header matching the website navbar */}
-      <header className="fixed top-3 sm:top-5 left-1/2 -translate-x-1/2 z-50 w-[min(780px,calc(100%-32px))] pointer-events-auto">
+      <header className="fixed top-3 sm:top-5 left-1/2 -translate-x-1/2 z-50 w-[min(780px,calc(100%-20px))] sm:w-[min(780px,calc(100%-32px))] pointer-events-auto">
         <nav className="glass-pill rounded-full px-2.5 sm:px-4 py-1.5 flex items-center justify-between gap-2 sm:gap-4 shadow-[0_16px_36px_-6px_rgba(0,0,0,0.14),0_3px_12px_rgba(0,0,0,0.06)] border border-white/85">
           {/* 1. Main Website */}
           <button
             onClick={onNavigateHome}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-black/5 text-[#1d1d1f] hover:text-[#f47b20] text-xs font-semibold transition-colors cursor-pointer shrink-0"
+            className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-2 sm:py-1.5 rounded-full hover:bg-black/5 active:bg-black/10 text-[#1d1d1f] hover:text-[#f47b20] text-xs font-semibold transition-colors cursor-pointer shrink-0 touch-action-btn"
             title="Return to Main Website"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
@@ -294,16 +299,16 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
               placeholder="Search products…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-8 pr-7 py-1 text-xs bg-black/5 hover:bg-black/8 focus:bg-white border border-transparent focus:border-gray-200 rounded-full outline-none transition-all placeholder:text-gray-400 text-[#1d1d1f]"
+              className="w-full pl-8 pr-7 py-2 sm:py-1.5 text-xs bg-black/5 hover:bg-black/8 focus:bg-white border border-transparent focus:border-gray-200 rounded-full outline-none transition-all placeholder:text-gray-400 text-[#1d1d1f]"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black p-0.5 cursor-pointer"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black p-1 cursor-pointer touch-action-btn"
                 title="Clear search"
               >
-                <X className="w-3 h-3" />
+                <X className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
@@ -311,11 +316,11 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
           {/* 3. Cart Icon */}
           <button
             onClick={openCart}
-            className="relative p-2 rounded-full bg-[#1d1d1f] hover:bg-[#3a3a3c] text-white transition-all shadow-xs cursor-pointer shrink-0 flex items-center justify-center hover:scale-105 active:scale-95"
+            className="relative w-9 h-9 sm:w-8 sm:h-8 rounded-full bg-[#1d1d1f] hover:bg-[#3a3a3c] text-white transition-all shadow-xs cursor-pointer shrink-0 flex items-center justify-center touch-action-btn"
             aria-label="View shopping cart"
             title="View shopping cart"
           >
-            <ShoppingCart className="w-3.5 h-3.5 text-white" />
+            <ShoppingCart className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-white" />
             {totalCartCount > 0 && (
               <span className="absolute -top-1 -right-1 px-1.2 py-0.2 min-w-4 h-4 rounded-full bg-[#f47b20] text-white text-[9px] font-bold flex items-center justify-center shadow-xs">
                 {totalCartCount}
@@ -325,15 +330,15 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
         </nav>
       </header>
 
-      {/* Clean Category Filter Pills (direct access without unnecessary banner) */}
+      {/* Clean Category Filter Pills (smooth momentum scrolling) */}
       <div className="max-w-5xl mx-auto w-full px-4 sm:px-6 pt-18 sm:pt-20 pb-3">
-        <div className="flex items-center justify-between gap-3 overflow-x-auto pb-1 scrollbar-none">
-          <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex items-center justify-between gap-3 overflow-x-auto pb-1.5 scrollbar-none" style={{ WebkitOverflowScrolling: 'touch' }}>
+          <div className="flex items-center gap-2 sm:gap-1.5 shrink-0">
             {CATEGORIES.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`whitespace-nowrap px-3 py-1.5 rounded-full text-xs transition-all cursor-pointer ${
+                className={`whitespace-nowrap px-3.5 sm:px-3 py-2 sm:py-1.5 rounded-full text-xs transition-all cursor-pointer touch-action-btn ${
                   selectedCategory === cat
                     ? 'bg-[#1d1d1f] text-white font-semibold shadow-xs'
                     : 'bg-white hover:bg-gray-100 text-gray-600 border border-gray-200/90'
@@ -365,15 +370,12 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
-            {filteredProducts.map((product) => {
-              const isAdded = addedProductId === product.id;
-
-              return (
-                <div
-                  key={product.id}
-                  onClick={() => handleOpenProductDetail(product)}
-                  className="group bg-white rounded-2xl border border-gray-200/80 overflow-hidden shadow-xs hover:shadow-lg transition-all duration-200 flex flex-col justify-between cursor-pointer hover:border-gray-300"
-                >
+            {filteredProducts.map((product) => (
+              <div
+                key={product.id}
+                onClick={() => handleOpenProductDetail(product)}
+                className="group bg-white rounded-2xl border border-gray-200/80 overflow-hidden shadow-xs hover:shadow-lg transition-all duration-200 flex flex-col justify-between cursor-pointer hover:border-gray-300 touch-action-card"
+              >
                   {/* Image */}
                   <div className="relative aspect-4/3 bg-gray-50 overflow-hidden">
                     <img
@@ -410,28 +412,14 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
                         </span>
                       </div>
 
-                      <button
-                        type="button"
-                        onClick={(e) => handleQuickAdd(product, e)}
-                        className={`w-8 h-8 rounded-xl text-xs font-semibold transition-all flex items-center justify-center cursor-pointer shrink-0 ${
-                          isAdded
-                            ? 'bg-emerald-600 text-white scale-105'
-                            : 'bg-gray-100 hover:bg-[#f47b20] hover:text-white text-gray-700 active:scale-95'
-                        }`}
-                        title="Add to Cart"
-                        aria-label={`Add ${product.title} to cart`}
-                      >
-                        {isAdded ? (
-                          <Check className="w-4 h-4" />
-                        ) : (
-                          <Plus className="w-4 h-4" />
-                        )}
-                      </button>
+                      <span className="text-[11px] font-medium text-gray-400 group-hover:text-[#f47b20] transition-colors flex items-center gap-0.5">
+                        <span>View</span>
+                        <ChevronRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                      </span>
                     </div>
                   </div>
                 </div>
-              );
-            })}
+              ))}
           </div>
         )}
       </div>
@@ -561,14 +549,14 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
                       </div>
                     </div>
 
-                    {/* 3. Choice of Color (Circle Color Indicators - No Text on buttons) */}
+                    {/* 3. Choice of Color (Circle Color Indicators - Generous finger tap targets) */}
                     {selectedProduct.availableColors && selectedProduct.availableColors.length > 0 && (
-                      <div className="space-y-1.5">
+                      <div className="space-y-2">
                         <div className="flex items-center justify-between text-xs">
                           <span className="font-semibold text-gray-700">Color:</span>
                           <span className="font-bold text-[#1d1d1f] text-[11px]">{selectedColor}</span>
                         </div>
-                        <div className="flex items-center gap-2.5 flex-wrap pt-0.5">
+                        <div className="flex items-center gap-3 flex-wrap pt-0.5">
                           {selectedProduct.availableColors.map((color) => {
                             const isSelected = selectedColor === color;
                             const style = getColorStyle(color);
@@ -578,7 +566,7 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
                                 type="button"
                                 onClick={() => setSelectedColor(color)}
                                 title={color}
-                                className={`w-7 h-7 rounded-full transition-all cursor-pointer relative flex items-center justify-center ${
+                                className={`w-10 h-10 sm:w-9 sm:h-9 rounded-full transition-all cursor-pointer relative flex items-center justify-center touch-action-btn ${
                                   isSelected 
                                     ? 'ring-2 ring-offset-2 ring-[#1d1d1f] scale-110 shadow-sm' 
                                     : 'hover:scale-105 opacity-85 hover:opacity-100 shadow-2xs'
@@ -590,7 +578,7 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
                                 aria-label={color}
                               >
                                 {isSelected && (
-                                  <Check className={`w-3.5 h-3.5 ${style.isLight ? 'text-black' : 'text-white'}`} strokeWidth={3} />
+                                  <Check className={`w-4 h-4 ${style.isLight ? 'text-black' : 'text-white'}`} strokeWidth={3} />
                                 )}
                               </button>
                             );
@@ -599,14 +587,14 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
                       </div>
                     )}
 
-                    {/* 4. Choice of Size / Specification (Normal X, XL, 2XL, L, M, and numbers for others) */}
+                    {/* 4. Choice of Size / Specification (Finger friendly 44px touch buttons) */}
                     {selectedProduct.availableSizes && selectedProduct.availableSizes.length > 0 && (
-                      <div className="space-y-1.5">
+                      <div className="space-y-2">
                         <div className="flex items-center justify-between text-xs">
                           <span className="font-semibold text-gray-700">Size / Spec:</span>
                           <span className="font-bold text-[#1d1d1f] text-[11px]">{selectedSize}</span>
                         </div>
-                        <div className="flex items-center gap-1.5 flex-wrap">
+                        <div className="flex items-center gap-2 flex-wrap">
                           {selectedProduct.availableSizes.map((size) => {
                             const isSelected = selectedSize === size;
                             const label = formatSizeLabel(size);
@@ -616,10 +604,10 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
                                 key={size}
                                 type="button"
                                 onClick={() => setSelectedSize(size)}
-                                className={`transition-all cursor-pointer font-bold rounded-lg text-xs flex items-center justify-center ${
+                                className={`transition-all cursor-pointer font-bold rounded-xl text-xs sm:text-sm flex items-center justify-center touch-action-btn ${
                                   isAlphaSize 
-                                    ? 'w-9 h-9 border' 
-                                    : 'px-3 py-1.5 border font-semibold'
+                                    ? 'min-w-[44px] h-[44px] sm:min-w-[40px] sm:h-[40px] border' 
+                                    : 'px-4 py-2.5 min-h-[44px] border font-semibold'
                                 } ${
                                   isSelected
                                     ? 'bg-[#1d1d1f] text-white border-[#1d1d1f] shadow-xs scale-102'
@@ -635,41 +623,41 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
                       </div>
                     )}
 
-                    {/* 5. Quantity Stepper */}
-                    <div className="flex items-center justify-between text-xs p-3 rounded-xl bg-gray-50 border border-gray-100">
+                    {/* 5. Quantity Stepper (Generous touch targets 44px+) */}
+                    <div className="flex items-center justify-between text-xs p-3.5 rounded-2xl bg-gray-50 border border-gray-100">
                       <div>
-                        <span className="font-semibold text-gray-800 block">Quantity</span>
-                        <span className="text-[10px] text-gray-400">Order amount in {selectedProduct.unit}</span>
+                        <span className="font-semibold text-gray-800 block text-xs">Quantity</span>
+                        <span className="text-[10.5px] text-gray-400">Order amount in {selectedProduct.unit}</span>
                       </div>
-                      <div className="flex items-center border border-gray-200 rounded-lg bg-white shadow-2xs">
+                      <div className="flex items-center border border-gray-200 rounded-xl bg-white shadow-2xs overflow-hidden">
                         <button
                           type="button"
                           onClick={() => setModalQuantity(q => Math.max(selectedProduct.minOrderQty || 1, q - 1))}
-                          className="px-2.5 py-1.5 text-gray-600 hover:text-black cursor-pointer"
+                          className="w-10 h-10 sm:w-9 sm:h-9 flex items-center justify-center text-gray-600 hover:text-black touch-action-btn cursor-pointer bg-gray-50/60 hover:bg-gray-100"
                           aria-label="Decrease quantity"
                         >
-                          <Minus className="w-3 h-3" />
+                          <Minus className="w-4 h-4" />
                         </button>
-                        <span className="px-3 text-xs font-bold text-gray-900">
+                        <span className="w-10 text-center text-xs sm:text-sm font-bold text-gray-900 tabular-nums">
                           {modalQuantity}
                         </span>
                         <button
                           type="button"
                           onClick={() => setModalQuantity(q => q + 1)}
-                          className="px-2.5 py-1.5 text-gray-600 hover:text-black cursor-pointer"
+                          className="w-10 h-10 sm:w-9 sm:h-9 flex items-center justify-center text-gray-600 hover:text-black touch-action-btn cursor-pointer bg-gray-50/60 hover:bg-gray-100"
                           aria-label="Increase quantity"
                         >
-                          <Plus className="w-3 h-3" />
+                          <Plus className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
                   </div>
 
-                  {/* 6. Order Actions */}
-                  <div className="pt-2 border-t border-gray-100 space-y-2">
-                    <div className="flex items-center justify-between text-xs mb-1">
+                  {/* 6. Order Actions (Finger-friendly full-width buttons min 48px height) */}
+                  <div className="pt-2 border-t border-gray-100 space-y-2.5">
+                    <div className="flex items-center justify-between text-xs mb-1 px-1">
                       <span className="text-gray-500 font-medium">Total:</span>
-                      <span className="font-display text-lg font-bold text-[#1d1d1f]">
+                      <span className="font-display text-lg sm:text-xl font-bold text-[#1d1d1f] tabular-nums">
                         {formatNaira(selectedProduct.price * modalQuantity)}
                       </span>
                     </div>
@@ -677,10 +665,10 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
                     <button
                       type="button"
                       onClick={handleModalAddToCart}
-                      className={`w-full py-2.5 rounded-full text-xs font-semibold shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                      className={`w-full min-h-[48px] py-3.5 sm:py-3 rounded-full text-xs sm:text-sm font-semibold shadow-xs transition-transform touch-action-btn flex items-center justify-center gap-2 cursor-pointer ${
                         isAddedInModal
                           ? 'bg-emerald-600 text-white'
-                          : 'bg-[#f47b20] hover:bg-[#c95510] text-white active:scale-98'
+                          : 'bg-[#f47b20] hover:bg-[#c95510] text-white active:scale-95'
                       }`}
                     >
                       {isAddedInModal ? (
@@ -702,9 +690,9 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full py-2 rounded-full border border-emerald-500 text-emerald-700 hover:bg-emerald-50 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+                      className="w-full min-h-[44px] py-3 sm:py-2.5 rounded-full border border-emerald-500 text-emerald-700 hover:bg-emerald-50 text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 transition-transform touch-action-btn"
                     >
-                      <Phone className="w-3.5 h-3.5 text-emerald-600" />
+                      <Phone className="w-4 h-4 text-emerald-600" />
                       <span>Instant Order on WhatsApp</span>
                     </a>
                   </div>

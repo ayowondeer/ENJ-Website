@@ -18,17 +18,36 @@ import {
   UploadCloud, 
   Check, 
   ChevronDown, 
+  ChevronUp,
+  ArrowUp,
+  ArrowDown,
+  ArrowUpDown,
   Lock, 
   Eye, 
-  EyeOff 
+  EyeOff,
+  MessageSquare,
+  Copy,
+  SlidersHorizontal,
+  Clock,
+  MapPin,
+  Truck
 } from 'lucide-react';
+import { 
+  TestimonialItem, 
+  getLocalTestimonials, 
+  syncTestimonialToStorage, 
+  removeTestimonialFromStorage, 
+  resetTestimonialsToDefault 
+} from '../data/testimonials';
 import { 
   db, 
   ProductItem, 
   OrderItem, 
   INITIAL_PRODUCTS,
   deleteProductPermanently,
-  isProductDeleted
+  isProductDeleted,
+  deleteOrderPermanently,
+  isOrderDeleted
 } from '../firebase';
 import { 
   collection, 
@@ -125,9 +144,90 @@ const compressImageFile = (file: File): Promise<string> => {
 export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPortalProps) {
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [orders, setOrders] = useState<OrderItem[]>([]);
-  const [activeTab, setActiveTab] = useState<'products' | 'orders'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'testimonials'>('products');
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All Products');
+
+  // Testimonials State (dynamically editable anytime with Nigerian names)
+  const [testimonials, setTestimonials] = useState<TestimonialItem[]>(() => getLocalTestimonials());
+  const [isTestimonialModalOpen, setIsTestimonialModalOpen] = useState(false);
+  const [editingTestimonial, setEditingTestimonial] = useState<TestimonialItem | null>(null);
+  const [tQuote, setTQuote] = useState('');
+  const [tAuthor, setTAuthor] = useState('');
+  const [tRole, setTRole] = useState('');
+  const [tHighlight, setTHighlight] = useState(false);
+  const [tSaving, setTSaving] = useState(false);
+  const [tError, setTError] = useState<string | null>(null);
+  const [testimonialToDelete, setTestimonialToDelete] = useState<TestimonialItem | null>(null);
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setTestimonials(getLocalTestimonials());
+    };
+    window.addEventListener('enj_testimonials_changed', handleUpdate);
+    return () => window.removeEventListener('enj_testimonials_changed', handleUpdate);
+  }, []);
+
+  const openCreateTestimonial = () => {
+    setEditingTestimonial(null);
+    setTQuote('');
+    setTAuthor('');
+    setTRole('');
+    setTHighlight(false);
+    setTError(null);
+    setIsTestimonialModalOpen(true);
+  };
+
+  const openEditTestimonial = (t: TestimonialItem) => {
+    setEditingTestimonial(t);
+    setTQuote(t.quote);
+    setTAuthor(t.author);
+    setTRole(t.role);
+    setTHighlight(Boolean(t.highlight));
+    setTError(null);
+    setIsTestimonialModalOpen(true);
+  };
+
+  const handleSaveTestimonial = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!tQuote.trim() || !tAuthor.trim()) {
+      setTError('Please enter both the testimonial quote and the Nigerian author name.');
+      return;
+    }
+    setTSaving(true);
+    setTError(null);
+
+    const payload: TestimonialItem = {
+      id: editingTestimonial ? editingTestimonial.id : `test-${Date.now()}`,
+      quote: tQuote.trim(),
+      author: tAuthor.trim(),
+      role: tRole.trim() || 'Verified Client',
+      highlight: tHighlight
+    };
+
+    await syncTestimonialToStorage(payload);
+    setTestimonials(getLocalTestimonials());
+    setTSaving(false);
+    setIsTestimonialModalOpen(false);
+    setStatusMessage(editingTestimonial ? 'Review updated live on homepage!' : 'New review added live on homepage!');
+    setTimeout(() => setStatusMessage(null), 3000);
+  };
+
+  const confirmDeleteTestimonial = async () => {
+    if (!testimonialToDelete) return;
+    await removeTestimonialFromStorage(testimonialToDelete.id);
+    setTestimonials(getLocalTestimonials());
+    setTestimonialToDelete(null);
+    setStatusMessage('Review removed from homepage.');
+    setTimeout(() => setStatusMessage(null), 3000);
+  };
+
+  const handleResetTestimonials = async () => {
+    const list = await resetTestimonialsToDefault();
+    setTestimonials(list);
+    setStatusMessage('Reviews reset to authentic Nigerian client testimonials.');
+    setTimeout(() => setStatusMessage(null), 3000);
+  };
 
   // Password Authentication State (Always locked upon page refresh for maximum security)
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -633,28 +733,38 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
         </div>
       )}
 
-      {/* Tabs: Products vs Orders */}
+      {/* Tabs: Products vs Orders vs Reviews */}
       <div className="w-[min(1240px,calc(100%-24px))] sm:w-[min(1240px,calc(100%-32px))] mx-auto mb-5">
-        <div className="flex items-center gap-2 border-b border-gray-200 pb-2">
+        <div className="flex items-center gap-2 border-b border-gray-200 pb-2 overflow-x-auto scrollbar-none flex-nowrap touch-momentum">
           <button
             onClick={() => setActiveTab('products')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`whitespace-nowrap px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer touch-action-btn shrink-0 ${
               activeTab === 'products'
                 ? 'bg-[#1d1d1f] text-white shadow-xs'
-                : 'text-gray-600 hover:text-black hover:bg-white'
+                : 'text-gray-600 hover:text-black hover:bg-white bg-white/60'
             }`}
           >
             Products ({products.length})
           </button>
           <button
             onClick={() => setActiveTab('orders')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`whitespace-nowrap px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer touch-action-btn shrink-0 ${
               activeTab === 'orders'
                 ? 'bg-[#1d1d1f] text-white shadow-xs'
-                : 'text-gray-600 hover:text-black hover:bg-white'
+                : 'text-gray-600 hover:text-black hover:bg-white bg-white/60'
             }`}
           >
             Orders & Transactions ({orders.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('testimonials')}
+            className={`whitespace-nowrap px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer touch-action-btn shrink-0 ${
+              activeTab === 'testimonials'
+                ? 'bg-[#1d1d1f] text-white shadow-xs'
+                : 'text-gray-600 hover:text-black hover:bg-white bg-white/60'
+            }`}
+          >
+            Kind Words & Reviews ({testimonials.length})
           </button>
         </div>
       </div>
@@ -854,6 +964,258 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                 ))}
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* TAB 3: REVIEWS & TESTIMONIALS MANAGER */}
+      {activeTab === 'testimonials' && (
+        <div className="w-[min(1240px,calc(100%-24px))] sm:w-[min(1240px,calc(100%-32px))] mx-auto">
+          <div className="bg-white rounded-2xl sm:rounded-3xl border border-gray-200/80 shadow-xs p-5 sm:p-6 mb-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-gray-100">
+              <div>
+                <h3 className="font-display text-lg sm:text-xl font-bold text-gray-900">
+                  Homepage Reviews & Testimonials
+                </h3>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  Changeable anytime. All client names should be authentic Nigerian names.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleResetTestimonials}
+                  className="px-3.5 py-2 rounded-xl border border-gray-200 hover:bg-gray-100 text-gray-700 text-xs font-semibold cursor-pointer transition-colors"
+                >
+                  Reset Defaults
+                </button>
+                <button
+                  type="button"
+                  onClick={openCreateTestimonial}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#f47b20] hover:bg-[#c95510] text-white text-xs font-semibold shadow-xs cursor-pointer transition-colors"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add Review</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Testimonials Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
+              {testimonials.map((t) => (
+                <div
+                  key={t.id}
+                  className={`p-4 rounded-2xl border transition-all flex flex-col justify-between ${
+                    t.highlight 
+                      ? 'bg-[#fff0df]/60 border-[#f47b20]/30' 
+                      : 'bg-white border-gray-200/80'
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                        {t.highlight ? 'Featured Quote' : 'Standard Quote'}
+                      </span>
+                      {t.highlight && (
+                        <span className="px-2 py-0.5 rounded-full bg-[#f47b20]/15 text-[#c95510] text-[10px] font-bold">
+                          Warm Highlight
+                        </span>
+                      )}
+                    </div>
+
+                    <p className="font-display text-sm text-[#1d1d1f] font-normal leading-snug mb-3">
+                      “{t.quote.replace(/^“|”$/g, '')}”
+                    </p>
+                  </div>
+
+                  <div className="pt-3 border-t border-black/5 flex items-center justify-between gap-2">
+                    <div>
+                      <strong className="text-xs font-semibold text-[#1d1d1f] block">
+                        {t.author}
+                      </strong>
+                      <span className="text-[11px] text-[#6e6e73] block">
+                        {t.role}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => openEditTestimonial(t)}
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-100 text-gray-700 text-[11px] font-semibold cursor-pointer transition-colors"
+                      >
+                        <Edit3 className="w-3 h-3" />
+                        <span>Edit</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setTestimonialToDelete(t)}
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-red-200 bg-red-50 hover:bg-red-100 text-red-600 text-[11px] font-semibold cursor-pointer transition-colors"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        <span>Delete</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          TESTIMONIAL ADD / EDIT MODAL
+          ======================================================== */}
+      {isTestimonialModalOpen && (
+        <div 
+          className="fixed inset-0 z-[160] bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-150"
+          onClick={() => !tSaving && setIsTestimonialModalOpen(false)}
+        >
+          <div 
+            className="bg-white rounded-2xl sm:rounded-3xl w-full max-w-lg p-5 sm:p-6 shadow-2xl border border-gray-100 animate-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100 mb-4">
+              <div>
+                <h2 className="font-display text-lg sm:text-xl font-bold text-[#1d1d1f]">
+                  {editingTestimonial ? 'Edit Review' : 'Add Client Review'}
+                </h2>
+                <p className="text-[11px] text-gray-500 mt-0.5">
+                  Names should be authentic Nigerian names (e.g. Amina Bello, Babajide Adeleke, Chukwudi Okafor).
+                </p>
+              </div>
+              <button 
+                onClick={() => !tSaving && setIsTestimonialModalOpen(false)}
+                className="p-1.5 rounded-full hover:bg-gray-100 text-gray-400 hover:text-black transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {tError && (
+              <div className="p-3 mb-3.5 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                <span>{tError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSaveTestimonial} className="space-y-3.5 text-xs">
+              <div>
+                <label className="block font-semibold text-gray-800 mb-1">
+                  Testimonial Quote *
+                </label>
+                <textarea
+                  required
+                  rows={3}
+                  placeholder="e.g. The quality of our large-format banners completely exceeded expectations."
+                  value={tQuote}
+                  onChange={(e) => setTQuote(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 focus:border-[#f47b20] outline-none text-xs bg-gray-50/50 focus:bg-white transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block font-semibold text-gray-800 mb-1">
+                  Client Full Name (Nigerian Name) *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Amina Bello or Engr. Emmanuel I. Moses"
+                  value={tAuthor}
+                  onChange={(e) => setTAuthor(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 focus:border-[#f47b20] outline-none text-xs bg-gray-50/50 focus:bg-white transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block font-semibold text-gray-800 mb-1">
+                  Role / Organization
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Marketing Lead, Apex Logistics"
+                  value={tRole}
+                  onChange={(e) => setTRole(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 focus:border-[#f47b20] outline-none text-xs bg-gray-50/50 focus:bg-white transition-colors"
+                />
+              </div>
+
+              <div className="flex items-center gap-2 pt-1">
+                <input
+                  type="checkbox"
+                  id="tHighlight"
+                  checked={tHighlight}
+                  onChange={(e) => setTHighlight(e.target.checked)}
+                  className="w-4 h-4 text-[#f47b20] rounded border-gray-300 focus:ring-[#f47b20] cursor-pointer"
+                />
+                <label htmlFor="tHighlight" className="font-medium text-gray-700 cursor-pointer select-none">
+                  Highlight this review with warm amber card styling
+                </label>
+              </div>
+
+              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-gray-100">
+                <button
+                  type="button"
+                  disabled={tSaving}
+                  onClick={() => setIsTestimonialModalOpen(false)}
+                  className="px-4 py-2 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50 text-xs font-semibold cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={tSaving}
+                  className="px-5 py-2 rounded-full bg-[#f47b20] hover:bg-[#c95510] text-white text-xs font-semibold shadow-xs disabled:opacity-50 cursor-pointer transition-colors"
+                >
+                  {tSaving ? 'Saving…' : editingTestimonial ? 'Save Changes' : 'Publish Review'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Testimonial Modal */}
+      {testimonialToDelete && (
+        <div 
+          className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150"
+          onClick={() => setTestimonialToDelete(null)}
+        >
+          <div 
+            className="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl border border-gray-100 text-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-12 h-12 rounded-full bg-red-50 text-red-600 flex items-center justify-center mx-auto mb-3.5 border border-red-100">
+              <Trash2 className="w-6 h-6" />
+            </div>
+
+            <h3 className="font-display text-lg font-bold text-gray-900 mb-1">
+              Delete Review?
+            </h3>
+
+            <p className="text-xs text-gray-500 mb-5 leading-relaxed">
+              Remove review from <strong className="text-gray-900 block truncate">{testimonialToDelete.author}</strong>? It will immediately disappear from the homepage.
+            </p>
+
+            <div className="flex items-center gap-2.5">
+              <button
+                type="button"
+                onClick={() => setTestimonialToDelete(null)}
+                className="flex-1 py-2.5 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50 text-xs font-semibold cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmDeleteTestimonial}
+                className="flex-1 py-2.5 rounded-full bg-red-600 hover:bg-red-700 text-white text-xs font-semibold shadow-xs cursor-pointer"
+              >
+                Delete
+              </button>
+            </div>
           </div>
         </div>
       )}

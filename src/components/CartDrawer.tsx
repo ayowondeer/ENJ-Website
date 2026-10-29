@@ -20,7 +20,8 @@ import {
   Building2,
   Zap,
   Clock,
-  MailCheck
+  MailCheck,
+  User
 } from 'lucide-react';
 import { CartItem, db, OrderItem } from '../firebase';
 import { doc, setDoc } from 'firebase/firestore';
@@ -109,10 +110,34 @@ export default function CartDrawer({
     setSubmitError(null);
     const generatedOrderId = `ENJ-${Date.now().toString().slice(-6)}`;
     setPendingOrderId(generatedOrderId);
+    setIsProcessing(true);
 
-    // Open high-speed secure payment gateway immediately (zero connection latency)
-    setShowPaymentFallback(true);
-    setIsProcessing(false);
+    const launched = payWithPaystack({
+      email: customerEmail.trim(),
+      amount: totalAmount,
+      customerName: customerName.trim(),
+      customerPhone: customerPhone.trim(),
+      orderId: generatedOrderId,
+      metadata: {
+        state: selectedState,
+        lga: selectedLga,
+        address: streetAddress.trim(),
+        itemsCount: totalItemCount
+      },
+      onSuccess: (reference) => {
+        setIsProcessing(false);
+        finalizeOrder(generatedOrderId, reference, 'Paystack');
+      },
+      onClose: () => {
+        setIsProcessing(false);
+      }
+    });
+
+    if (!launched) {
+      // In environment with iframe security restrictions or popups disabled, fallback to high-speed secure modal
+      setShowPaymentFallback(true);
+      setIsProcessing(false);
+    }
   };
 
   const finalizeOrder = (orderId: string, paymentRef: string, paymentMethodType: string = 'Online Payment') => {
@@ -286,171 +311,253 @@ export default function CartDrawer({
           </button>
         </div>
 
-        {/* UX Progress Stepper Bar */}
-        <div className="px-5 py-2.5 bg-gray-50/80 border-b border-gray-100 flex items-center justify-between text-[11px] font-medium no-print">
-          <div className={`flex items-center gap-1.5 ${step === 'cart' ? 'text-[#f47b20] font-semibold' : 'text-gray-500'}`}>
-            <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${step === 'cart' ? 'bg-[#f47b20] text-white' : 'bg-gray-200 text-gray-700'}`}>
-              1
-            </span>
-            <span>Cart</span>
+        {/* Modern Interactive Progress Stepper */}
+        <div className="px-4 sm:px-5 py-3 bg-gray-50/90 border-b border-gray-100 no-print">
+          <div className="flex items-center justify-between gap-1.5 sm:gap-2">
+            
+            {/* Step 1: Cart Items */}
+            <button
+              type="button"
+              onClick={() => {
+                if (step === 'checkout') setStep('cart');
+              }}
+              disabled={step === 'success'}
+              className={`flex-1 py-1.5 px-2 rounded-xl flex items-center justify-center gap-1.5 text-xs transition-all touch-action-btn ${
+                step === 'cart'
+                  ? 'bg-white text-gray-900 font-bold shadow-xs border border-gray-200/90 ring-1 ring-black/5'
+                  : step === 'checkout'
+                    ? 'text-emerald-700 font-semibold hover:bg-white/70 cursor-pointer'
+                    : 'text-gray-400'
+              }`}
+            >
+              {step === 'checkout' || step === 'success' ? (
+                <span className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-[10px] font-bold">
+                  ✓
+                </span>
+              ) : (
+                <span className="w-4 h-4 rounded-full bg-[#f47b20] text-white flex items-center justify-center text-[10px] font-bold">
+                  1
+                </span>
+              )}
+              <span className="truncate">Items ({totalItemCount})</span>
+            </button>
+
+            <ChevronRight className="w-3.5 h-3.5 text-gray-300 shrink-0" />
+
+            {/* Step 2: Delivery */}
+            <div
+              className={`flex-1 py-1.5 px-2 rounded-xl flex items-center justify-center gap-1.5 text-xs transition-all ${
+                step === 'checkout'
+                  ? 'bg-white text-gray-900 font-bold shadow-xs border border-gray-200/90 ring-1 ring-black/5'
+                  : step === 'success'
+                    ? 'text-emerald-700 font-semibold'
+                    : 'text-gray-400'
+              }`}
+            >
+              {step === 'success' ? (
+                <span className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-[10px] font-bold">
+                  ✓
+                </span>
+              ) : (
+                <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                  step === 'checkout' ? 'bg-[#f47b20] text-white' : 'bg-gray-200 text-gray-600'
+                }`}>
+                  2
+                </span>
+              )}
+              <span className="truncate">Delivery</span>
+            </div>
+
+            <ChevronRight className="w-3.5 h-3.5 text-gray-300 shrink-0" />
+
+            {/* Step 3: Receipt */}
+            <div
+              className={`flex-1 py-1.5 px-2 rounded-xl flex items-center justify-center gap-1.5 text-xs transition-all ${
+                step === 'success'
+                  ? 'bg-white text-emerald-700 font-bold shadow-xs border border-emerald-200'
+                  : 'text-gray-400'
+              }`}
+            >
+              <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                step === 'success' ? 'bg-emerald-600 text-white' : 'bg-gray-200 text-gray-500'
+              }`}>
+                3
+              </span>
+              <span className="truncate">Receipt</span>
+            </div>
+
           </div>
 
-          <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
-
-          <div className={`flex items-center gap-1.5 ${step === 'checkout' ? 'text-[#f47b20] font-semibold' : 'text-gray-500'}`}>
-            <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${step === 'checkout' ? 'bg-[#f47b20] text-white' : 'bg-gray-200 text-gray-700'}`}>
-              2
-            </span>
-            <span>Delivery & Pay</span>
-          </div>
-
-          <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
-
-          <div className={`flex items-center gap-1.5 ${step === 'success' ? 'text-emerald-700 font-semibold' : 'text-gray-400'}`}>
-            <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${step === 'success' ? 'bg-emerald-600 text-white' : 'bg-gray-200 text-gray-500'}`}>
-              3
-            </span>
-            <span>Receipt</span>
+          {/* Progress bar line */}
+          <div className="w-full bg-gray-200 h-1 rounded-full mt-2.5 overflow-hidden">
+            <div 
+              className="h-full transition-all duration-300 ease-out rounded-full"
+              style={{
+                width: step === 'cart' ? '33.3%' : step === 'checkout' ? '66.6%' : '100%',
+                backgroundColor: step === 'success' ? '#059669' : '#f47b20'
+              }}
+            />
           </div>
         </div>
 
         {/* Content Body */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-5">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-5 touch-momentum">
           
           {/* STEP 1: CART ITEMS */}
           {step === 'cart' && (
             <>
               {cart.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-center py-16">
-                  <div className="w-12 h-12 rounded-2xl bg-orange-50 flex items-center justify-center text-[#f47b20] mb-3">
-                    <ShoppingCart className="w-6 h-6" />
+                  <div className="w-14 h-14 rounded-2xl bg-orange-50 flex items-center justify-center text-[#f47b20] mb-3 border border-orange-100">
+                    <ShoppingCart className="w-7 h-7" />
                   </div>
-                  <h3 className="font-display text-sm font-bold text-[#1d1d1f] mb-1">
+                  <h3 className="font-display text-base font-bold text-[#1d1d1f] mb-1">
                     Your shopping bag is empty
                   </h3>
-                  <p className="text-xs text-[#6e6e73] max-w-xs mb-5">
+                  <p className="text-xs text-[#6e6e73] max-w-xs mb-5 leading-relaxed">
                     Explore our products to select custom colors, sizes, and quantities.
                   </p>
                   <button
                     onClick={onClose}
-                    className="px-5 py-2.5 rounded-full bg-[#1d1d1f] hover:bg-[#3a3a3c] text-white text-xs font-semibold cursor-pointer transition-colors"
+                    className="px-6 py-3.5 rounded-full bg-[#1d1d1f] hover:bg-[#3a3a3c] text-white text-xs font-semibold cursor-pointer transition-transform touch-action-btn shadow-xs min-h-[44px]"
                   >
                     Browse Catalog
                   </button>
                 </div>
               ) : (
                 <div className="space-y-3">
+                  <div className="flex items-center justify-between pb-1">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
+                      Selected Items ({totalItemCount})
+                    </span>
+                    <button
+                      onClick={clearCart}
+                      className="text-[11px] text-gray-400 hover:text-red-600 transition-colors cursor-pointer touch-action-btn py-1 px-1.5"
+                    >
+                      Clear all
+                    </button>
+                  </div>
+
                   {cart.map((item, index) => (
                     <div 
                       key={`${item.product.id}-${index}`}
-                      className="flex gap-3 p-3 rounded-2xl bg-gray-50/70 border border-gray-100 hover:border-gray-200 transition-colors items-start"
+                      className="flex gap-3 p-3.5 rounded-2xl bg-gray-50/80 border border-gray-200/70 hover:border-gray-300 transition-colors items-start"
                     >
                       <img
                         src={item.product.imageUrl}
                         alt={item.product.title}
-                        className="w-14 h-14 rounded-xl object-cover bg-white shrink-0 border border-gray-200/80"
+                        className="w-16 h-16 rounded-xl object-cover bg-white shrink-0 border border-gray-200/80 shadow-2xs"
                       />
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-semibold text-xs text-[#1d1d1f] truncate leading-tight">
+                        <h4 className="font-semibold text-xs sm:text-[13px] text-[#1d1d1f] truncate leading-tight">
                           {item.product.title}
                         </h4>
 
                         {/* Selected Color & Size */}
                         {(item.selectedColor || item.selectedSize) && (
-                          <div className="flex flex-wrap items-center gap-1.5 my-1 text-[11px] text-gray-600">
+                          <div className="flex flex-wrap items-center gap-1.5 my-1.5 text-[11px] text-gray-600">
                             {item.selectedColor && (
-                              <span className="bg-white px-1.5 py-0.5 rounded-md border border-gray-200 text-[10px]">
+                              <span className="bg-white px-2 py-0.5 rounded-md border border-gray-200 text-[10px] font-medium">
                                 {item.selectedColor}
                               </span>
                             )}
                             {item.selectedSize && (
-                              <span className="bg-white px-1.5 py-0.5 rounded-md border border-gray-200 text-[10px]">
+                              <span className="bg-white px-2 py-0.5 rounded-md border border-gray-200 text-[10px] font-medium">
                                 Size: {item.selectedSize}
                               </span>
                             )}
                           </div>
                         )}
 
-                        <p className="text-[11px] font-bold text-gray-900 mb-1.5 tabular-nums">
+                        <p className="text-xs font-bold text-gray-900 mb-2 tabular-nums">
                           {formatNaira(item.product.price * item.quantity)}
                           <span className="text-[10px] font-normal text-gray-400 ml-1">
                             ({formatNaira(item.product.price)} each)
                           </span>
                         </p>
                         
+                        {/* Finger-Friendly Quantity Stepper (generous w-9 h-9) */}
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center border border-gray-200 rounded-lg bg-white">
+                          <div className="flex items-center border border-gray-200 rounded-xl bg-white shadow-2xs overflow-hidden">
                             <button
+                              type="button"
                               onClick={() => updateQuantity(index, item.quantity - 1)}
-                              className="px-2 py-1 text-gray-500 hover:text-black cursor-pointer"
+                              className="w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center text-gray-600 hover:text-black touch-action-btn cursor-pointer bg-gray-50/60 hover:bg-gray-100"
                               title="Decrease"
+                              aria-label="Decrease quantity"
                             >
-                              <Minus className="w-3 h-3" />
+                              <Minus className="w-3.5 h-3.5" />
                             </button>
-                            <span className="px-2 text-xs font-bold text-gray-800 tabular-nums">
+                            <span className="w-9 sm:w-8 text-center text-xs font-bold text-gray-900 tabular-nums">
                               {item.quantity}
                             </span>
                             <button
+                              type="button"
                               onClick={() => updateQuantity(index, item.quantity + 1)}
-                              className="px-2 py-1 text-gray-500 hover:text-black cursor-pointer"
+                              className="w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center text-gray-600 hover:text-black touch-action-btn cursor-pointer bg-gray-50/60 hover:bg-gray-100"
                               title="Increase"
+                              aria-label="Increase quantity"
                             >
-                              <Plus className="w-3 h-3" />
+                              <Plus className="w-3.5 h-3.5" />
                             </button>
                           </div>
 
                           <button
+                            type="button"
                             onClick={() => removeFromCart(index)}
-                            className="p-1.5 text-gray-400 hover:text-red-600 transition-colors cursor-pointer"
+                            className="w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center rounded-xl text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors touch-action-btn cursor-pointer"
                             title="Remove item"
+                            aria-label={`Remove ${item.product.title}`}
                           >
-                            <Trash2 className="w-3.5 h-3.5" />
+                            <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
                       </div>
                     </div>
                   ))}
-
-                  <div className="pt-1 flex justify-between">
-                    <button
-                      onClick={clearCart}
-                      className="text-[11px] text-gray-400 hover:text-red-600 transition-colors cursor-pointer"
-                    >
-                      Clear cart
-                    </button>
-                  </div>
                 </div>
               )}
             </>
           )}
 
-          {/* STEP 2: CHECKOUT & DELIVERY FORM */}
+          {/* STEP 2: CHECKOUT & DELIVERY FORM - Organised in 4 Clear Cards */}
           {step === 'checkout' && (
-            <form onSubmit={handlePaymentCheckout} className="space-y-4 text-xs">
+            <form onSubmit={handlePaymentCheckout} className="space-y-3.5 text-xs">
               {submitError && (
-                <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 flex items-center gap-2">
+                <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 flex items-center gap-2 text-xs animate-in shake">
                   <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
                   <span>{submitError}</span>
                 </div>
               )}
 
-              {/* Delivery Fee Notice */}
-              <div className="p-3.5 rounded-xl bg-amber-50/80 border border-amber-200/90 text-amber-950 flex items-start gap-2.5">
-                <Truck className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                <div className="text-[11px] leading-relaxed">
-                  <span className="font-bold text-amber-900 block mb-0.5">Pay-on-Delivery for Shipping</span>
-                  The delivery fee is <strong>not charged now</strong>. You will pay the courier fee directly upon delivery after your goods have arrived and you have inspected them.
+              {/* Order Quick Summary Bar */}
+              <div className="p-3 rounded-2xl bg-gray-50 border border-gray-200/80 flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Order Subtotal</span>
+                  <span className="font-display text-sm font-bold text-[#1d1d1f] tabular-nums">{formatNaira(totalAmount)}</span>
+                  <span className="text-[10px] text-gray-500 ml-1.5">({totalItemCount} {totalItemCount === 1 ? 'item' : 'items'})</span>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setStep('cart')}
+                  className="px-2.5 py-1 rounded-lg text-[11px] font-semibold text-[#f47b20] hover:bg-orange-50 transition-colors touch-action-btn flex items-center gap-1 cursor-pointer"
+                >
+                  <span>Review Items</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
               </div>
 
-              {/* Section 1: Contact Information */}
-              <div className="space-y-2.5">
-                <span className="font-bold text-gray-900 text-[11px] uppercase tracking-wider block">
-                  1. Contact Information
-                </span>
+              {/* CARD 1: Contact Information */}
+              <div className="bg-white rounded-2xl border border-gray-200/80 p-4 shadow-xs space-y-3">
+                <div className="flex items-center gap-2 pb-2 border-b border-gray-100">
+                  <div className="w-6 h-6 rounded-lg bg-orange-50 text-[#f47b20] flex items-center justify-center">
+                    <User className="w-3.5 h-3.5" />
+                  </div>
+                  <span className="font-bold text-xs text-gray-900">1. Contact Information</span>
+                </div>
 
                 <div>
-                  <label className="block font-medium text-gray-700 mb-1">
+                  <label className="block font-medium text-gray-700 text-[11px] mb-1">
                     Full Name *
                   </label>
                   <input
@@ -459,13 +566,13 @@ export default function CartDrawer({
                     placeholder="e.g. Emmanuel Moses"
                     value={customerName}
                     onChange={(e) => setCustomerName(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-[#f47b20] focus:ring-1 focus:ring-[#f47b20] outline-none text-xs transition-all"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 focus:border-[#f47b20] focus:ring-1 focus:ring-[#f47b20] outline-none text-xs transition-all bg-gray-50/50 focus:bg-white"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   <div>
-                    <label className="block font-medium text-gray-700 mb-1">
+                    <label className="block font-medium text-gray-700 text-[11px] mb-1">
                       Phone Number *
                     </label>
                     <input
@@ -474,13 +581,13 @@ export default function CartDrawer({
                       placeholder="0813 353 5756"
                       value={customerPhone}
                       onChange={(e) => setCustomerPhone(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-[#f47b20] focus:ring-1 focus:ring-[#f47b20] outline-none text-xs transition-all"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 focus:border-[#f47b20] focus:ring-1 focus:ring-[#f47b20] outline-none text-xs transition-all bg-gray-50/50 focus:bg-white"
                     />
                   </div>
 
                   <div>
-                    <label className="block font-medium text-gray-700 mb-1">
-                      Email Address *
+                    <label className="block font-medium text-gray-700 text-[11px] mb-1">
+                      Email Address (for Receipt) *
                     </label>
                     <input
                       type="email"
@@ -488,17 +595,20 @@ export default function CartDrawer({
                       placeholder="name@example.com"
                       value={customerEmail}
                       onChange={(e) => setCustomerEmail(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-[#f47b20] focus:ring-1 focus:ring-[#f47b20] outline-none text-xs transition-all"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 focus:border-[#f47b20] focus:ring-1 focus:ring-[#f47b20] outline-none text-xs transition-all bg-gray-50/50 focus:bg-white"
                     />
                   </div>
                 </div>
               </div>
 
-              {/* Section 2: Delivery Destination */}
-              <div className="space-y-2.5 pt-2 border-t border-gray-100">
-                <span className="font-bold text-gray-900 text-[11px] uppercase tracking-wider block">
-                  2. Delivery Destination
-                </span>
+              {/* CARD 2: Delivery Destination */}
+              <div className="bg-white rounded-2xl border border-gray-200/80 p-4 shadow-xs space-y-3">
+                <div className="flex items-center gap-2 pb-2 border-b border-gray-100">
+                  <div className="w-6 h-6 rounded-lg bg-orange-50 text-[#f47b20] flex items-center justify-center">
+                    <MapPin className="w-3.5 h-3.5" />
+                  </div>
+                  <span className="font-bold text-xs text-gray-900">2. Delivery Destination</span>
+                </div>
 
                 <div className="grid grid-cols-2 gap-2.5">
                   <div>
@@ -508,7 +618,7 @@ export default function CartDrawer({
                     <select
                       value={selectedState}
                       onChange={(e) => handleStateChange(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white focus:border-[#f47b20] focus:ring-1 focus:ring-[#f47b20] outline-none text-xs font-medium cursor-pointer transition-all"
+                      className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white focus:border-[#f47b20] focus:ring-1 focus:ring-[#f47b20] outline-none text-xs font-medium cursor-pointer transition-all"
                     >
                       {NIGERIA_STATES.map((st) => (
                         <option key={st} value={st}>
@@ -520,12 +630,12 @@ export default function CartDrawer({
 
                   <div>
                     <label className="block font-medium text-gray-700 text-[11px] mb-1">
-                      Local Govt Area (LGA) *
+                      Local Govt (LGA) *
                     </label>
                     <select
                       value={selectedLga}
                       onChange={(e) => setSelectedLga(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-white focus:border-[#f47b20] focus:ring-1 focus:ring-[#f47b20] outline-none text-xs font-medium cursor-pointer transition-all"
+                      className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white focus:border-[#f47b20] focus:ring-1 focus:ring-[#f47b20] outline-none text-xs font-medium cursor-pointer transition-all"
                     >
                       {currentAvailableLgas.map((lga) => (
                         <option key={lga} value={lga}>
@@ -545,30 +655,45 @@ export default function CartDrawer({
                     placeholder="e.g. Thatcher Building, UNIMAID campus or street name"
                     value={streetAddress}
                     onChange={(e) => setStreetAddress(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-[#f47b20] focus:ring-1 focus:ring-[#f47b20] outline-none text-xs transition-all"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 focus:border-[#f47b20] focus:ring-1 focus:ring-[#f47b20] outline-none text-xs transition-all bg-gray-50/50 focus:bg-white"
                   />
-                </div>
-
-                {/* Delivery Period Notice */}
-                <div className="p-2.5 rounded-xl bg-orange-50/80 border border-orange-100 text-[11px] flex items-start gap-2">
-                  <Clock className="w-3.5 h-3.5 text-[#f47b20] shrink-0 mt-0.5" />
-                  <div className="leading-snug">
-                    <span className="font-bold text-gray-900 block">Delivery Period: 2–4 Business Days</span>
-                    <span className="text-gray-600 text-[10.5px]">Same-day dispatch within Maiduguri MMC. Confirmation email will be sent upon payment.</span>
-                  </div>
                 </div>
               </div>
 
-              {/* Section 3: Remark */}
-              <div className="space-y-1.5 pt-2 border-t border-gray-100">
-                <label className="block font-medium text-gray-700">
-                  Remark
-                </label>
+              {/* CARD 3: Delivery Terms & Period */}
+              <div className="bg-gradient-to-br from-amber-50/70 to-orange-50/50 rounded-2xl border border-amber-200/80 p-3.5 space-y-2 text-xs">
+                <div className="flex items-start gap-2.5">
+                  <div className="w-6 h-6 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 mt-0.5">
+                    <Truck className="w-3.5 h-3.5" />
+                  </div>
+                  <div className="leading-snug">
+                    <span className="font-bold text-amber-950 text-[11.5px] block">Pay-on-Delivery for Shipping</span>
+                    <p className="text-amber-800 text-[10.5px] mt-0.5">
+                      Courier fee is paid upon physical delivery and inspection. No shipping fee is charged today.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 pt-2 border-t border-amber-200/60 text-[11px] text-amber-900 font-medium">
+                  <Clock className="w-3.5 h-3.5 text-amber-700 shrink-0" />
+                  <span>Estimated Delivery: <strong>2–4 Business Days</strong> (Same-day within Maiduguri MMC)</span>
+                </div>
+              </div>
+
+              {/* CARD 4: Optional Remarks */}
+              <div className="bg-white rounded-2xl border border-gray-200/80 p-4 shadow-xs">
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="font-bold text-xs text-gray-900">
+                    Order Remark / Special Request
+                  </label>
+                  <span className="text-[10px] text-gray-400 font-normal">Optional</span>
+                </div>
                 <textarea
                   rows={2}
+                  placeholder="Any special printing instructions or landmark details..."
                   value={orderNotes}
                   onChange={(e) => setOrderNotes(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-gray-200 focus:border-[#f47b20] focus:ring-1 focus:ring-[#f47b20] outline-none text-xs leading-relaxed transition-all"
+                  className="w-full px-3.5 py-2 rounded-xl border border-gray-200 focus:border-[#f47b20] focus:ring-1 focus:ring-[#f47b20] outline-none text-xs leading-relaxed transition-all bg-gray-50/50 focus:bg-white"
                 />
               </div>
             </form>
@@ -775,57 +900,59 @@ export default function CartDrawer({
 
         {/* Footer Actions for Cart and Checkout */}
         {step !== 'success' && cart.length > 0 && (
-          <div className="p-4 border-t border-gray-100 bg-white no-print">
+          <div className="p-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] border-t border-gray-100 bg-white/95 backdrop-blur-md no-print shrink-0">
             {step === 'cart' ? (
               <>
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs text-gray-500 font-medium">Subtotal:</span>
+                <div className="flex items-center justify-between mb-3 px-1">
+                  <span className="text-xs text-gray-500 font-medium">Subtotal ({totalItemCount} items):</span>
                   <span className="font-display text-lg font-bold text-[#1d1d1f] tabular-nums">
                     {formatNaira(totalAmount)}
                   </span>
                 </div>
                 <button
+                  type="button"
                   onClick={() => setStep('checkout')}
-                  className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-full bg-[#f47b20] hover:bg-[#ea580c] text-white text-xs font-semibold tracking-wide shadow-xs transition-colors cursor-pointer"
+                  className="w-full inline-flex items-center justify-center gap-2 py-3.5 sm:py-3 rounded-full bg-[#f47b20] hover:bg-[#ea580c] text-white text-xs sm:text-sm font-semibold tracking-wide shadow-xs transition-transform touch-action-btn cursor-pointer"
                 >
-                  <span>Proceed to Delivery & Pay</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <span>Proceed to Delivery</span>
+                  <ArrowRight className="w-4 h-4" />
                 </button>
               </>
             ) : (
               <div>
-                <div className="flex items-baseline justify-between mb-3">
+                <div className="flex items-baseline justify-between mb-3 px-1">
                   <div>
                     <span className="text-xs font-bold text-gray-900 block">Total Due Now:</span>
-                    <span className="text-[10px] text-amber-700">Delivery courier fee paid upon arrival</span>
+                    <span className="text-[10px] text-amber-700">Courier fee paid on delivery inspection</span>
                   </div>
                   <span className="font-display text-lg font-bold text-emerald-700 tabular-nums">
                     {formatNaira(totalAmount)}
                   </span>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex gap-2.5">
                   <button
                     type="button"
                     onClick={() => setStep('cart')}
-                    className="px-4 py-2.5 rounded-full border border-gray-200 text-xs font-semibold hover:bg-gray-100 cursor-pointer transition-colors"
+                    className="px-5 py-3 sm:py-2.5 rounded-full border border-gray-200 text-xs font-semibold hover:bg-gray-100 cursor-pointer transition-transform touch-action-btn text-gray-700"
                   >
                     Back
                   </button>
                   <button
+                    type="button"
                     onClick={handlePaymentCheckout}
                     disabled={isProcessing}
-                    className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-xs disabled:opacity-60 cursor-pointer transition-colors"
+                    className="flex-1 inline-flex items-center justify-center gap-2 py-3.5 sm:py-2.5 rounded-full bg-[#f47b20] hover:bg-[#c95510] text-white text-xs sm:text-sm font-semibold shadow-xs disabled:opacity-60 cursor-pointer transition-transform touch-action-btn"
                   >
                     {isProcessing ? (
                       <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        <span>Connecting Gateway…</span>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Connecting Paystack…</span>
                       </>
                     ) : (
                       <>
-                        <CreditCard className="w-3.5 h-3.5" />
-                        <span>Pay {formatNaira(totalAmount)}</span>
+                        <CreditCard className="w-4 h-4" />
+                        <span>Make Payment</span>
                       </>
                     )}
                   </button>
@@ -925,13 +1052,32 @@ export default function CartDrawer({
                 <button
                   type="button"
                   onClick={() => {
-                    const generatedRef = `CARD-${Date.now()}`;
-                    finalizeOrder(pendingOrderId, generatedRef, 'Debit Card');
+                    const launched = payWithPaystack({
+                      email: customerEmail.trim(),
+                      amount: totalAmount,
+                      customerName: customerName.trim(),
+                      customerPhone: customerPhone.trim(),
+                      orderId: pendingOrderId,
+                      metadata: {
+                        state: selectedState,
+                        lga: selectedLga,
+                        address: streetAddress.trim()
+                      },
+                      onSuccess: (reference) => {
+                        finalizeOrder(pendingOrderId, reference, 'Paystack Online');
+                      },
+                      onClose: () => {}
+                    });
+
+                    if (!launched) {
+                      const generatedRef = `CARD-${Date.now()}`;
+                      finalizeOrder(pendingOrderId, generatedRef, 'Paystack Card');
+                    }
                   }}
-                  className="w-full py-3 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow-xs flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.98]"
+                  className="w-full py-3 rounded-full bg-[#f47b20] hover:bg-[#c95510] text-white font-semibold text-xs shadow-xs flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.98]"
                 >
                   <CreditCard className="w-4 h-4" />
-                  <span>Instant Card Pay ({formatNaira(totalAmount)})</span>
+                  <span>Make Payment</span>
                 </button>
               </div>
             )}
