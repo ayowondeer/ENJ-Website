@@ -423,6 +423,7 @@ export async function seedProductsIfEmpty(): Promise<ProductItem[]> {
 
       const payload = {
         ...p,
+        position: p.position ?? (idx + 1),
         createdAt: new Date().toISOString()
       };
       await setDoc(doc(db, 'products', prodId), payload);

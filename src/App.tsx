@@ -20,13 +20,7 @@ import {
   AlertCircle, 
   RotateCcw, 
   ArrowRight,
-  ShieldCheck,
-  Store,
-  ChevronLeft,
-  ChevronRight,
-  RefreshCw,
-  Play,
-  Pause
+  Store
 } from 'lucide-react';
 import ShopView from './components/ShopView';
 import AdminPortal from './components/AdminPortal';

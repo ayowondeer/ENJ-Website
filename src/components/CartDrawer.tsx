@@ -82,6 +82,25 @@ export default function CartDrawer({
     }
   }, [completedOrder]);
 
+  // Apple HIG Modal Accessibility: Background scroll-locking & Escape key dismiss
+  useEffect(() => {
+    if (!isOpen) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const handleStateChange = (stateName: string) => {
@@ -274,27 +293,27 @@ export default function CartDrawer({
   const currentAvailableLgas = NIGERIA_STATES_LGAS[selectedState] || [];
 
   return (
-    <div className="fixed inset-0 z-[130] bg-black/50 backdrop-blur-xs flex justify-end animate-in fade-in duration-200 font-sans">
+    <div className="fixed inset-0 z-[130] bg-black/40 backdrop-blur-md flex justify-end animate-in fade-in duration-200 font-sans">
       
       {/* Backdrop click */}
       <div className="flex-1 no-print" onClick={onClose} />
 
       {/* Slide-over Drawer Panel */}
-      <div className="w-full max-w-sm sm:max-w-md bg-white h-full shadow-2xl flex flex-col justify-between animate-in slide-in-from-right duration-300">
+      <div className="w-full max-w-sm sm:max-w-md bg-white h-full shadow-2xl flex flex-col justify-between animate-in slide-in-from-right duration-300 relative">
         
-        {/* Top Header */}
-        <div className="px-5 py-3.5 border-b border-gray-100 flex items-center justify-between no-print bg-white">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-orange-50 flex items-center justify-center text-[#f47b20]">
+        {/* Top Header: Sticky Floating Bar with Fixed Cancel Button */}
+        <div className="px-5 py-3.5 border-b border-gray-100 flex items-center justify-between no-print bg-white/95 backdrop-blur-md sticky top-0 z-40 shadow-2xs">
+          <div className="flex items-center gap-2 min-w-0 pr-2">
+            <div className="w-7 h-7 rounded-lg bg-orange-50 flex items-center justify-center text-[#f47b20] shrink-0">
               <ShoppingCart className="w-4 h-4" />
             </div>
-            <div>
-              <h2 className="font-display text-sm font-bold text-[#1d1d1f] leading-none">
+            <div className="min-w-0">
+              <h2 className="font-display text-sm font-bold text-[#1d1d1f] leading-none truncate">
                 {step === 'cart' && 'Your Cart'}
                 {step === 'checkout' && 'Checkout & Delivery'}
                 {step === 'success' && 'Order Confirmed'}
               </h2>
-              <span className="text-[11px] text-gray-500">
+              <span className="text-[11px] text-gray-500 truncate block mt-0.5">
                 {step === 'cart' && `${totalItemCount} ${totalItemCount === 1 ? 'item' : 'items'}`}
                 {step === 'checkout' && 'Provide delivery details'}
                 {step === 'success' && 'Verified Official Receipt'}
@@ -302,12 +321,15 @@ export default function CartDrawer({
             </div>
           </div>
 
+          {/* Floating Cancel Button: Always fixed and accessible while scrolling */}
           <button
+            type="button"
             onClick={onClose}
-            className="p-1.5 rounded-full hover:bg-gray-100 text-gray-400 hover:text-black transition-colors cursor-pointer"
-            aria-label="Close cart"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs transition-all cursor-pointer active:scale-95 shadow-2xs border border-gray-200/60 shrink-0"
+            aria-label="Cancel and close cart"
           >
-            <X className="w-4 h-4" />
+            <X className="w-3.5 h-3.5" />
+            <span>Cancel</span>
           </button>
         </div>
 
@@ -966,27 +988,31 @@ export default function CartDrawer({
 
       {/* High-Speed Instant Payment Gateway Modal */}
       {showPaymentFallback && (
-        <div className="fixed inset-0 z-[140] bg-black/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 no-print animate-in fade-in duration-150">
-          <div className="bg-white rounded-3xl max-w-sm sm:max-w-md w-full p-5 sm:p-6 shadow-2xl border border-gray-100 animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-[140] bg-black/40 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 no-print animate-in fade-in duration-150">
+          <div className="relative bg-white rounded-3xl max-w-sm sm:max-w-md w-full p-5 sm:p-6 shadow-2xl border border-gray-100 animate-in zoom-in-95 duration-200 max-h-[92vh] overflow-y-auto">
             
-            {/* Header: Gateway Connection & Close */}
-            <div className="flex items-center justify-between pb-3 border-b border-gray-100 mb-3.5">
-              <div className="flex items-center gap-2">
-                <span className="relative flex h-2.5 w-2.5">
+            {/* Header: Sticky Floating Bar with Fixed Cancel Button */}
+            <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md -mx-5 -mt-5 px-5 pt-5 pb-3 border-b border-gray-100 mb-3.5 flex items-center justify-between shadow-2xs">
+              <div className="flex items-center gap-2 min-w-0 pr-2">
+                <span className="relative flex h-2.5 w-2.5 shrink-0">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
                 </span>
-                <div>
-                  <h3 className="font-bold text-xs text-gray-900 leading-none">High-Speed Secure Gateway</h3>
-                  <span className="text-[10px] text-emerald-600 font-medium">Instant 256-bit SSL Connection</span>
+                <div className="min-w-0">
+                  <h3 className="font-bold text-xs text-gray-900 leading-none truncate">High-Speed Secure Gateway</h3>
+                  <span className="text-[10px] text-emerald-600 font-medium truncate block mt-0.5">Instant 256-bit SSL Connection</span>
                 </div>
               </div>
+              
+              {/* Floating Cancel Button: Always fixed and accessible while scrolling */}
               <button 
+                type="button"
                 onClick={() => { setShowPaymentFallback(false); setIsProcessing(false); }}
-                className="p-1 rounded-full text-gray-400 hover:text-black hover:bg-gray-100 cursor-pointer transition-colors"
-                aria-label="Close gateway"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs transition-all cursor-pointer active:scale-95 shadow-2xs border border-gray-200/60 shrink-0"
+                aria-label="Cancel gateway"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3.5 h-3.5" />
+                <span>Cancel</span>
               </button>
             </div>
 

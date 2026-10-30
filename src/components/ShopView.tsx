@@ -173,6 +173,25 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
     return () => unsub();
   }, []);
 
+  // Apple HIG Modal Accessibility: Background scroll-locking & Escape key dismiss
+  useEffect(() => {
+    if (!selectedProduct) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setSelectedProduct(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedProduct]);
+
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
       let matchCat = false;
@@ -435,28 +454,32 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
          ======================================================== */}
       {selectedProduct && (
         <div 
-          className="fixed inset-0 z-[150] bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-200"
+          className="fixed inset-0 z-[150] bg-black/40 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-200"
           onClick={() => setSelectedProduct(null)}
         >
           <div 
-            className="bg-white rounded-3xl w-full max-w-2xl shadow-2xl border border-gray-100 overflow-hidden animate-in zoom-in-95 duration-200 max-h-[92vh] flex flex-col"
+            className="relative bg-white rounded-3xl w-full max-w-2xl shadow-2xl border border-gray-100 overflow-hidden animate-in zoom-in-95 duration-200 max-h-[92vh] flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Modal Header */}
-            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between shrink-0">
-              <div className="flex items-center gap-2 text-xs text-gray-500">
-                <span className="font-semibold text-[#f47b20] uppercase tracking-wider text-[11px]">
+            {/* Modal Header: Sticky Floating Bar with Fixed Cancel Button */}
+            <div className="sticky top-0 z-30 px-5 sm:px-6 py-3.5 border-b border-gray-100 flex items-center justify-between shrink-0 bg-white/95 backdrop-blur-md shadow-2xs">
+              <div className="flex items-center gap-2 text-xs text-gray-500 min-w-0 pr-2">
+                <span className="font-semibold text-[#f47b20] uppercase tracking-wider text-[11px] truncate">
                   {selectedProduct.category}
                 </span>
                 <span aria-hidden="true" className="text-gray-300">·</span>
-                <span>{selectedProduct.inStock ? 'Ready Stock' : 'Custom Production'}</span>
+                <span className="truncate">{selectedProduct.inStock ? 'Ready Stock' : 'Custom Production'}</span>
               </div>
+              
+              {/* Floating Cancel Button: Always visible and pinned while scrolling */}
               <button 
+                type="button"
                 onClick={() => setSelectedProduct(null)}
-                className="p-1.5 rounded-full text-gray-400 hover:text-black hover:bg-gray-100 transition-colors cursor-pointer"
-                aria-label="Close modal"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs transition-all cursor-pointer active:scale-95 shadow-2xs border border-gray-200/60 shrink-0"
+                aria-label="Cancel and close modal"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3.5 h-3.5" />
+                <span>Cancel</span>
               </button>
             </div>
 
