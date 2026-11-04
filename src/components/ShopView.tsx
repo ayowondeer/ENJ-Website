@@ -393,7 +393,7 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
               <div
                 key={product.id}
                 onClick={() => handleOpenProductDetail(product)}
-                className="group bg-white rounded-2xl border border-gray-200/80 overflow-hidden shadow-xs hover:shadow-lg transition-all duration-200 flex flex-col justify-between cursor-pointer hover:border-gray-300 touch-action-card"
+                className="group bg-white rounded-[28px] border border-gray-200/80 overflow-hidden shadow-xs hover:shadow-lg transition-all duration-200 flex flex-col justify-between cursor-pointer hover:border-gray-300 touch-action-card"
               >
                   {/* Image */}
                   <div className="relative aspect-4/3 bg-gray-50 overflow-hidden">
@@ -404,14 +404,14 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
                       loading="lazy"
                     />
                     {product.compareAtPrice && product.compareAtPrice > product.price && (
-                      <span className="absolute top-2 right-2 px-2 py-0.5 rounded-md bg-[#f47b20] text-white text-[9px] font-bold shadow-xs">
+                      <span className="absolute top-2 right-2 px-2.5 py-0.5 rounded-full bg-[#f47b20] text-white text-[9px] font-bold shadow-xs">
                         Deal
                       </span>
                     )}
                   </div>
 
                   {/* Info */}
-                  <div className="p-3.5 flex-1 flex flex-col justify-between">
+                  <div className="p-4 flex-1 flex flex-col justify-between">
                     <div>
                       <p className="text-[10px] text-gray-400 mb-0.5 uppercase tracking-wider font-semibold">
                         {product.category}
@@ -421,7 +421,7 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
                       </h3>
                     </div>
 
-                    <div className="pt-2 flex items-center justify-between gap-2 mt-auto border-t border-gray-100">
+                    <div className="pt-2.5 flex items-center justify-between gap-2 mt-auto border-t border-gray-100">
                       <div>
                         <span className="font-display text-xs sm:text-sm font-bold text-[#1d1d1f] block tabular-nums leading-tight">
                           {formatNaira(product.price)}
@@ -458,11 +458,11 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
           onClick={() => setSelectedProduct(null)}
         >
           <div 
-            className="relative bg-white rounded-3xl w-full max-w-2xl shadow-2xl border border-gray-100 overflow-hidden animate-in zoom-in-95 duration-200 max-h-[92vh] flex flex-col"
+            className="relative bg-white rounded-[36px] w-full max-w-2xl shadow-2xl border border-gray-100 overflow-hidden animate-in zoom-in-95 duration-200 max-h-[92vh] flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header: Sticky Floating Bar with Fixed Cancel Button */}
-            <div className="sticky top-0 z-30 px-5 sm:px-6 py-3.5 border-b border-gray-100 flex items-center justify-between shrink-0 bg-white/95 backdrop-blur-md shadow-2xs">
+            <div className="sticky top-0 z-30 px-6 sm:px-7 py-3.5 border-b border-gray-100 flex items-center justify-between shrink-0 bg-white/95 backdrop-blur-md shadow-2xs rounded-t-[36px]">
               <div className="flex items-center gap-2 text-xs text-gray-500 min-w-0 pr-2">
                 <span className="font-semibold text-[#f47b20] uppercase tracking-wider text-[11px] truncate">
                   {selectedProduct.category}
@@ -484,19 +484,19 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
             </div>
 
             {/* Modal Body: Scrollable */}
-            <div className="p-5 sm:p-6 overflow-y-auto space-y-6 flex-1">
+            <div className="p-6 sm:p-7 overflow-y-auto space-y-6 flex-1">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">
                 
                 {/* Left: Images & Gallery switcher */}
                 <div className="space-y-3">
-                  <div className="relative h-60 sm:h-68 rounded-2xl overflow-hidden bg-gray-50 border border-gray-200">
+                  <div className="relative h-60 sm:h-68 rounded-[24px] overflow-hidden bg-gray-50 border border-gray-200">
                     <img 
                       src={activeImage || selectedProduct.imageUrl} 
                       alt={selectedProduct.title}
                       className="w-full h-full object-cover transition-all duration-300"
                     />
                     {selectedProduct.compareAtPrice && selectedProduct.compareAtPrice > selectedProduct.price && (
-                      <span className="absolute top-2.5 right-2.5 px-2.5 py-0.5 rounded-md bg-[#f47b20] text-white text-[10px] font-bold shadow-xs">
+                      <span className="absolute top-2.5 right-2.5 px-2.5 py-0.5 rounded-full bg-[#f47b20] text-white text-[10px] font-bold shadow-xs">
                         Special Price
                       </span>
                     )}
@@ -514,7 +514,7 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
                             key={idx}
                             type="button"
                             onClick={() => setActiveImage(img)}
-                            className={`w-14 h-14 rounded-xl overflow-hidden border-2 shrink-0 transition-all cursor-pointer ${
+                            className={`w-14 h-14 rounded-[14px] overflow-hidden border-2 shrink-0 transition-all cursor-pointer ${
                               activeImage === img 
                                 ? 'border-[#f47b20] ring-2 ring-orange-200 scale-102' 
                                 : 'border-gray-200 opacity-70 hover:opacity-100'
@@ -554,7 +554,7 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
                     </div>
 
                     {/* 2. Simple & Understandable Description Box */}
-                    <div className="p-3.5 rounded-2xl bg-gray-50 border border-gray-100/90 text-xs text-gray-700 space-y-2.5">
+                    <div className="p-4 rounded-[22px] bg-gray-50 border border-gray-100/90 text-xs text-gray-700 space-y-2.5">
                       <p className="leading-relaxed text-gray-600">
                         {selectedProduct.description}
                       </p>
@@ -610,7 +610,7 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
                       </div>
                     )}
 
-                    {/* 4. Choice of Size / Specification (Finger friendly 44px touch buttons) */}
+                    {/* 4. Choice of Size / Specification (Fully rounded pills) */}
                     {selectedProduct.availableSizes && selectedProduct.availableSizes.length > 0 && (
                       <div className="space-y-2">
                         <div className="flex items-center justify-between text-xs">
@@ -621,19 +621,14 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
                           {selectedProduct.availableSizes.map((size) => {
                             const isSelected = selectedSize === size;
                             const label = formatSizeLabel(size);
-                            const isAlphaSize = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'].includes(label);
                             return (
                               <button
                                 key={size}
                                 type="button"
                                 onClick={() => setSelectedSize(size)}
-                                className={`transition-all cursor-pointer font-bold rounded-xl text-xs sm:text-sm flex items-center justify-center touch-action-btn ${
-                                  isAlphaSize 
-                                    ? 'min-w-[44px] h-[44px] sm:min-w-[40px] sm:h-[40px] border' 
-                                    : 'px-4 py-2.5 min-h-[44px] border font-semibold'
-                                } ${
+                                className={`transition-all cursor-pointer font-bold rounded-full text-xs sm:text-sm px-4 py-2 min-h-[40px] flex items-center justify-center touch-action-btn border active:scale-95 ${
                                   isSelected
-                                    ? 'bg-[#1d1d1f] text-white border-[#1d1d1f] shadow-xs scale-102'
+                                    ? 'bg-[#1d1d1f] text-white border-[#1d1d1f] shadow-xs'
                                     : 'bg-white hover:bg-gray-100 text-gray-700 border-gray-200'
                                 }`}
                                 title={size}
@@ -646,13 +641,13 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
                       </div>
                     )}
 
-                    {/* 5. Quantity Stepper (Generous touch targets 44px+) */}
-                    <div className="flex items-center justify-between text-xs p-3.5 rounded-2xl bg-gray-50 border border-gray-100">
+                    {/* 5. Quantity Stepper - Capsule Pill */}
+                    <div className="flex items-center justify-between text-xs p-4 rounded-[22px] bg-gray-50 border border-gray-100">
                       <div>
                         <span className="font-semibold text-gray-800 block text-xs">Quantity</span>
                         <span className="text-[10.5px] text-gray-400">Order amount in {selectedProduct.unit}</span>
                       </div>
-                      <div className="flex items-center border border-gray-200 rounded-xl bg-white shadow-2xs overflow-hidden">
+                      <div className="flex items-center border border-gray-200 rounded-full bg-white shadow-2xs overflow-hidden">
                         <button
                           type="button"
                           onClick={() => setModalQuantity(q => Math.max(selectedProduct.minOrderQty || 1, q - 1))}

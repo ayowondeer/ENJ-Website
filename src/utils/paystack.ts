@@ -35,7 +35,7 @@ export interface PaystackConfig {
 
 // User-configured Paystack public key; can be overridden via VITE_PAYSTACK_PUBLIC_KEY
 export const PAYSTACK_PUBLIC_KEY = 
-  (import.meta as any).env?.VITE_PAYSTACK_PUBLIC_KEY || 'pk_test_bbeaa3c12b1b10b7a933fb32f0f729498d5a124c';
+  (import.meta as any).env?.VITE_PAYSTACK_PUBLIC_KEY || 'pk_live_5476b333253c7fd8ee36d4671fbf48470e06335f';
 
 export function payWithPaystack({
   email,

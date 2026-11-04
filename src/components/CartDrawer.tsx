@@ -299,12 +299,12 @@ export default function CartDrawer({
       <div className="flex-1 no-print" onClick={onClose} />
 
       {/* Slide-over Drawer Panel */}
-      <div className="w-full max-w-sm sm:max-w-md bg-white h-full shadow-2xl flex flex-col justify-between animate-in slide-in-from-right duration-300 relative">
+      <div className="w-full max-w-sm sm:max-w-md bg-white h-full shadow-2xl flex flex-col justify-between animate-in slide-in-from-right duration-300 relative sm:rounded-l-[36px] overflow-hidden">
         
         {/* Top Header: Sticky Floating Bar with Fixed Cancel Button */}
-        <div className="px-5 py-3.5 border-b border-gray-100 flex items-center justify-between no-print bg-white/95 backdrop-blur-md sticky top-0 z-40 shadow-2xs">
+        <div className="px-5 py-3.5 border-b border-gray-100 flex items-center justify-between no-print bg-white/95 backdrop-blur-md sticky top-0 z-40 shadow-2xs sm:rounded-tl-[36px]">
           <div className="flex items-center gap-2 min-w-0 pr-2">
-            <div className="w-7 h-7 rounded-lg bg-orange-50 flex items-center justify-center text-[#f47b20] shrink-0">
+            <div className="w-7 h-7 rounded-full bg-orange-50 flex items-center justify-center text-[#f47b20] shrink-0">
               <ShoppingCart className="w-4 h-4" />
             </div>
             <div className="min-w-0">
@@ -344,7 +344,7 @@ export default function CartDrawer({
                 if (step === 'checkout') setStep('cart');
               }}
               disabled={step === 'success'}
-              className={`flex-1 py-1.5 px-2 rounded-xl flex items-center justify-center gap-1.5 text-xs transition-all touch-action-btn ${
+              className={`flex-1 py-1.5 px-2 rounded-full flex items-center justify-center gap-1.5 text-xs transition-all touch-action-btn ${
                 step === 'cart'
                   ? 'bg-white text-gray-900 font-bold shadow-xs border border-gray-200/90 ring-1 ring-black/5'
                   : step === 'checkout'
@@ -368,7 +368,7 @@ export default function CartDrawer({
 
             {/* Step 2: Delivery */}
             <div
-              className={`flex-1 py-1.5 px-2 rounded-xl flex items-center justify-center gap-1.5 text-xs transition-all ${
+              className={`flex-1 py-1.5 px-2 rounded-full flex items-center justify-center gap-1.5 text-xs transition-all ${
                 step === 'checkout'
                   ? 'bg-white text-gray-900 font-bold shadow-xs border border-gray-200/90 ring-1 ring-black/5'
                   : step === 'success'
@@ -394,7 +394,7 @@ export default function CartDrawer({
 
             {/* Step 3: Receipt */}
             <div
-              className={`flex-1 py-1.5 px-2 rounded-xl flex items-center justify-center gap-1.5 text-xs transition-all ${
+              className={`flex-1 py-1.5 px-2 rounded-full flex items-center justify-center gap-1.5 text-xs transition-all ${
                 step === 'success'
                   ? 'bg-white text-emerald-700 font-bold shadow-xs border border-emerald-200'
                   : 'text-gray-400'
@@ -430,7 +430,7 @@ export default function CartDrawer({
             <>
               {cart.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-center py-16">
-                  <div className="w-14 h-14 rounded-2xl bg-orange-50 flex items-center justify-center text-[#f47b20] mb-3 border border-orange-100">
+                  <div className="w-14 h-14 rounded-full bg-orange-50 flex items-center justify-center text-[#f47b20] mb-3 border border-orange-100">
                     <ShoppingCart className="w-7 h-7" />
                   </div>
                   <h3 className="font-display text-base font-bold text-[#1d1d1f] mb-1">
@@ -463,12 +463,12 @@ export default function CartDrawer({
                   {cart.map((item, index) => (
                     <div 
                       key={`${item.product.id}-${index}`}
-                      className="flex gap-3 p-3.5 rounded-2xl bg-gray-50/80 border border-gray-200/70 hover:border-gray-300 transition-colors items-start"
+                      className="flex gap-3 p-3.5 rounded-[22px] bg-gray-50/80 border border-gray-200/70 hover:border-gray-300 transition-colors items-start"
                     >
                       <img
                         src={item.product.imageUrl}
                         alt={item.product.title}
-                        className="w-16 h-16 rounded-xl object-cover bg-white shrink-0 border border-gray-200/80 shadow-2xs"
+                        className="w-16 h-16 rounded-[12px] object-cover bg-white shrink-0 border border-gray-200/80 shadow-2xs"
                       />
                       <div className="flex-1 min-w-0">
                         <h4 className="font-semibold text-xs sm:text-[13px] text-[#1d1d1f] truncate leading-tight">
@@ -479,12 +479,12 @@ export default function CartDrawer({
                         {(item.selectedColor || item.selectedSize) && (
                           <div className="flex flex-wrap items-center gap-1.5 my-1.5 text-[11px] text-gray-600">
                             {item.selectedColor && (
-                              <span className="bg-white px-2 py-0.5 rounded-md border border-gray-200 text-[10px] font-medium">
+                              <span className="bg-white px-2.5 py-0.5 rounded-full border border-gray-200 text-[10px] font-medium">
                                 {item.selectedColor}
                               </span>
                             )}
                             {item.selectedSize && (
-                              <span className="bg-white px-2 py-0.5 rounded-md border border-gray-200 text-[10px] font-medium">
+                              <span className="bg-white px-2.5 py-0.5 rounded-full border border-gray-200 text-[10px] font-medium">
                                 Size: {item.selectedSize}
                               </span>
                             )}
@@ -498,9 +498,9 @@ export default function CartDrawer({
                           </span>
                         </p>
                         
-                        {/* Finger-Friendly Quantity Stepper (generous w-9 h-9) */}
+                        {/* Finger-Friendly Quantity Stepper - Capsule Pill */}
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center border border-gray-200 rounded-xl bg-white shadow-2xs overflow-hidden">
+                          <div className="flex items-center border border-gray-200 rounded-full bg-white shadow-2xs overflow-hidden">
                             <button
                               type="button"
                               onClick={() => updateQuantity(index, item.quantity - 1)}
@@ -527,7 +527,7 @@ export default function CartDrawer({
                           <button
                             type="button"
                             onClick={() => removeFromCart(index)}
-                            className="w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center rounded-xl text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors touch-action-btn cursor-pointer"
+                            className="w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors touch-action-btn cursor-pointer"
                             title="Remove item"
                             aria-label={`Remove ${item.product.title}`}
                           >
@@ -546,14 +546,14 @@ export default function CartDrawer({
           {step === 'checkout' && (
             <form onSubmit={handlePaymentCheckout} className="space-y-3.5 text-xs">
               {submitError && (
-                <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 flex items-center gap-2 text-xs animate-in shake">
-                  <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                <div className="p-3.5 rounded-full bg-red-50 border border-red-200 text-red-700 flex items-center gap-2 text-xs animate-in shake">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-red-600 ml-1" />
                   <span>{submitError}</span>
                 </div>
               )}
 
               {/* Order Quick Summary Bar */}
-              <div className="p-3 rounded-2xl bg-gray-50 border border-gray-200/80 flex items-center justify-between">
+              <div className="p-3 rounded-full bg-gray-50 border border-gray-200/80 flex items-center justify-between px-4">
                 <div>
                   <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Order Subtotal</span>
                   <span className="font-display text-sm font-bold text-[#1d1d1f] tabular-nums">{formatNaira(totalAmount)}</span>
@@ -562,7 +562,7 @@ export default function CartDrawer({
                 <button
                   type="button"
                   onClick={() => setStep('cart')}
-                  className="px-2.5 py-1 rounded-lg text-[11px] font-semibold text-[#f47b20] hover:bg-orange-50 transition-colors touch-action-btn flex items-center gap-1 cursor-pointer"
+                  className="px-3 py-1 rounded-full text-[11px] font-semibold text-[#f47b20] hover:bg-orange-50 transition-colors touch-action-btn flex items-center gap-1 cursor-pointer"
                 >
                   <span>Review Items</span>
                   <ChevronRight className="w-3.5 h-3.5" />
@@ -570,9 +570,9 @@ export default function CartDrawer({
               </div>
 
               {/* CARD 1: Contact Information */}
-              <div className="bg-white rounded-2xl border border-gray-200/80 p-4 shadow-xs space-y-3">
+              <div className="bg-white rounded-[24px] border border-gray-200/80 p-4.5 shadow-xs space-y-3">
                 <div className="flex items-center gap-2 pb-2 border-b border-gray-100">
-                  <div className="w-6 h-6 rounded-lg bg-orange-50 text-[#f47b20] flex items-center justify-center">
+                  <div className="w-6 h-6 rounded-full bg-orange-50 text-[#f47b20] flex items-center justify-center">
                     <User className="w-3.5 h-3.5" />
                   </div>
                   <span className="font-bold text-xs text-gray-900">1. Contact Information</span>
@@ -588,7 +588,7 @@ export default function CartDrawer({
                     placeholder="e.g. Emmanuel Moses"
                     value={customerName}
                     onChange={(e) => setCustomerName(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 focus:border-[#f47b20] focus:ring-1 focus:ring-[#f47b20] outline-none text-xs transition-all bg-gray-50/50 focus:bg-white"
+                    className="w-full px-4 py-2.5 rounded-full border border-gray-200 focus:border-[#f47b20] focus:ring-1 focus:ring-[#f47b20] outline-none text-xs transition-all bg-gray-50/50 focus:bg-white"
                   />
                 </div>
 
@@ -603,7 +603,7 @@ export default function CartDrawer({
                       placeholder="0813 353 5756"
                       value={customerPhone}
                       onChange={(e) => setCustomerPhone(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 focus:border-[#f47b20] focus:ring-1 focus:ring-[#f47b20] outline-none text-xs transition-all bg-gray-50/50 focus:bg-white"
+                      className="w-full px-4 py-2.5 rounded-full border border-gray-200 focus:border-[#f47b20] focus:ring-1 focus:ring-[#f47b20] outline-none text-xs transition-all bg-gray-50/50 focus:bg-white"
                     />
                   </div>
 
@@ -617,16 +617,16 @@ export default function CartDrawer({
                       placeholder="name@example.com"
                       value={customerEmail}
                       onChange={(e) => setCustomerEmail(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 focus:border-[#f47b20] focus:ring-1 focus:ring-[#f47b20] outline-none text-xs transition-all bg-gray-50/50 focus:bg-white"
+                      className="w-full px-4 py-2.5 rounded-full border border-gray-200 focus:border-[#f47b20] focus:ring-1 focus:ring-[#f47b20] outline-none text-xs transition-all bg-gray-50/50 focus:bg-white"
                     />
                   </div>
                 </div>
               </div>
 
               {/* CARD 2: Delivery Destination */}
-              <div className="bg-white rounded-2xl border border-gray-200/80 p-4 shadow-xs space-y-3">
+              <div className="bg-white rounded-[24px] border border-gray-200/80 p-4.5 shadow-xs space-y-3">
                 <div className="flex items-center gap-2 pb-2 border-b border-gray-100">
-                  <div className="w-6 h-6 rounded-lg bg-orange-50 text-[#f47b20] flex items-center justify-center">
+                  <div className="w-6 h-6 rounded-full bg-orange-50 text-[#f47b20] flex items-center justify-center">
                     <MapPin className="w-3.5 h-3.5" />
                   </div>
                   <span className="font-bold text-xs text-gray-900">2. Delivery Destination</span>
@@ -640,7 +640,7 @@ export default function CartDrawer({
                     <select
                       value={selectedState}
                       onChange={(e) => handleStateChange(e.target.value)}
-                      className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white focus:border-[#f47b20] focus:ring-1 focus:ring-[#f47b20] outline-none text-xs font-medium cursor-pointer transition-all"
+                      className="w-full px-4 py-2.5 rounded-full border border-gray-200 bg-white focus:border-[#f47b20] focus:ring-1 focus:ring-[#f47b20] outline-none text-xs font-medium cursor-pointer transition-all"
                     >
                       {NIGERIA_STATES.map((st) => (
                         <option key={st} value={st}>
@@ -657,7 +657,7 @@ export default function CartDrawer({
                     <select
                       value={selectedLga}
                       onChange={(e) => setSelectedLga(e.target.value)}
-                      className="w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white focus:border-[#f47b20] focus:ring-1 focus:ring-[#f47b20] outline-none text-xs font-medium cursor-pointer transition-all"
+                      className="w-full px-4 py-2.5 rounded-full border border-gray-200 bg-white focus:border-[#f47b20] focus:ring-1 focus:ring-[#f47b20] outline-none text-xs font-medium cursor-pointer transition-all"
                     >
                       {currentAvailableLgas.map((lga) => (
                         <option key={lga} value={lga}>
@@ -677,15 +677,15 @@ export default function CartDrawer({
                     placeholder="e.g. Thatcher Building, UNIMAID campus or street name"
                     value={streetAddress}
                     onChange={(e) => setStreetAddress(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 focus:border-[#f47b20] focus:ring-1 focus:ring-[#f47b20] outline-none text-xs transition-all bg-gray-50/50 focus:bg-white"
+                    className="w-full px-4 py-2.5 rounded-full border border-gray-200 focus:border-[#f47b20] focus:ring-1 focus:ring-[#f47b20] outline-none text-xs transition-all bg-gray-50/50 focus:bg-white"
                   />
                 </div>
               </div>
 
               {/* CARD 3: Delivery Terms & Period */}
-              <div className="bg-gradient-to-br from-amber-50/70 to-orange-50/50 rounded-2xl border border-amber-200/80 p-3.5 space-y-2 text-xs">
+              <div className="bg-gradient-to-br from-amber-50/70 to-orange-50/50 rounded-[22px] border border-amber-200/80 p-4 space-y-2 text-xs">
                 <div className="flex items-start gap-2.5">
-                  <div className="w-6 h-6 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 mt-0.5">
+                  <div className="w-6 h-6 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 mt-0.5">
                     <Truck className="w-3.5 h-3.5" />
                   </div>
                   <div className="leading-snug">
@@ -703,7 +703,7 @@ export default function CartDrawer({
               </div>
 
               {/* CARD 4: Optional Remarks */}
-              <div className="bg-white rounded-2xl border border-gray-200/80 p-4 shadow-xs">
+              <div className="bg-white rounded-[24px] border border-gray-200/80 p-4.5 shadow-xs">
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="font-bold text-xs text-gray-900">
                     Order Remark / Special Request
@@ -715,7 +715,7 @@ export default function CartDrawer({
                   placeholder="Any special printing instructions or landmark details..."
                   value={orderNotes}
                   onChange={(e) => setOrderNotes(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-gray-200 focus:border-[#f47b20] focus:ring-1 focus:ring-[#f47b20] outline-none text-xs leading-relaxed transition-all bg-gray-50/50 focus:bg-white"
+                  className="w-full px-4 py-2.5 rounded-[18px] border border-gray-200 focus:border-[#f47b20] focus:ring-1 focus:ring-[#f47b20] outline-none text-xs leading-relaxed transition-all bg-gray-50/50 focus:bg-white"
                 />
               </div>
             </form>
