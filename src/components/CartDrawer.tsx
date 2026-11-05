@@ -293,18 +293,18 @@ export default function CartDrawer({
   const currentAvailableLgas = NIGERIA_STATES_LGAS[selectedState] || [];
 
   return (
-    <div className="fixed inset-0 z-[130] bg-black/40 backdrop-blur-md flex justify-end animate-in fade-in duration-200 font-sans">
+    <div className="fixed inset-0 z-[130] bg-black/40 backdrop-blur-md flex justify-end animate-in fade-in duration-200 font-sans overscroll-none touch-none h-[100dvh] max-h-[100dvh] overflow-hidden">
       
       {/* Backdrop click */}
       <div className="flex-1 no-print" onClick={onClose} />
 
       {/* Slide-over Drawer Panel */}
-      <div className="w-full max-w-sm sm:max-w-md bg-white h-full shadow-2xl flex flex-col justify-between animate-in slide-in-from-right duration-300 relative sm:rounded-l-[36px] overflow-hidden">
+      <div className="w-full max-w-sm sm:max-w-md bg-white/95 backdrop-blur-2xl h-[100dvh] max-h-[100dvh] shadow-2xl flex flex-col justify-between animate-in slide-in-from-right duration-300 relative sm:rounded-l-[36px] overflow-hidden border-l border-white/90 touch-auto">
         
         {/* Top Header: Sticky Floating Bar with Fixed Cancel Button */}
-        <div className="px-5 py-3.5 border-b border-gray-100 flex items-center justify-between no-print bg-white/95 backdrop-blur-md sticky top-0 z-40 shadow-2xs sm:rounded-tl-[36px]">
+        <div className="px-5 py-3.5 border-b border-black/5 flex items-center justify-between no-print bg-white/80 backdrop-blur-xl sticky top-0 z-40 shadow-2xs sm:rounded-tl-[36px]">
           <div className="flex items-center gap-2 min-w-0 pr-2">
-            <div className="w-7 h-7 rounded-full bg-orange-50 flex items-center justify-center text-[#f47b20] shrink-0">
+            <div className="w-8 h-8 rounded-full bg-orange-50 flex items-center justify-center text-[#f47b20] shrink-0 border border-orange-100">
               <ShoppingCart className="w-4 h-4" />
             </div>
             <div className="min-w-0">
@@ -325,7 +325,7 @@ export default function CartDrawer({
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs transition-all cursor-pointer active:scale-95 shadow-2xs border border-gray-200/60 shrink-0"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/5 hover:bg-black/10 text-gray-700 font-semibold text-xs transition-all cursor-pointer active:scale-95 shadow-2xs border border-black/5 shrink-0"
             aria-label="Cancel and close cart"
           >
             <X className="w-3.5 h-3.5" />
@@ -334,7 +334,7 @@ export default function CartDrawer({
         </div>
 
         {/* Modern Interactive Progress Stepper */}
-        <div className="px-4 sm:px-5 py-3 bg-gray-50/90 border-b border-gray-100 no-print">
+        <div className="px-4 sm:px-5 py-3 bg-gray-50/80 border-b border-black/5 no-print">
           <div className="flex items-center justify-between gap-1.5 sm:gap-2">
             
             {/* Step 1: Cart Items */}
@@ -463,14 +463,15 @@ export default function CartDrawer({
                   {cart.map((item, index) => (
                     <div 
                       key={`${item.product.id}-${index}`}
-                      className="flex gap-3 p-3.5 rounded-[22px] bg-gray-50/80 border border-gray-200/70 hover:border-gray-300 transition-colors items-start"
+                      className="flex gap-3 p-3.5 rounded-[22px] apple-liquid-glass border border-white/90 shadow-2xs relative overflow-hidden items-start"
                     >
+                      <div className="specular-highlight opacity-50" />
                       <img
                         src={item.product.imageUrl}
                         alt={item.product.title}
-                        className="w-16 h-16 rounded-[12px] object-cover bg-white shrink-0 border border-gray-200/80 shadow-2xs"
+                        className="w-16 h-16 rounded-[10px] object-cover bg-white shrink-0 border border-black/5 shadow-2xs relative z-10"
                       />
-                      <div className="flex-1 min-w-0">
+                      <div className="flex-1 min-w-0 relative z-10">
                         <h4 className="font-semibold text-xs sm:text-[13px] text-[#1d1d1f] truncate leading-tight">
                           {item.product.title}
                         </h4>

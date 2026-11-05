@@ -82,6 +82,11 @@ service cloud.firestore {
       allow read, write: if true;
     }
 
+    // Portfolio collection: showcase completed works, client experiences, and services
+    match /portfolio/{portfolioId} {
+      allow read, write: if true;
+    }
+
     // Connection testing
     match /test/{docId} {
       allow read: if true;

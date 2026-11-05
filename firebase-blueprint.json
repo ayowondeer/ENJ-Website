@@ -37,6 +37,25 @@
         "createdAt": { "type": "string" }
       },
       "required": ["customerName", "customerEmail", "customerPhone", "itemsSummary", "totalAmount", "status"]
+    },
+    "Portfolio": {
+      "title": "Portfolio",
+      "description": "Showcase of completed projects, client experiences, and delivered services by ENJ Digital Concept.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "maxLength": 180 },
+        "category": { "type": "string", "maxLength": 100 },
+        "client": { "type": "string", "maxLength": 150 },
+        "year": { "type": "string", "maxLength": 20 },
+        "description": { "type": "string", "maxLength": 3000 },
+        "impact": { "type": "string", "maxLength": 500 },
+        "imageUrl": { "type": "string", "maxLength": 1000 },
+        "featured": { "type": "boolean" },
+        "order": { "type": "number" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["title", "category", "client", "description", "imageUrl"]
     }
   },
   "firestore": {
@@ -47,6 +66,10 @@
     "/orders/{orderId}": {
       "schema": "Order",
       "description": "Incoming customer orders and direct purchase inquiries."
+    },
+    "/portfolio/{portfolioId}": {
+      "schema": "Portfolio",
+      "description": "Completed projects and client experience showcase."
     }
   }
 }

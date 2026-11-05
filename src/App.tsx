@@ -25,6 +25,7 @@ import {
 import ShopView from './components/ShopView';
 import AdminPortal from './components/AdminPortal';
 import CartDrawer from './components/CartDrawer';
+import PortfolioView from './components/PortfolioView';
 import { CartItem, ProductItem } from './firebase';
 import { 
   TestimonialItem, 
@@ -33,8 +34,8 @@ import {
 } from './data/testimonials';
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState<'home' | 'shop' | 'company' | 'contact' | 'admin'>('home');
-  const [targetPage, setTargetPage] = useState<'home' | 'shop' | 'company' | 'contact' | 'admin' | null>(null);
+  const [currentPage, setCurrentPage] = useState<'home' | 'portfolio' | 'shop' | 'company' | 'contact' | 'admin'>('home');
+  const [targetPage, setTargetPage] = useState<'home' | 'portfolio' | 'shop' | 'company' | 'contact' | 'admin' | null>(null);
   const [isPageLoading, setIsPageLoading] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -188,7 +189,8 @@ export default function App() {
 
     const handleHashChange = () => {
       const hash = getCleanHash();
-      const target: 'home' | 'shop' | 'company' | 'contact' | 'admin' = 
+      const target: 'home' | 'portfolio' | 'shop' | 'company' | 'contact' | 'admin' = 
+        hash === 'portfolio' ? 'portfolio' :
         hash === 'shop' ? 'shop' :
         hash === 'admin' ? 'admin' :
         hash === 'company' ? 'company' : 
@@ -202,7 +204,9 @@ export default function App() {
         return prev;
       });
 
-      if (target === 'shop') {
+      if (target === 'portfolio') {
+        document.title = 'Portfolio & Projects — ENJ Digital Concept';
+      } else if (target === 'shop') {
         document.title = 'Store & Products — ENJ Digital Concept';
       } else if (target === 'admin') {
         document.title = 'Merchant Admin — ENJ Store Manager';
@@ -216,8 +220,9 @@ export default function App() {
     };
 
     const initial = getCleanHash();
-    if (initial === 'shop' || initial === 'admin' || initial === 'company' || initial === 'contact') {
+    if (initial === 'portfolio' || initial === 'shop' || initial === 'admin' || initial === 'company' || initial === 'contact') {
       setCurrentPage(initial);
+      if (initial === 'portfolio') document.title = 'Portfolio & Projects — ENJ Digital Concept';
       if (initial === 'shop') document.title = 'Store & Products — ENJ Digital Concept';
       if (initial === 'admin') document.title = 'Merchant Admin — ENJ Store Manager';
       if (initial === 'company') document.title = 'Company — ENJ Digital Concept';
@@ -228,7 +233,7 @@ export default function App() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  const navigateTo = (page: 'home' | 'shop' | 'company' | 'contact' | 'admin') => {
+  const navigateTo = (page: 'home' | 'portfolio' | 'shop' | 'company' | 'contact' | 'admin') => {
     if (page === currentPage) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
@@ -239,7 +244,9 @@ export default function App() {
     window.location.hash = page === 'home' ? '' : page;
     window.scrollTo({ top: 0, behavior: 'instant' });
 
-    if (page === 'shop') {
+    if (page === 'portfolio') {
+      document.title = 'Portfolio & Projects — ENJ Digital Concept';
+    } else if (page === 'shop') {
       document.title = 'Store & Products — ENJ Digital Concept';
     } else if (page === 'admin') {
       document.title = 'Merchant Admin — ENJ Store Manager';
@@ -414,7 +421,7 @@ export default function App() {
             />
           </button>
 
-          {/* Navigation Menu: Home, Company, Contact */}
+          {/* Navigation Menu: Home, Portfolio, Company, Contact */}
           <div className="hidden md:flex items-center gap-1 bg-black/5 p-0.5 rounded-full border border-black/5">
             <button
               onClick={() => navigateTo('home')}
@@ -425,6 +432,16 @@ export default function App() {
               }`}
             >
               Home
+            </button>
+            <button
+              onClick={() => navigateTo('portfolio')}
+              className={`px-3 py-1 text-[11px] font-semibold rounded-full cursor-pointer nav-pill-btn ${
+                currentPage === 'portfolio'
+                  ? 'bg-white text-[#1d1d1f] shadow-xs font-bold scale-[1.02]'
+                  : 'text-[#515154] hover:text-[#c95510]'
+              }`}
+            >
+              Portfolio
             </button>
             <button
               onClick={() => navigateTo('company')}
@@ -470,36 +487,46 @@ export default function App() {
         </nav>
 
         {/* Floating Mobile Dropdown Panel with comfortable touch targets */}
+        {/* Floating Mobile Dropdown Panel with Apple Liquid Glass and fully rounded touch targets */}
         {mobileMenuOpen && (
-          <div className="md:hidden mt-2 p-2.5 bg-white/95 backdrop-blur-2xl border border-white/80 rounded-2xl shadow-xl flex flex-col gap-1.5 animate-ios-slide-up">
+          <div className="md:hidden mt-2 p-3 apple-liquid-glass border border-white/90 rounded-[28px] shadow-2xl flex flex-col gap-1.5 animate-ios-slide-up relative overflow-hidden">
+            <div className="specular-highlight opacity-75" />
             <button
               onClick={() => navigateTo('home')}
-              className={`w-full text-left px-4 py-3.5 rounded-xl text-sm font-semibold cursor-pointer touch-action-btn ${
-                currentPage === 'home' ? 'bg-[#f47b20]/15 text-[#1d1d1f] font-bold' : 'hover:bg-gray-100 text-[#424245]'
+              className={`w-full text-left px-5 py-3 rounded-full text-sm font-semibold cursor-pointer touch-action-btn relative z-10 transition-colors ${
+                currentPage === 'home' ? 'bg-[#1d1d1f] text-white font-bold shadow-xs' : 'hover:bg-black/5 text-[#424245]'
               }`}
             >
               Home
             </button>
             <button
+              onClick={() => navigateTo('portfolio')}
+              className={`w-full text-left px-5 py-3 rounded-full text-sm font-semibold cursor-pointer touch-action-btn relative z-10 transition-colors ${
+                currentPage === 'portfolio' ? 'bg-[#1d1d1f] text-white font-bold shadow-xs' : 'hover:bg-black/5 text-[#424245]'
+              }`}
+            >
+              Portfolio
+            </button>
+            <button
               onClick={() => navigateTo('company')}
-              className={`w-full text-left px-4 py-3.5 rounded-xl text-sm font-semibold cursor-pointer touch-action-btn ${
-                currentPage === 'company' ? 'bg-[#f47b20]/15 text-[#1d1d1f] font-bold' : 'hover:bg-gray-100 text-[#424245]'
+              className={`w-full text-left px-5 py-3 rounded-full text-sm font-semibold cursor-pointer touch-action-btn relative z-10 transition-colors ${
+                currentPage === 'company' ? 'bg-[#1d1d1f] text-white font-bold shadow-xs' : 'hover:bg-black/5 text-[#424245]'
               }`}
             >
               Company
             </button>
             <button
               onClick={() => navigateTo('contact')}
-              className={`w-full text-left px-4 py-3.5 rounded-xl text-sm font-semibold cursor-pointer touch-action-btn ${
-                currentPage === 'contact' ? 'bg-[#f47b20]/15 text-[#1d1d1f] font-bold' : 'hover:bg-gray-100 text-[#424245]'
+              className={`w-full text-left px-5 py-3 rounded-full text-sm font-semibold cursor-pointer touch-action-btn relative z-10 transition-colors ${
+                currentPage === 'contact' ? 'bg-[#1d1d1f] text-white font-bold shadow-xs' : 'hover:bg-black/5 text-[#424245]'
               }`}
             >
               Contact
             </button>
-            <div className="pt-2 border-t border-gray-100 flex flex-col gap-1">
+            <div className="pt-2 border-t border-black/5 flex flex-col gap-1 relative z-10">
               <button
                 onClick={() => navigateTo('shop')}
-                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-[#f47b20] hover:bg-[#c95510] active:scale-[0.98] text-white text-sm font-semibold shadow-xs cursor-pointer touch-action-btn"
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-full bg-[#f47b20] hover:bg-[#c95510] active:scale-[0.98] text-white text-sm font-semibold shadow-xs cursor-pointer touch-action-btn"
               >
                 <Store className="w-4 h-4" />
                 <span>Visit Online Store</span>
@@ -644,28 +671,29 @@ export default function App() {
                 </p>
               </div>
 
-              {/* 6 Visual Services Cards */}
+              {/* 6 Visual Services Cards with Apple Liquid Glass & Concentric Curves */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 {/* 01 */}
                 <div 
                   onClick={() => navigateTo('shop')} 
-                  className="group rounded-2xl p-3 bg-white/70 backdrop-blur-md border border-white/90 shadow-xs hover:shadow-lg transition-all duration-300 cursor-pointer touch-action-card"
+                  className="group rounded-[28px] p-3.5 apple-liquid-glass-interactive border border-white/90 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.95),0_10px_28px_-4px_rgba(0,0,0,0.05)] hover:shadow-xl transition-all duration-300 cursor-pointer touch-action-card relative overflow-hidden flex flex-col"
                 >
-                  <div className="relative h-44 sm:h-48 rounded-xl overflow-hidden bg-gray-100 mb-3">
+                  <div className="specular-highlight opacity-75" />
+                  <div className="relative h-44 sm:h-48 rounded-[14px] overflow-hidden bg-gray-100 mb-3 shadow-2xs z-10">
                     <img 
                       src="/paper.jpeg" 
                       alt="Paper & Corporate Printing" 
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       onError={(e) => { (e.target as HTMLImageElement).src = '/assets/aistudio/paper_f6713a43.jpeg'; }}
                     />
-                    <span className="absolute top-2.5 left-2.5 w-7 h-7 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center font-display font-bold text-[10px] text-[#1d1d1f] shadow-xs">
+                    <span className="absolute top-2.5 left-2.5 w-7 h-7 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center font-display font-bold text-[10px] text-[#1d1d1f] shadow-xs border border-white/80">
                       01
                     </span>
                   </div>
-                  <div className="mb-1">
-                    <h3 className="font-display text-sm font-semibold text-[#1d1d1f]">Paper & Corporate Printing</h3>
+                  <div className="mb-1 relative z-10">
+                    <h3 className="font-display text-sm font-semibold text-[#1d1d1f] group-hover:text-[#c95510] transition-colors">Paper & Corporate Printing</h3>
                   </div>
-                  <p className="text-[#6e6e73] text-xs leading-relaxed line-clamp-2">
+                  <p className="text-[#6e6e73] text-xs leading-relaxed line-clamp-2 relative z-10">
                     Elevate your brand touchpoints with crisp, high-resolution stationery and marketing collateral.
                   </p>
                 </div>
@@ -673,23 +701,24 @@ export default function App() {
                 {/* 02 */}
                 <div 
                   onClick={() => navigateTo('shop')}
-                  className="group rounded-2xl p-3 bg-white/70 backdrop-blur-md border border-white/90 shadow-xs hover:shadow-lg transition-all duration-300 cursor-pointer touch-action-card"
+                  className="group rounded-[28px] p-3.5 apple-liquid-glass-interactive border border-white/90 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.95),0_10px_28px_-4px_rgba(0,0,0,0.05)] hover:shadow-xl transition-all duration-300 cursor-pointer touch-action-card relative overflow-hidden flex flex-col"
                 >
-                  <div className="relative h-44 sm:h-48 rounded-xl overflow-hidden bg-gray-100 mb-3">
+                  <div className="specular-highlight opacity-75" />
+                  <div className="relative h-44 sm:h-48 rounded-[14px] overflow-hidden bg-gray-100 mb-3 shadow-2xs z-10">
                     <img 
                       src="/banner.jpeg" 
                       alt="Large-format & Outdoor Signage" 
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       onError={(e) => { (e.target as HTMLImageElement).src = '/assets/aistudio/banner_f14a3920.jpeg'; }}
                     />
-                    <span className="absolute top-2.5 left-2.5 w-7 h-7 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center font-display font-bold text-[10px] text-[#1d1d1f] shadow-xs">
+                    <span className="absolute top-2.5 left-2.5 w-7 h-7 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center font-display font-bold text-[10px] text-[#1d1d1f] shadow-xs border border-white/80">
                       02
                     </span>
                   </div>
-                  <div className="mb-1">
-                    <h3 className="font-display text-sm font-semibold text-[#1d1d1f]">Large-format & Outdoor Signage</h3>
+                  <div className="mb-1 relative z-10">
+                    <h3 className="font-display text-sm font-semibold text-[#1d1d1f] group-hover:text-[#c95510] transition-colors">Large-format & Outdoor Signage</h3>
                   </div>
-                  <p className="text-[#6e6e73] text-xs leading-relaxed line-clamp-2">
+                  <p className="text-[#6e6e73] text-xs leading-relaxed line-clamp-2 relative z-10">
                     Turn heads and capture foot traffic with high-impact visuals designed to withstand the elements.
                   </p>
                 </div>
@@ -697,23 +726,24 @@ export default function App() {
                 {/* 03 */}
                 <div 
                   onClick={() => navigateTo('shop')}
-                  className="group rounded-2xl p-3 bg-white/70 backdrop-blur-md border border-white/90 shadow-xs hover:shadow-lg transition-all duration-300 cursor-pointer touch-action-card"
+                  className="group rounded-[28px] p-3.5 apple-liquid-glass-interactive border border-white/90 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.95),0_10px_28px_-4px_rgba(0,0,0,0.05)] hover:shadow-xl transition-all duration-300 cursor-pointer touch-action-card relative overflow-hidden flex flex-col"
                 >
-                  <div className="relative h-44 sm:h-48 rounded-xl overflow-hidden bg-gray-100 mb-3">
+                  <div className="specular-highlight opacity-75" />
+                  <div className="relative h-44 sm:h-48 rounded-[14px] overflow-hidden bg-gray-100 mb-3 shadow-2xs z-10">
                     <img 
                       src="/shirt.jpeg" 
                       alt="Custom Apparel & Textile Printing" 
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       onError={(e) => { (e.target as HTMLImageElement).src = '/assets/aistudio/shirt_f6a3624f.jpeg'; }}
                     />
-                    <span className="absolute top-2.5 left-2.5 w-7 h-7 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center font-display font-bold text-[10px] text-[#1d1d1f] shadow-xs">
+                    <span className="absolute top-2.5 left-2.5 w-7 h-7 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center font-display font-bold text-[10px] text-[#1d1d1f] shadow-xs border border-white/80">
                       03
                     </span>
                   </div>
-                  <div className="mb-1">
-                    <h3 className="font-display text-sm font-semibold text-[#1d1d1f]">Custom Apparel & Textile</h3>
+                  <div className="mb-1 relative z-10">
+                    <h3 className="font-display text-sm font-semibold text-[#1d1d1f] group-hover:text-[#c95510] transition-colors">Custom Apparel & Textile</h3>
                   </div>
-                  <p className="text-[#6e6e73] text-xs leading-relaxed line-clamp-2">
+                  <p className="text-[#6e6e73] text-xs leading-relaxed line-clamp-2 relative z-10">
                     Outfit your team or launch your merch line with durable, vibrant apparel customization.
                   </p>
                 </div>
@@ -721,23 +751,24 @@ export default function App() {
                 {/* 04 */}
                 <div 
                   onClick={() => navigateTo('shop')}
-                  className="group rounded-2xl p-3 bg-white/70 backdrop-blur-md border border-white/90 shadow-xs hover:shadow-lg transition-all duration-300 cursor-pointer touch-action-card"
+                  className="group rounded-[28px] p-3.5 apple-liquid-glass-interactive border border-white/90 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.95),0_10px_28px_-4px_rgba(0,0,0,0.05)] hover:shadow-xl transition-all duration-300 cursor-pointer touch-action-card relative overflow-hidden flex flex-col"
                 >
-                  <div className="relative h-44 sm:h-48 rounded-xl overflow-hidden bg-gray-100 mb-3">
+                  <div className="specular-highlight opacity-75" />
+                  <div className="relative h-44 sm:h-48 rounded-[14px] overflow-hidden bg-gray-100 mb-3 shadow-2xs z-10">
                     <img 
                       src="/stitch.jpg" 
                       alt="Stitch & Embroidery" 
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       onError={(e) => { (e.target as HTMLImageElement).src = '/assets/aistudio/stitch_2384090b.jpg'; }}
                     />
-                    <span className="absolute top-2.5 left-2.5 w-7 h-7 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center font-display font-bold text-[10px] text-[#1d1d1f] shadow-xs">
+                    <span className="absolute top-2.5 left-2.5 w-7 h-7 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center font-display font-bold text-[10px] text-[#1d1d1f] shadow-xs border border-white/80">
                       04
                     </span>
                   </div>
-                  <div className="mb-1">
-                    <h3 className="font-display text-sm font-semibold text-[#1d1d1f]">Stitch & Embroidery</h3>
+                  <div className="mb-1 relative z-10">
+                    <h3 className="font-display text-sm font-semibold text-[#1d1d1f] group-hover:text-[#c95510] transition-colors">Stitch & Embroidery</h3>
                   </div>
-                  <p className="text-[#6e6e73] text-xs leading-relaxed line-clamp-2">
+                  <p className="text-[#6e6e73] text-xs leading-relaxed line-clamp-2 relative z-10">
                     Bring your brand to life with premium, textured thread work that adds depth and durability.
                   </p>
                 </div>
@@ -745,23 +776,24 @@ export default function App() {
                 {/* 05 */}
                 <div 
                   onClick={() => navigateTo('shop')}
-                  className="group rounded-2xl p-3 bg-white/70 backdrop-blur-md border border-white/90 shadow-xs hover:shadow-lg transition-all duration-300 cursor-pointer touch-action-card"
+                  className="group rounded-[28px] p-3.5 apple-liquid-glass-interactive border border-white/90 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.95),0_10px_28px_-4px_rgba(0,0,0,0.05)] hover:shadow-xl transition-all duration-300 cursor-pointer touch-action-card relative overflow-hidden flex flex-col"
                 >
-                  <div className="relative h-44 sm:h-48 rounded-xl overflow-hidden bg-gray-100 mb-3">
+                  <div className="specular-highlight opacity-75" />
+                  <div className="relative h-44 sm:h-48 rounded-[14px] overflow-hidden bg-gray-100 mb-3 shadow-2xs z-10">
                     <img 
                       src="/engrave.jpg" 
                       alt="Laser Engraving" 
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       onError={(e) => { (e.target as HTMLImageElement).src = '/assets/aistudio/engrave_020d7bfe.jpg'; }}
                     />
-                    <span className="absolute top-2.5 left-2.5 w-7 h-7 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center font-display font-bold text-[10px] text-[#1d1d1f] shadow-xs">
+                    <span className="absolute top-2.5 left-2.5 w-7 h-7 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center font-display font-bold text-[10px] text-[#1d1d1f] shadow-xs border border-white/80">
                       05
                     </span>
                   </div>
-                  <div className="mb-1">
-                    <h3 className="font-display text-sm font-semibold text-[#1d1d1f]">Laser Engraving</h3>
+                  <div className="mb-1 relative z-10">
+                    <h3 className="font-display text-sm font-semibold text-[#1d1d1f] group-hover:text-[#c95510] transition-colors">Laser Engraving</h3>
                   </div>
-                  <p className="text-[#6e6e73] text-xs leading-relaxed line-clamp-2">
+                  <p className="text-[#6e6e73] text-xs leading-relaxed line-clamp-2 relative z-10">
                     Permanent, high-precision marking and dimensional cutting that delivers a refined touch.
                   </p>
                 </div>
@@ -769,47 +801,50 @@ export default function App() {
                 {/* 06 */}
                 <div 
                   onClick={() => navigateTo('shop')}
-                  className="group rounded-2xl p-3 bg-white/70 backdrop-blur-md border border-white/90 shadow-xs hover:shadow-lg transition-all duration-300 cursor-pointer touch-action-card"
+                  className="group rounded-[28px] p-3.5 apple-liquid-glass-interactive border border-white/90 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.95),0_10px_28px_-4px_rgba(0,0,0,0.05)] hover:shadow-xl transition-all duration-300 cursor-pointer touch-action-card relative overflow-hidden flex flex-col"
                 >
-                  <div className="relative h-44 sm:h-48 rounded-xl overflow-hidden bg-gray-100 mb-3">
+                  <div className="specular-highlight opacity-75" />
+                  <div className="relative h-44 sm:h-48 rounded-[14px] overflow-hidden bg-gray-100 mb-3 shadow-2xs z-10">
                     <img 
                       src="/graphic.jpg" 
                       alt="Graphic Design & Creative Services" 
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       onError={(e) => { (e.target as HTMLImageElement).src = '/assets/aistudio/graphic_363550c6.jpg'; }}
                     />
-                    <span className="absolute top-2.5 left-2.5 w-7 h-7 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center font-display font-bold text-[10px] text-[#1d1d1f] shadow-xs">
+                    <span className="absolute top-2.5 left-2.5 w-7 h-7 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center font-display font-bold text-[10px] text-[#1d1d1f] shadow-xs border border-white/80">
                       06
                     </span>
                   </div>
-                  <div className="mb-1">
-                    <h3 className="font-display text-sm font-semibold text-[#1d1d1f]">Graphic Design & Creative</h3>
+                  <div className="mb-1 relative z-10">
+                    <h3 className="font-display text-sm font-semibold text-[#1d1d1f] group-hover:text-[#c95510] transition-colors">Graphic Design & Creative</h3>
                   </div>
-                  <p className="text-[#6e6e73] text-xs leading-relaxed line-clamp-2">
+                  <p className="text-[#6e6e73] text-xs leading-relaxed line-clamp-2 relative z-10">
                     Professional design solutions built to optimize production and engage your target audience.
                   </p>
                 </div>
               </div>
 
               {/* Explore Store Banner */}
-              <div className="mt-10 p-5 sm:p-6 rounded-2xl bg-white/50 border border-black/5 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="text-center sm:text-left">
+              <div className="mt-10 p-6 rounded-[28px] apple-liquid-glass border border-white/90 shadow-sm relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="specular-highlight opacity-60" />
+                <div className="text-center sm:text-left relative z-10">
                   <h3 className="font-display text-lg font-medium text-[#1d1d1f]">Visit our Online Store</h3>
                   <p className="text-[#6e6e73] text-xs mt-0.5">Browse live print products, compare prices in Naira, and pay securely online.</p>
                 </div>
                 <button
                   onClick={() => navigateTo('shop')}
-                  className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3.5 sm:py-2.5 rounded-full bg-[#f47b20] hover:bg-[#c95510] text-white text-xs font-semibold tracking-wide transition-colors cursor-pointer shadow-xs touch-action-btn"
+                  className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 sm:py-2.5 rounded-full bg-[#f47b20] hover:bg-[#c95510] text-white text-xs font-semibold tracking-wide transition-colors cursor-pointer shadow-xs touch-action-btn relative z-10"
                 >
                   <span>Start Order</span>
                 </button>
               </div>
             </div>
 
-            {/* Section: Impact in Numbers - Compact and Elegant */}
+            {/* Section: Impact in Numbers - Apple Liquid Glass */}
             <div className="max-w-5xl mx-auto px-4 sm:px-6 mt-16 sm:mt-20 scroll-reveal">
-              <div className="rounded-3xl p-6 sm:p-10 md:p-12 bg-white/70 backdrop-blur-xl border border-white/80 shadow-xs">
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+              <div className="rounded-[32px] p-6 sm:p-10 md:p-12 apple-liquid-glass border border-white/90 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.95),0_12px_32px_-4px_rgba(0,0,0,0.04)] relative overflow-hidden">
+                <div className="specular-highlight opacity-60" />
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 relative z-10">
                   <div>
                     <p className="text-[10px] font-bold tracking-widest text-[#6e6e73] uppercase mb-1.5">Our impact</p>
                     <h2 className="font-display text-2xl sm:text-3xl font-medium tracking-tight text-[#1d1d1f]">In numbers.</h2>
@@ -819,7 +854,7 @@ export default function App() {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-black/10">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-black/10 relative z-10">
                   <div className="space-y-1 pb-4 border-b border-black/10 md:border-b-0 md:pb-0">
                     <span className="block font-display text-3xl sm:text-4xl font-light tracking-tight text-[#1d1d1f]">20k+</span>
                     <span className="text-xs font-medium text-[#6e6e73]">Prints & Orders Delivered</span>
@@ -836,7 +871,7 @@ export default function App() {
               </div>
             </div>
 
-            {/* Section: Testimonials - Horizontally Scrollable Cards with Nigerian Brands */}
+            {/* Section: Testimonials - Apple Liquid Glass Horizontally Scrollable Cards */}
             <div className="max-w-5xl mx-auto px-4 sm:px-6 mt-16 sm:mt-20 scroll-reveal">
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-7">
                 <div>
@@ -858,12 +893,9 @@ export default function App() {
                 {testimonials.map((item) => (
                   <figure 
                     key={item.id}
-                    className={`w-[290px] sm:w-[360px] md:w-[390px] shrink-0 snap-start p-6 sm:p-7 rounded-3xl shadow-xs flex flex-col justify-between transition-all duration-300 hover:shadow-md touch-action-card relative overflow-hidden group min-h-[200px] ${
-                      item.highlight 
-                        ? 'bg-[#fff0df]/60 border border-[#f47b20]/25' 
-                        : 'bg-white border border-black/5'
-                    }`}
+                    className="w-[290px] sm:w-[360px] md:w-[390px] shrink-0 snap-start p-6 sm:p-7 rounded-[28px] apple-liquid-glass-interactive border border-white/90 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.95),0_10px_28px_-4px_rgba(0,0,0,0.05)] flex flex-col justify-between transition-all duration-300 hover:shadow-xl touch-action-card relative overflow-hidden group min-h-[200px]"
                   >
+                    <div className="specular-highlight opacity-70" />
                     <div className="absolute top-2.5 right-4 font-serif text-5xl sm:text-6xl leading-none text-black/5 select-none pointer-events-none group-hover:text-[#f47b20]/15 transition-colors">
                       “
                     </div>
@@ -877,7 +909,7 @@ export default function App() {
                         <span className="block font-bold text-sm text-gray-900">{item.author}</span>
                         <span className="block text-[11px] font-normal text-[#6e6e73] mt-0.5">{item.role}</span>
                       </div>
-                      <span className="px-2.5 py-1 rounded-full bg-black/5 text-[10px] font-medium text-gray-600 shrink-0">
+                      <span className="px-3 py-1 rounded-full bg-black/5 text-[10px] font-semibold text-gray-700 shrink-0 border border-black/5">
                         Verified Client
                       </span>
                     </figcaption>
@@ -886,6 +918,16 @@ export default function App() {
               </div>
             </div>
           </div>
+        )}
+
+        {/* ========================================================
+            PAGE: PORTFOLIO SHOWCASE
+           ======================================================== */}
+        {currentPage === 'portfolio' && (
+          <PortfolioView 
+            onNavigateShop={() => navigateTo('shop')}
+            onNavigateContact={() => navigateTo('contact')}
+          />
         )}
 
         {/* ========================================================
@@ -906,7 +948,7 @@ export default function App() {
                 </p>
                 <div className="flex flex-wrap gap-1.5 mt-4">
                   {['Companies', 'Hotels', 'Churches', 'Schools', 'Government offices'].map((tag) => (
-                    <span key={tag} className="px-3 py-1 rounded-full border border-black/10 text-[11px] font-medium text-[#515154] bg-white/60">
+                    <span key={tag} className="px-3.5 py-1 rounded-full apple-liquid-glass-pill text-[11px] font-medium text-[#515154]">
                       {tag}
                     </span>
                   ))}
@@ -917,8 +959,8 @@ export default function App() {
             {/* General Supply Section */}
             <div className="mb-12">
               <div className="flex items-center gap-2.5 mb-4">
-                <span className="w-7 h-7 rounded-full bg-black/5 text-[#1d1d1f] flex items-center justify-center">
-                  <Package className="w-3.5 h-3.5" />
+                <span className="w-8 h-8 rounded-full bg-black/5 text-[#1d1d1f] flex items-center justify-center">
+                  <Package className="w-4 h-4" />
                 </span>
                 <h2 className="font-display text-xl sm:text-2xl font-medium text-[#1d1d1f]">General supply</h2>
               </div>
@@ -940,22 +982,26 @@ export default function App() {
                   { title: 'Cleaning detergents', desc: 'Disinfectants, mops, industrial cleaners, trash cans and paper towels.', icon: 'icon-cleaning' },
                   { title: 'Computers & ICT accessories', desc: 'Laptops, desktops, keyboards, mice, storage drives and networking parts.', icon: 'icon-computer' }
                 ].map((item, idx) => (
-                  <div key={idx} className="p-4 rounded-2xl bg-white/70 border border-white/90 shadow-xs hover:shadow-sm transition-shadow touch-action-card">
-                    <span className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-[#1d1d1f] mb-3">
-                      <svg className="w-4 h-4"><use href={`#${item.icon}`}></use></svg>
-                    </span>
-                    <h3 className="font-display text-sm font-semibold text-[#1d1d1f] mb-1">{item.title}</h3>
-                    <p className="text-[11px] text-[#6e6e73] leading-relaxed line-clamp-2">{item.desc}</p>
+                  <div key={idx} className="p-4 rounded-[26px] apple-liquid-glass-interactive border border-white/90 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.95),0_8px_20px_-3px_rgba(0,0,0,0.04)] hover:shadow-md transition-all touch-action-card relative overflow-hidden group flex flex-col justify-between">
+                    <div className="specular-highlight opacity-60" />
+                    <div className="relative z-10">
+                      <span className="w-9 h-9 rounded-full bg-black/5 flex items-center justify-center text-[#1d1d1f] mb-3 group-hover:scale-105 transition-transform">
+                        <svg className="w-4 h-4"><use href={`#${item.icon}`}></use></svg>
+                      </span>
+                      <h3 className="font-display text-sm font-semibold text-[#1d1d1f] mb-1 group-hover:text-[#c95510] transition-colors">{item.title}</h3>
+                      <p className="text-[11px] text-[#6e6e73] leading-relaxed line-clamp-2">{item.desc}</p>
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Renewable Energy Solutions */}
-            <div className="mb-12 p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-[#1d1d1f] to-[#2d2d30] text-white">
-              <div className="max-w-xl">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/10 text-white/80 text-[11px] font-medium mb-3">
-                  <SunMedium className="w-3 h-3 text-white/70" />
+            <div className="mb-12 p-6 sm:p-8 rounded-[32px] apple-liquid-glass-dark text-white relative overflow-hidden shadow-2xl">
+              <div className="specular-highlight opacity-25" />
+              <div className="max-w-xl relative z-10">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-white/90 text-[11px] font-medium mb-3 border border-white/15">
+                  <SunMedium className="w-3.5 h-3.5 text-orange-400" />
                   Renewable Energy
                 </span>
                 <h2 className="font-display text-2xl sm:text-3xl font-medium tracking-tight mb-3">
@@ -966,7 +1012,7 @@ export default function App() {
                 </p>
                 <button
                   onClick={() => navigateTo('shop')}
-                  className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3.5 sm:py-2.5 rounded-full bg-[#f47b20] hover:bg-[#c95510] text-white text-xs font-semibold tracking-wide transition-colors cursor-pointer touch-action-btn"
+                  className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 sm:py-2.5 rounded-full bg-[#f47b20] hover:bg-[#c95510] text-white text-xs font-semibold tracking-wide transition-colors cursor-pointer touch-action-btn shadow-md"
                 >
                   <span>Explore Solar Supplies</span>
                 </button>
@@ -974,15 +1020,16 @@ export default function App() {
             </div>
 
             {/* Callout */}
-            <div className="p-6 sm:p-8 rounded-2xl bg-[#171717] text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-md mb-12">
-              <div>
+            <div className="p-6 sm:p-8 rounded-[32px] apple-liquid-glass-dark text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl mb-12 relative overflow-hidden">
+              <div className="specular-highlight opacity-25" />
+              <div className="relative z-10">
                 <h2 className="font-display text-xl sm:text-2xl font-medium max-w-md">
                   Tell us what you need. We’ll help with the rest.
                 </h2>
               </div>
               <button
                 onClick={() => navigateTo('contact')}
-                className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3.5 sm:py-2.5 rounded-full bg-white text-[#1d1d1f] hover:bg-gray-100 font-bold text-xs tracking-wider uppercase transition-colors cursor-pointer touch-action-btn"
+                className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 sm:py-2.5 rounded-full bg-white text-[#1d1d1f] hover:bg-gray-100 font-bold text-xs tracking-wider uppercase transition-colors cursor-pointer touch-action-btn relative z-10 shadow-md"
               >
                 <span>Contact Our Team</span>
               </button>
@@ -1008,8 +1055,9 @@ export default function App() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-[0.85fr_1.15fr] gap-6 items-stretch mb-10">
-              <aside className="p-6 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/90 shadow-xs flex flex-col gap-6">
-                <div>
+              <aside className="p-6 sm:p-7 rounded-[28px] apple-liquid-glass border border-white/90 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.95),0_10px_28px_-4px_rgba(0,0,0,0.05)] flex flex-col gap-6 relative overflow-hidden">
+                <div className="specular-highlight opacity-60" />
+                <div className="relative z-10">
                   <p className="text-[10px] font-bold tracking-widest text-[#6e6e73] uppercase mb-1">Get in touch</p>
                   <h2 className="font-display text-xl font-medium text-[#1d1d1f] mb-2">We’re here to help.</h2>
                   <p className="text-[#6e6e73] text-xs leading-relaxed">
@@ -1017,10 +1065,10 @@ export default function App() {
                   </p>
                 </div>
 
-                <div className="space-y-2 pt-1">
+                <div className="space-y-2 pt-1 relative z-10">
                   <a 
                     href="tel:+2348133535756" 
-                    className="text-xs font-medium text-[#1d1d1f] hover:text-[#c95510] transition-colors flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-black/5 active:bg-black/10 touch-action-btn"
+                    className="text-xs font-medium text-[#1d1d1f] hover:text-[#c95510] transition-colors flex items-center gap-2.5 px-4 py-2.5 rounded-full hover:bg-black/5 active:bg-black/10 touch-action-btn border border-transparent hover:border-black/5"
                   >
                     <Phone className="w-4 h-4 text-[#f47b20] shrink-0" />
                     <span>+234 (0) 813 353 5756</span>
@@ -1028,13 +1076,13 @@ export default function App() {
 
                   <a 
                     href="mailto:enjdigitalconcept@gmail.com" 
-                    className="text-xs font-medium text-[#1d1d1f] hover:text-[#c95510] transition-colors flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-black/5 active:bg-black/10 touch-action-btn"
+                    className="text-xs font-medium text-[#1d1d1f] hover:text-[#c95510] transition-colors flex items-center gap-2.5 px-4 py-2.5 rounded-full hover:bg-black/5 active:bg-black/10 touch-action-btn border border-transparent hover:border-black/5"
                   >
                     <Mail className="w-4 h-4 text-[#f47b20] shrink-0" />
                     <span>enjdigitalconcept@gmail.com</span>
                   </a>
 
-                  <div className="text-xs font-medium text-[#1d1d1f] flex items-start gap-2.5 p-2.5 leading-relaxed">
+                  <div className="text-xs font-medium text-[#1d1d1f] flex items-start gap-2.5 px-4 py-2.5 leading-relaxed">
                     <MapPin className="w-4 h-4 text-[#f47b20] shrink-0 mt-0.5" />
                     <span>No. 1 Thatcher Building, Jiddari Junction, Maiduguri, Borno State</span>
                   </div>
@@ -1042,10 +1090,11 @@ export default function App() {
               </aside>
 
               {/* Working Contact Form */}
-              <section className="p-6 rounded-2xl bg-white border border-black/5 shadow-xs flex flex-col justify-between">
+              <section className="p-6 sm:p-7 rounded-[28px] apple-liquid-glass border border-white/90 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.95),0_10px_28px_-4px_rgba(0,0,0,0.05)] flex flex-col justify-between relative overflow-hidden">
+                <div className="specular-highlight opacity-60" />
                 {submittedData ? (
-                  <div className="py-4 flex flex-col items-start gap-4 animate-in fade-in zoom-in-95 duration-200">
-                    <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+                  <div className="py-4 flex flex-col items-start gap-4 animate-in fade-in zoom-in-95 duration-200 relative z-10">
+                    <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 shadow-xs">
                       <CheckCircle2 className="w-7 h-7" />
                     </div>
 
@@ -1056,7 +1105,7 @@ export default function App() {
                       </p>
                     </div>
 
-                    <div className="w-full p-3.5 rounded-xl bg-gray-50 border border-gray-200/70 text-xs text-gray-700 space-y-1.5">
+                    <div className="w-full p-4 rounded-[16px] bg-white/70 backdrop-blur-md border border-white/90 text-xs text-gray-700 space-y-1.5 shadow-2xs">
                       <div><strong className="text-gray-900">Name:</strong> {submittedData.name}</div>
                       <div><strong className="text-gray-900">Email:</strong> {submittedData.email}</div>
                       <div><strong className="text-gray-900">Service:</strong> {submittedData.service}</div>
@@ -1066,7 +1115,7 @@ export default function App() {
                     <div className="flex flex-wrap items-center gap-2 pt-1">
                       <button
                         onClick={() => { setSubmittedData(null); setSubmitStatus({ type: 'idle', message: "We'll send your message directly to ENJ Digital Concept." }); }}
-                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-gray-300 text-xs font-semibold text-gray-700 hover:bg-gray-100 transition-colors"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-gray-300 text-xs font-semibold text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
                       >
                         <RotateCcw className="w-3 h-3" />
                         Send Another
@@ -1076,7 +1125,7 @@ export default function App() {
                         href={`https://wa.me/2348133535756?text=${encodeURIComponent(`Hello ENJ Digital Concept! I am ${submittedData.name}. I just sent a website message regarding ${submittedData.service}.`)}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#25D366] text-white text-xs font-semibold shadow-xs hover:bg-[#20b858] transition-colors"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#25D366] text-white text-xs font-semibold shadow-xs hover:bg-[#20b858] transition-colors"
                       >
                         <Phone className="w-3 h-3" />
                         Confirm via WhatsApp
@@ -1085,14 +1134,14 @@ export default function App() {
                   </div>
                 ) : (
                   <>
-                    <div>
+                    <div className="relative z-10">
                       <h3 className="font-display text-xl font-medium text-[#1d1d1f] mb-1">Send us a direct message</h3>
                       <p className="text-xs text-[#6e6e73] mb-4">
                         Fill in your details below and we will get back to you promptly.
                       </p>
                     </div>
 
-                    <form onSubmit={handleContactSubmit} className="space-y-3.5">
+                    <form onSubmit={handleContactSubmit} className="space-y-3.5 relative z-10">
                       <div>
                         <label className="block text-[11px] font-semibold text-[#1d1d1f] mb-1">
                           Your Name *
@@ -1103,7 +1152,7 @@ export default function App() {
                           value={formData.name}
                           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                           placeholder="e.g. Emmanuel Moses"
-                          className="w-full px-4 py-3 sm:py-2.5 rounded-xl bg-[#f5f5f7] border border-transparent focus:border-[#f47b20] focus:bg-white text-sm sm:text-xs outline-none transition-all"
+                          className="w-full px-5 py-3 rounded-full bg-white/75 backdrop-blur-md border border-black/10 focus:border-[#f47b20] focus:bg-white text-sm sm:text-xs outline-none transition-all shadow-2xs"
                         />
                       </div>
 
@@ -1118,7 +1167,7 @@ export default function App() {
                             value={formData.email}
                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                             placeholder="emmanuel@example.com"
-                            className="w-full px-4 py-3 sm:py-2.5 rounded-xl bg-[#f5f5f7] border border-transparent focus:border-[#f47b20] focus:bg-white text-sm sm:text-xs outline-none transition-all"
+                            className="w-full px-5 py-3 rounded-full bg-white/75 backdrop-blur-md border border-black/10 focus:border-[#f47b20] focus:bg-white text-sm sm:text-xs outline-none transition-all shadow-2xs"
                           />
                         </div>
 
@@ -1129,7 +1178,7 @@ export default function App() {
                           <select
                             value={formData.service}
                             onChange={(e) => setFormData({ ...formData, service: e.target.value })}
-                            className="w-full px-4 py-3 sm:py-2.5 rounded-xl bg-[#f5f5f7] border border-transparent focus:border-[#f47b20] focus:bg-white text-sm sm:text-xs outline-none transition-all cursor-pointer"
+                            className="w-full px-5 py-3 rounded-full bg-white/75 backdrop-blur-md border border-black/10 focus:border-[#f47b20] focus:bg-white text-sm sm:text-xs outline-none transition-all cursor-pointer shadow-2xs"
                           >
                             <option value="General Enquiry">General Enquiry</option>
                             <option value="Digital Printing">Digital Printing</option>
@@ -1152,12 +1201,12 @@ export default function App() {
                           value={formData.message}
                           onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                           placeholder="Tell us about the project, quantities, dimensions, or timeline..."
-                          className="w-full px-4 py-3 sm:py-2.5 rounded-xl bg-[#f5f5f7] border border-transparent focus:border-[#f47b20] focus:bg-white text-sm sm:text-xs outline-none transition-all resize-y leading-relaxed"
+                          className="w-full px-5 py-3.5 rounded-[20px] bg-white/75 backdrop-blur-md border border-black/10 focus:border-[#f47b20] focus:bg-white text-sm sm:text-xs outline-none transition-all resize-y leading-relaxed shadow-2xs"
                         />
                       </div>
 
                       {submitStatus.type === 'error' && (
-                        <div className="p-3 rounded-xl bg-red-50 border border-red-200/80 text-xs text-red-700 space-y-2">
+                        <div className="p-3.5 rounded-[18px] bg-red-50/90 border border-red-200/80 text-xs text-red-700 space-y-2">
                           <div className="flex items-start gap-1.5">
                             <AlertCircle className="w-3.5 h-3.5 text-red-600 shrink-0 mt-0.5" />
                             <p className="leading-relaxed text-[11px]">{submitStatus.message}</p>
@@ -1165,7 +1214,7 @@ export default function App() {
                           <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
                             <a
                               href={`mailto:enjdigitalconcept@gmail.com?subject=${encodeURIComponent(`Website enquiry from ${formData.name || 'Client'}: ${formData.service || 'General'}`)}&body=${encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\nService: ${formData.service}\n\nMessage:\n${formData.message}`)}`}
-                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium text-xs transition-colors touch-action-btn"
+                              className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full bg-red-600 hover:bg-red-700 text-white font-medium text-xs transition-colors touch-action-btn"
                             >
                               <Mail className="w-3.5 h-3.5" />
                               Open Mail App
@@ -1174,7 +1223,7 @@ export default function App() {
                               href={`https://wa.me/2348133535756?text=${encodeURIComponent(`Hello ENJ Digital Concept! My name is ${formData.name || 'a customer'}. I would like to enquire about ${formData.service || 'your services'}: ${formData.message}`)}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white border border-red-300 hover:bg-red-100 text-red-800 font-medium text-xs transition-colors touch-action-btn"
+                              className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full bg-white border border-red-300 hover:bg-red-100 text-red-800 font-medium text-xs transition-colors touch-action-btn"
                             >
                               <Phone className="w-3.5 h-3.5" />
                               Send via WhatsApp
@@ -1187,7 +1236,7 @@ export default function App() {
                         <button
                           type="submit"
                           disabled={isSubmitting}
-                          className="w-full sm:w-auto inline-flex items-center justify-center px-7 py-3.5 sm:py-2.5 rounded-full bg-[#1d1d1f] hover:bg-[#3a3a3c] text-white text-xs sm:text-sm font-semibold tracking-wide transition-all touch-action-btn disabled:opacity-60 cursor-pointer shadow-xs"
+                          className="w-full sm:w-auto inline-flex items-center justify-center px-7 py-3 sm:py-2.5 rounded-full bg-[#1d1d1f] hover:bg-[#3a3a3c] text-white text-xs sm:text-sm font-semibold tracking-wide transition-all touch-action-btn disabled:opacity-60 cursor-pointer shadow-xs"
                         >
                           {isSubmitting ? (
                             <>
@@ -1265,8 +1314,15 @@ export default function App() {
         </div>
 
         {/* Footer Bottom Bar */}
-        <div className="pt-4 border-t border-black/10 flex items-center justify-between text-[11px] text-[#6e6e73]">
+        <div className="pt-4 border-t border-black/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-[#6e6e73]">
           <span>© 2026 ENJ Digital Concept. All Rights Reserved.</span>
+          <div className="flex items-center gap-4">
+            <button onClick={() => navigateTo('home')} className="hover:text-[#1d1d1f] cursor-pointer">Home</button>
+            <button onClick={() => navigateTo('portfolio')} className="hover:text-[#1d1d1f] cursor-pointer">Portfolio</button>
+            <button onClick={() => navigateTo('company')} className="hover:text-[#1d1d1f] cursor-pointer">Company</button>
+            <button onClick={() => navigateTo('contact')} className="hover:text-[#1d1d1f] cursor-pointer">Contact</button>
+            <button onClick={() => navigateTo('shop')} className="hover:text-[#c95510] font-medium cursor-pointer">Store</button>
+          </div>
         </div>
       </footer>
       </div>

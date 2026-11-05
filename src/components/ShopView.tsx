@@ -357,10 +357,10 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`whitespace-nowrap px-3.5 sm:px-3 py-2 sm:py-1.5 rounded-full text-xs transition-all cursor-pointer touch-action-btn ${
+                className={`whitespace-nowrap px-3.5 sm:px-3 py-2 sm:py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer touch-action-btn ${
                   selectedCategory === cat
-                    ? 'bg-[#1d1d1f] text-white font-semibold shadow-xs'
-                    : 'bg-white hover:bg-gray-100 text-gray-600 border border-gray-200/90'
+                    ? 'bg-[#1d1d1f] text-white shadow-xs'
+                    : 'apple-liquid-glass-pill hover:bg-white text-gray-600 hover:text-[#1d1d1f]'
                 }`}
               >
                 {cat}
@@ -368,21 +368,22 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
             ))}
           </div>
 
-          <span className="text-[11px] text-gray-400 hidden md:inline shrink-0">
+          <span className="text-[11px] text-gray-400 hidden md:inline shrink-0 font-mono">
             {filteredProducts.length} {filteredProducts.length === 1 ? 'item' : 'items'}
           </span>
         </div>
       </div>
 
-      {/* Simple, Streamlined Product Grid */}
+      {/* Simple, Streamlined Product Grid with Apple Liquid Glass & Concentric Geometry */}
       <div className="max-w-5xl mx-auto w-full px-4 sm:px-6">
         {filteredProducts.length === 0 ? (
-          <div className="text-center py-16 bg-white rounded-2xl border border-gray-200 my-4">
-            <Package className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-            <p className="text-xs font-semibold text-gray-700">No products found</p>
+          <div className="text-center py-16 apple-liquid-glass rounded-[28px] border border-white/90 my-4 relative overflow-hidden">
+            <div className="specular-highlight opacity-50" />
+            <Package className="w-8 h-8 text-gray-300 mx-auto mb-2 relative z-10" />
+            <p className="text-xs font-semibold text-gray-700 relative z-10">No products found</p>
             <button
               onClick={() => { setSelectedCategory('All'); setSearchQuery(''); }}
-              className="mt-2 px-3 py-1 rounded-full bg-gray-100 text-xs font-medium text-gray-800 hover:bg-gray-200 cursor-pointer"
+              className="mt-3 px-4 py-1.5 rounded-full bg-[#1d1d1f] text-white text-xs font-medium cursor-pointer relative z-10 touch-action-btn shadow-xs"
             >
               Reset Filters
             </button>
@@ -393,52 +394,54 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
               <div
                 key={product.id}
                 onClick={() => handleOpenProductDetail(product)}
-                className="group bg-white rounded-[28px] border border-gray-200/80 overflow-hidden shadow-xs hover:shadow-lg transition-all duration-200 flex flex-col justify-between cursor-pointer hover:border-gray-300 touch-action-card"
+                className="group apple-liquid-glass-interactive rounded-[28px] p-3 border border-white/90 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.95),0_10px_28px_-4px_rgba(0,0,0,0.05)] overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col justify-between cursor-pointer touch-action-card relative"
               >
-                  {/* Image */}
-                  <div className="relative aspect-4/3 bg-gray-50 overflow-hidden">
-                    <img
-                      src={product.imageUrl}
-                      alt={product.title}
-                      className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-105"
-                      loading="lazy"
-                    />
-                    {product.compareAtPrice && product.compareAtPrice > product.price && (
-                      <span className="absolute top-2 right-2 px-2.5 py-0.5 rounded-full bg-[#f47b20] text-white text-[9px] font-bold shadow-xs">
-                        Deal
-                      </span>
-                    )}
+                <div className="specular-highlight opacity-75" />
+
+                {/* Concentric Image: Outer 28px - 12px padding = 16px inner radius */}
+                <div className="relative aspect-4/3 rounded-[16px] bg-gray-50 overflow-hidden shadow-2xs z-10 mb-2.5">
+                  <img
+                    src={product.imageUrl}
+                    alt={product.title}
+                    className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-105"
+                    loading="lazy"
+                  />
+                  {product.compareAtPrice && product.compareAtPrice > product.price && (
+                    <span className="absolute top-2 right-2 px-2.5 py-0.5 rounded-full bg-[#f47b20] text-white text-[9px] font-bold shadow-xs">
+                      Deal
+                    </span>
+                  )}
+                </div>
+
+                {/* Info */}
+                <div className="flex-1 flex flex-col justify-between relative z-10 px-1">
+                  <div>
+                    <p className="text-[10px] text-gray-400 mb-0.5 uppercase tracking-wider font-semibold">
+                      {product.category}
+                    </p>
+                    <h3 className="font-semibold text-xs sm:text-[13px] text-[#1d1d1f] line-clamp-2 leading-snug mb-1 group-hover:text-[#c95510] transition-colors">
+                      {product.title}
+                    </h3>
                   </div>
 
-                  {/* Info */}
-                  <div className="p-4 flex-1 flex flex-col justify-between">
+                  <div className="pt-2 flex items-center justify-between gap-2 mt-auto border-t border-black/5">
                     <div>
-                      <p className="text-[10px] text-gray-400 mb-0.5 uppercase tracking-wider font-semibold">
-                        {product.category}
-                      </p>
-                      <h3 className="font-semibold text-xs sm:text-[13px] text-[#1d1d1f] line-clamp-2 leading-snug mb-1">
-                        {product.title}
-                      </h3>
-                    </div>
-
-                    <div className="pt-2.5 flex items-center justify-between gap-2 mt-auto border-t border-gray-100">
-                      <div>
-                        <span className="font-display text-xs sm:text-sm font-bold text-[#1d1d1f] block tabular-nums leading-tight">
-                          {formatNaira(product.price)}
-                        </span>
-                        <span className="text-[10px] text-gray-400 block">
-                          Min: {product.minOrderQty || 1} {product.unit}
-                        </span>
-                      </div>
-
-                      <span className="text-[11px] font-medium text-gray-400 group-hover:text-[#f47b20] transition-colors flex items-center gap-0.5">
-                        <span>View</span>
-                        <ChevronRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                      <span className="font-display text-xs sm:text-sm font-bold text-[#1d1d1f] block tabular-nums leading-tight">
+                        {formatNaira(product.price)}
+                      </span>
+                      <span className="text-[10px] text-gray-400 block">
+                        Min: {product.minOrderQty || 1} {product.unit}
                       </span>
                     </div>
+
+                    <span className="text-[11px] font-semibold text-[#c95510] group-hover:text-[#1d1d1f] transition-colors flex items-center gap-0.5">
+                      <span>View</span>
+                      <ChevronRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                    </span>
                   </div>
                 </div>
-              ))}
+              </div>
+            ))}
           </div>
         )}
       </div>
@@ -454,15 +457,17 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
          ======================================================== */}
       {selectedProduct && (
         <div 
-          className="fixed inset-0 z-[150] bg-black/40 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-200"
+          className="fixed inset-0 z-[150] bg-black/40 backdrop-blur-md flex items-center justify-center p-2.5 sm:p-4 overscroll-none touch-none animate-in fade-in duration-200"
           onClick={() => setSelectedProduct(null)}
         >
           <div 
-            className="relative bg-white rounded-[36px] w-full max-w-2xl shadow-2xl border border-gray-100 overflow-hidden animate-in zoom-in-95 duration-200 max-h-[92vh] flex flex-col"
+            className="relative bg-white/95 backdrop-blur-2xl rounded-[32px] sm:rounded-[36px] w-full max-w-2xl shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_24px_64px_rgba(0,0,0,0.18)] border border-white/95 overflow-hidden animate-in zoom-in-95 duration-200 max-h-[calc(100dvh-20px)] sm:max-h-[calc(100dvh-40px)] flex flex-col touch-auto"
             onClick={(e) => e.stopPropagation()}
           >
+            <div className="specular-highlight opacity-70" />
+
             {/* Modal Header: Sticky Floating Bar with Fixed Cancel Button */}
-            <div className="sticky top-0 z-30 px-6 sm:px-7 py-3.5 border-b border-gray-100 flex items-center justify-between shrink-0 bg-white/95 backdrop-blur-md shadow-2xs rounded-t-[36px]">
+            <div className="sticky top-0 z-30 px-6 sm:px-7 py-3.5 border-b border-black/5 flex items-center justify-between shrink-0 bg-white/75 backdrop-blur-xl rounded-t-[32px] sm:rounded-t-[36px]">
               <div className="flex items-center gap-2 text-xs text-gray-500 min-w-0 pr-2">
                 <span className="font-semibold text-[#f47b20] uppercase tracking-wider text-[11px] truncate">
                   {selectedProduct.category}
@@ -475,7 +480,7 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
               <button 
                 type="button"
                 onClick={() => setSelectedProduct(null)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs transition-all cursor-pointer active:scale-95 shadow-2xs border border-gray-200/60 shrink-0"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/5 hover:bg-black/10 text-gray-700 font-semibold text-xs transition-all cursor-pointer active:scale-95 shadow-2xs border border-black/5 shrink-0"
                 aria-label="Cancel and close modal"
               >
                 <X className="w-3.5 h-3.5" />

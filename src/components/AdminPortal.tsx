@@ -34,7 +34,8 @@ import {
   MapPin,
   Truck,
   LayoutDashboard,
-  ArrowRight
+  ArrowRight,
+  Briefcase
 } from 'lucide-react';
 import { 
   TestimonialItem, 
@@ -43,6 +44,16 @@ import {
   removeTestimonialFromStorage, 
   resetTestimonialsToDefault 
 } from '../data/testimonials';
+import { 
+  PortfolioItem, 
+  PORTFOLIO_CATEGORIES, 
+  getLocalPortfolio, 
+  fetchLivePortfolio, 
+  syncPortfolioItemToStorage, 
+  removePortfolioItemFromStorage, 
+  resetPortfolioToDefault, 
+  PORTFOLIO_CHANGED_EVENT 
+} from '../data/portfolio';
 import { 
   db, 
   ProductItem, 
@@ -148,7 +159,7 @@ const compressImageFile = (file: File): Promise<string> => {
 export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPortalProps) {
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [orders, setOrders] = useState<OrderItem[]>([]);
-  const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'orders' | 'testimonials'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'orders' | 'testimonials' | 'portfolio'>('overview');
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All Products');
 
@@ -233,6 +244,181 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
     setTimeout(() => setStatusMessage(null), 3000);
   };
 
+  // Portfolio Management State (Showcase services, products, and experiences)
+  const [portfolioItems, setPortfolioItems] = useState<PortfolioItem[]>(() => getLocalPortfolio());
+  const [isPortfolioModalOpen, setIsPortfolioModalOpen] = useState(false);
+  const [editingPortfolioItem, setEditingPortfolioItem] = useState<PortfolioItem | null>(null);
+  const [portTitle, setPortTitle] = useState('');
+  const [portClient, setPortClient] = useState('');
+  const [portCategory, setPortCategory] = useState<string>(PORTFOLIO_CATEGORIES[1]);
+  const [portYear, setPortYear] = useState('2025');
+  const [portDescription, setPortDescription] = useState('');
+  const [portServices, setPortServices] = useState('');
+  const [portImpact, setPortImpact] = useState('');
+  const [portImageUrl, setPortImageUrl] = useState('');
+  const [portGallery, setPortGallery] = useState<string[]>([]);
+  const [portFeatured, setPortFeatured] = useState(false);
+  const [portSaving, setPortSaving] = useState(false);
+  const [portError, setPortError] = useState<string | null>(null);
+  const [portfolioToDelete, setPortfolioToDelete] = useState<PortfolioItem | null>(null);
+  const [isDeletingPortfolio, setIsDeletingPortfolio] = useState(false);
+  const [portfolioSearchQuery, setPortfolioSearchQuery] = useState('');
+  const [portfolioCategoryFilter, setPortfolioCategoryFilter] = useState('All Projects');
+  const portfolioFileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Sync Portfolio from storage and custom events
+  useEffect(() => {
+    let isMounted = true;
+    fetchLivePortfolio().then(list => {
+      if (isMounted && list.length > 0) {
+        setPortfolioItems(list);
+      }
+    });
+
+    const handlePortfolioUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent<PortfolioItem[]>;
+      if (customEvent.detail) {
+        setPortfolioItems(customEvent.detail);
+      } else {
+        setPortfolioItems(getLocalPortfolio());
+      }
+    };
+
+    window.addEventListener(PORTFOLIO_CHANGED_EVENT, handlePortfolioUpdate);
+    return () => {
+      isMounted = false;
+      window.removeEventListener(PORTFOLIO_CHANGED_EVENT, handlePortfolioUpdate);
+    };
+  }, []);
+
+  const openCreatePortfolio = () => {
+    setEditingPortfolioItem(null);
+    setPortTitle('');
+    setPortClient('');
+    setPortCategory(PORTFOLIO_CATEGORIES[1]);
+    setPortYear(String(new Date().getFullYear()));
+    setPortDescription('');
+    setPortServices('');
+    setPortImpact('');
+    setPortImageUrl('');
+    setPortGallery([]);
+    setPortFeatured(false);
+    setPortError(null);
+    setIsPortfolioModalOpen(true);
+  };
+
+  const openEditPortfolio = (item: PortfolioItem) => {
+    setEditingPortfolioItem(item);
+    setPortTitle(item.title);
+    setPortClient(item.client);
+    setPortCategory(item.category);
+    setPortYear(item.year || String(new Date().getFullYear()));
+    setPortDescription(item.description);
+    setPortServices(item.services ? item.services.join(', ') : '');
+    setPortImpact(item.impact || '');
+    setPortImageUrl(item.imageUrl || '');
+    setPortGallery(item.gallery && Array.isArray(item.gallery) ? item.gallery : []);
+    setPortFeatured(Boolean(item.featured));
+    setPortError(null);
+    setIsPortfolioModalOpen(true);
+  };
+
+  const handleUploadPortfolioImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if (file.type.startsWith('image/')) {
+        const compressed = await compressImageFile(file);
+        if (compressed) {
+          if (!portImageUrl) {
+            setPortImageUrl(compressed);
+          }
+          setPortGallery(prev => [...prev, compressed]);
+        }
+      }
+    }
+    if (portfolioFileInputRef.current) portfolioFileInputRef.current.value = '';
+  };
+
+  const handleToggleFeaturedPortfolio = async (item: PortfolioItem) => {
+    const updated: PortfolioItem = {
+      ...item,
+      featured: !item.featured
+    };
+    await syncPortfolioItemToStorage(updated);
+    setPortfolioItems(getLocalPortfolio());
+    setStatusMessage(updated.featured ? `Marked "${item.title}" as featured case study.` : `Unmarked "${item.title}" as featured.`);
+    setTimeout(() => setStatusMessage(null), 3000);
+  };
+
+  const handleSavePortfolio = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!portTitle.trim()) {
+      setPortError('Please enter the project or contract title.');
+      return;
+    }
+    if (!portClient.trim()) {
+      setPortError('Please enter the client organization name (e.g. UNIMAID, Ministry, or Private Firm).');
+      return;
+    }
+    if (!portImageUrl.trim() && portGallery.length === 0) {
+      setPortError('Please provide a project cover photo URL or upload an image.');
+      return;
+    }
+
+    setPortSaving(true);
+    setPortError(null);
+
+    const primaryImg = portImageUrl.trim() || portGallery[0];
+    const fullGallery = portGallery.includes(primaryImg) ? portGallery : [primaryImg, ...portGallery];
+    const servicesArray = portServices
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean);
+
+    const payload: PortfolioItem = {
+      id: editingPortfolioItem ? editingPortfolioItem.id : `port-${Date.now()}`,
+      title: portTitle.trim(),
+      client: portClient.trim(),
+      category: portCategory,
+      year: portYear.trim() || String(new Date().getFullYear()),
+      description: portDescription.trim() || 'Custom delivered project by ENJ Digital Concept.',
+      services: servicesArray.length > 0 ? servicesArray : [portCategory],
+      impact: portImpact.trim() || undefined,
+      imageUrl: primaryImg,
+      gallery: fullGallery,
+      featured: portFeatured,
+      order: editingPortfolioItem?.order ?? (portfolioItems.length + 1)
+    };
+
+    await syncPortfolioItemToStorage(payload);
+    setPortfolioItems(getLocalPortfolio());
+    setPortSaving(false);
+    setIsPortfolioModalOpen(false);
+    setStatusMessage(editingPortfolioItem ? 'Portfolio project updated live!' : 'New project added to portfolio!');
+    setTimeout(() => setStatusMessage(null), 3000);
+  };
+
+  const confirmDeletePortfolio = async () => {
+    if (!portfolioToDelete) return;
+    setIsDeletingPortfolio(true);
+    await removePortfolioItemFromStorage(portfolioToDelete.id);
+    setPortfolioItems(getLocalPortfolio());
+    setIsDeletingPortfolio(false);
+    setPortfolioToDelete(null);
+    setStatusMessage('Project deleted from portfolio.');
+    setTimeout(() => setStatusMessage(null), 3000);
+  };
+
+  const handleResetPortfolio = async () => {
+    const list = await resetPortfolioToDefault();
+    setPortfolioItems(list);
+    setStatusMessage('Portfolio showcase reset to default landmark projects.');
+    setTimeout(() => setStatusMessage(null), 3000);
+  };
+
   // Password Authentication State (Always locked upon page refresh for maximum security)
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [passcodeInput, setPasscodeInput] = useState('');
@@ -290,7 +476,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // HIG keyboard & scroll-lock accessibility for modal sheets
-  const hasActiveModal = isFormOpen || isTestimonialModalOpen || isOrganizeModalOpen || Boolean(quickPosModalProduct) || Boolean(productToDelete) || Boolean(orderToDelete);
+  const hasActiveModal = isFormOpen || isTestimonialModalOpen || isPortfolioModalOpen || isOrganizeModalOpen || Boolean(quickPosModalProduct) || Boolean(productToDelete) || Boolean(orderToDelete) || Boolean(portfolioToDelete);
 
   useEffect(() => {
     if (hasActiveModal) {
@@ -312,18 +498,22 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
           setOrderToDelete(null);
         } else if (productToDelete) {
           setProductToDelete(null);
+        } else if (portfolioToDelete) {
+          setPortfolioToDelete(null);
         } else if (isOrganizeModalOpen) {
           setIsOrganizeModalOpen(false);
         } else if (isFormOpen && !isSaving) {
           setIsFormOpen(false);
         } else if (isTestimonialModalOpen && !tSaving) {
           setIsTestimonialModalOpen(false);
+        } else if (isPortfolioModalOpen && !portSaving) {
+          setIsPortfolioModalOpen(false);
         }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [quickPosModalProduct, orderToDelete, productToDelete, isOrganizeModalOpen, isFormOpen, isSaving, isTestimonialModalOpen, tSaving]);
+  }, [quickPosModalProduct, orderToDelete, productToDelete, portfolioToDelete, isOrganizeModalOpen, isFormOpen, isSaving, isTestimonialModalOpen, tSaving, isPortfolioModalOpen, portSaving]);
 
   // Products Listener (Firestore Live Sync)
   useEffect(() => {
@@ -845,6 +1035,24 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
       });
   }, [orders, orderStatusFilter, orderSearchQuery, orderSortBy]);
 
+  // Filtered Portfolio Projects
+  const filteredPortfolio = useMemo(() => {
+    return portfolioItems.filter(item => {
+      if (portfolioCategoryFilter !== 'All Projects' && item.category !== portfolioCategoryFilter) {
+        return false;
+      }
+      if (portfolioSearchQuery.trim()) {
+        const q = portfolioSearchQuery.toLowerCase();
+        const matchTitle = (item.title || '').toLowerCase().includes(q);
+        const matchClient = (item.client || '').toLowerCase().includes(q);
+        const matchDesc = (item.description || '').toLowerCase().includes(q);
+        const matchCat = (item.category || '').toLowerCase().includes(q);
+        if (!matchTitle && !matchClient && !matchDesc && !matchCat) return false;
+      }
+      return true;
+    }).sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
+  }, [portfolioItems, portfolioCategoryFilter, portfolioSearchQuery]);
+
   // If not authenticated, render clean minimal password protection lock screen
   if (!isAuthenticated) {
     return (
@@ -974,34 +1182,34 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
               Store Admin
             </h1>
             <p className="text-xs sm:text-sm text-gray-500 mt-1">
-              Select a section to manage catalog, customer orders, or reviews.
+              Select a section to manage catalog, customer orders, reviews, or portfolio.
             </p>
           </div>
 
-          {/* THE 3 CONCENTRIC APPLE LIQUID GLASS CARDS */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
+          {/* THE 4 CONCENTRIC APPLE LIQUID GLASS CARDS */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
             
             {/* 1. PRODUCT */}
             <button 
               type="button"
               onClick={() => setActiveTab('products')}
-              className="group bg-white/75 hover:bg-white/90 backdrop-blur-2xl rounded-[36px] p-7 border border-white/90 hover:border-white shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_12px_32px_rgba(0,0,0,0.04),0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_20px_48px_rgba(244,123,32,0.12)] transition-all duration-300 text-left flex flex-col justify-between min-h-[230px] cursor-pointer active:scale-[0.98] relative overflow-hidden"
+              className="group bg-white/75 hover:bg-white/90 backdrop-blur-2xl rounded-[36px] p-6 border border-white/90 hover:border-white shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_12px_32px_rgba(0,0,0,0.04),0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_20px_48px_rgba(244,123,32,0.12)] transition-all duration-300 text-left flex flex-col justify-between min-h-[230px] cursor-pointer active:scale-[0.98] relative overflow-hidden"
             >
               <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-white/70 via-white/20 to-transparent rounded-t-[36px]" />
               <div className="relative">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-14 h-14 rounded-[20px] bg-gradient-to-br from-orange-500/15 via-orange-500/10 to-orange-500/5 text-[#f47b20] border border-orange-200/60 flex items-center justify-center group-hover:scale-105 group-hover:bg-[#f47b20] group-hover:text-white transition-all shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_14px_rgba(244,123,32,0.15)]">
+                  <div className="w-13 h-13 rounded-[20px] bg-gradient-to-br from-orange-500/15 via-orange-500/10 to-orange-500/5 text-[#f47b20] border border-orange-200/60 flex items-center justify-center group-hover:scale-105 group-hover:bg-[#f47b20] group-hover:text-white transition-all shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_14px_rgba(244,123,32,0.15)]">
                     <Package className="w-6 h-6" />
                   </div>
-                  <span className="text-xs font-bold text-[#c95510] font-mono bg-orange-50/80 backdrop-blur-md px-3.5 py-1 rounded-full border border-orange-200/60 shadow-2xs">
+                  <span className="text-[11px] font-bold text-[#c95510] font-mono bg-orange-50/80 backdrop-blur-md px-3 py-1 rounded-full border border-orange-200/60 shadow-2xs">
                     {products.length} Products
                   </span>
                 </div>
-                <h3 className="font-display text-xl font-bold text-gray-900 group-hover:text-[#f47b20] transition-colors mb-1.5">
+                <h3 className="font-display text-lg font-bold text-gray-900 group-hover:text-[#f47b20] transition-colors mb-1.5">
                   Products
                 </h3>
                 <p className="text-xs text-gray-500 leading-relaxed">
-                  Manage store catalog, prices, photos, and sequence positions.
+                  Manage store catalog, prices, photos, and positions.
                 </p>
               </div>
 
@@ -1015,23 +1223,23 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
             <button 
               type="button"
               onClick={() => setActiveTab('orders')}
-              className="group bg-white/75 hover:bg-white/90 backdrop-blur-2xl rounded-[36px] p-7 border border-white/90 hover:border-white shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_12px_32px_rgba(0,0,0,0.04),0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_20px_48px_rgba(16,185,129,0.12)] transition-all duration-300 text-left flex flex-col justify-between min-h-[230px] cursor-pointer active:scale-[0.98] relative overflow-hidden"
+              className="group bg-white/75 hover:bg-white/90 backdrop-blur-2xl rounded-[36px] p-6 border border-white/90 hover:border-white shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_12px_32px_rgba(0,0,0,0.04),0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_20px_48px_rgba(16,185,129,0.12)] transition-all duration-300 text-left flex flex-col justify-between min-h-[230px] cursor-pointer active:scale-[0.98] relative overflow-hidden"
             >
               <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-white/70 via-white/20 to-transparent rounded-t-[36px]" />
               <div className="relative">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-14 h-14 rounded-[20px] bg-gradient-to-br from-emerald-500/15 via-emerald-500/10 to-emerald-500/5 text-emerald-600 border border-emerald-200/60 flex items-center justify-center group-hover:scale-105 group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_14px_rgba(16,185,129,0.15)]">
+                  <div className="w-13 h-13 rounded-[20px] bg-gradient-to-br from-emerald-500/15 via-emerald-500/10 to-emerald-500/5 text-emerald-600 border border-emerald-200/60 flex items-center justify-center group-hover:scale-105 group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_14px_rgba(16,185,129,0.15)]">
                     <CreditCard className="w-6 h-6" />
                   </div>
-                  <span className="text-xs font-bold text-emerald-700 font-mono bg-emerald-50/80 backdrop-blur-md px-3.5 py-1 rounded-full border border-emerald-200/60 shadow-2xs">
+                  <span className="text-[11px] font-bold text-emerald-700 font-mono bg-emerald-50/80 backdrop-blur-md px-3 py-1 rounded-full border border-emerald-200/60 shadow-2xs">
                     {orders.length} Orders
                   </span>
                 </div>
-                <h3 className="font-display text-xl font-bold text-gray-900 group-hover:text-emerald-700 transition-colors mb-1.5">
-                  Orders & Transactions
+                <h3 className="font-display text-lg font-bold text-gray-900 group-hover:text-emerald-700 transition-colors mb-1.5">
+                  Orders
                 </h3>
                 <p className="text-xs text-gray-500 leading-relaxed">
-                  Track orders, delivery destinations, and verify customer payments.
+                  Track orders, delivery destinations, and payments.
                 </p>
               </div>
 
@@ -1045,28 +1253,58 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
             <button 
               type="button"
               onClick={() => setActiveTab('testimonials')}
-              className="group bg-white/75 hover:bg-white/90 backdrop-blur-2xl rounded-[36px] p-7 border border-white/90 hover:border-white shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_12px_32px_rgba(0,0,0,0.04),0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_20px_48px_rgba(245,158,11,0.12)] transition-all duration-300 text-left flex flex-col justify-between min-h-[230px] cursor-pointer active:scale-[0.98] relative overflow-hidden"
+              className="group bg-white/75 hover:bg-white/90 backdrop-blur-2xl rounded-[36px] p-6 border border-white/90 hover:border-white shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_12px_32px_rgba(0,0,0,0.04),0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_20px_48px_rgba(245,158,11,0.12)] transition-all duration-300 text-left flex flex-col justify-between min-h-[230px] cursor-pointer active:scale-[0.98] relative overflow-hidden"
             >
               <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-white/70 via-white/20 to-transparent rounded-t-[36px]" />
               <div className="relative">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-14 h-14 rounded-[20px] bg-gradient-to-br from-amber-500/15 via-amber-500/10 to-amber-500/5 text-amber-600 border border-amber-200/60 flex items-center justify-center group-hover:scale-105 group-hover:bg-amber-600 group-hover:text-white transition-all shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_14px_rgba(245,158,11,0.15)]">
+                  <div className="w-13 h-13 rounded-[20px] bg-gradient-to-br from-amber-500/15 via-amber-500/10 to-amber-500/5 text-amber-600 border border-amber-200/60 flex items-center justify-center group-hover:scale-105 group-hover:bg-amber-600 group-hover:text-white transition-all shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_14px_rgba(245,158,11,0.15)]">
                     <MessageSquare className="w-6 h-6" />
                   </div>
-                  <span className="text-xs font-bold text-amber-700 font-mono bg-amber-50/80 backdrop-blur-md px-3.5 py-1 rounded-full border border-amber-200/60 shadow-2xs">
+                  <span className="text-[11px] font-bold text-amber-700 font-mono bg-amber-50/80 backdrop-blur-md px-3 py-1 rounded-full border border-amber-200/60 shadow-2xs">
                     {testimonials.length} Reviews
                   </span>
                 </div>
-                <h3 className="font-display text-xl font-bold text-gray-900 group-hover:text-amber-700 transition-colors mb-1.5">
+                <h3 className="font-display text-lg font-bold text-gray-900 group-hover:text-amber-700 transition-colors mb-1.5">
                   Reviews
                 </h3>
                 <p className="text-xs text-gray-500 leading-relaxed">
-                  Add and edit client reviews and testimonials displayed on the storefront.
+                  Add and edit client reviews and testimonials.
                 </p>
               </div>
 
               <div className="relative flex items-center justify-between pt-4 border-t border-black/[0.04] mt-4 text-xs font-semibold text-gray-400 group-hover:text-amber-700 transition-colors">
                 <span className="px-3 py-1 rounded-full bg-black/[0.03] group-hover:bg-amber-600/10 transition-colors">Manage reviews</span>
+                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </button>
+
+            {/* 4. PORTFOLIO & PROJECTS */}
+            <button 
+              type="button"
+              onClick={() => setActiveTab('portfolio')}
+              className="group bg-white/75 hover:bg-white/90 backdrop-blur-2xl rounded-[36px] p-6 border border-white/90 hover:border-white shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_12px_32px_rgba(0,0,0,0.04),0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_20px_48px_rgba(99,102,241,0.12)] transition-all duration-300 text-left flex flex-col justify-between min-h-[230px] cursor-pointer active:scale-[0.98] relative overflow-hidden"
+            >
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-white/70 via-white/20 to-transparent rounded-t-[36px]" />
+              <div className="relative">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-13 h-13 rounded-[20px] bg-gradient-to-br from-indigo-500/15 via-indigo-500/10 to-indigo-500/5 text-indigo-600 border border-indigo-200/60 flex items-center justify-center group-hover:scale-105 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_14px_rgba(99,102,241,0.15)]">
+                    <Briefcase className="w-6 h-6" />
+                  </div>
+                  <span className="text-[11px] font-bold text-indigo-700 font-mono bg-indigo-50/80 backdrop-blur-md px-3 py-1 rounded-full border border-indigo-200/60 shadow-2xs">
+                    {portfolioItems.length} Projects
+                  </span>
+                </div>
+                <h3 className="font-display text-lg font-bold text-gray-900 group-hover:text-indigo-700 transition-colors mb-1.5">
+                  Portfolio
+                </h3>
+                <p className="text-xs text-gray-500 leading-relaxed">
+                  Showcase completed works, client experiences & services.
+                </p>
+              </div>
+
+              <div className="relative flex items-center justify-between pt-4 border-t border-black/[0.04] mt-4 text-xs font-semibold text-gray-400 group-hover:text-indigo-700 transition-colors">
+                <span className="px-3 py-1 rounded-full bg-black/[0.03] group-hover:bg-indigo-600/10 transition-colors">Manage portfolio</span>
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </div>
             </button>
@@ -1606,16 +1844,242 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
         </div>
       )}
 
+      {/* VIEW 4: PORTFOLIO & PROJECTS MANAGER */}
+      {activeTab === 'portfolio' && (
+        <div className="w-[min(1240px,calc(100%-24px))] sm:w-[min(1240px,calc(100%-32px))] mx-auto animate-in fade-in duration-200">
+          
+          {/* iOS Navigation Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+            <button
+              type="button"
+              onClick={() => setActiveTab('overview')}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-600 hover:text-gray-950 transition-colors group cursor-pointer py-1.5 px-3 rounded-full bg-white/70 hover:bg-white/90 backdrop-blur-xl border border-white/80 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,0,0,0.03)] active:scale-95 w-fit"
+            >
+              <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5 text-gray-400 group-hover:text-gray-900" />
+              <span>Admin Hub</span>
+            </button>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleResetPortfolio}
+                className="px-4 py-2 rounded-full border border-white/80 hover:bg-white text-gray-700 text-xs font-semibold cursor-pointer transition-colors bg-white/70 backdrop-blur-xl shadow-2xs active:scale-95"
+              >
+                Reset Defaults
+              </button>
+              <button
+                type="button"
+                onClick={openCreatePortfolio}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#1d1d1f] hover:bg-black text-white text-xs font-semibold shadow-[0_2px_10px_rgba(0,0,0,0.2)] cursor-pointer transition-colors active:scale-95"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add Project</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Main Card with Search and Filters */}
+          <div className="bg-white/75 backdrop-blur-2xl rounded-[36px] border border-white/90 shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_12px_36px_rgba(0,0,0,0.04)] p-6 sm:p-7 mb-5">
+            
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-black/[0.04]">
+              <div>
+                <h3 className="font-display text-lg sm:text-xl font-bold text-gray-900">
+                  Portfolio Showcase
+                </h3>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  Showcase completed client contracts, products, services, and real experiences.
+                </p>
+              </div>
+
+              {/* Search input (fully rounded) */}
+              <div className="relative w-full md:w-64">
+                <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Search projects or clients…"
+                  value={portfolioSearchQuery}
+                  onChange={(e) => setPortfolioSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-8 py-2 rounded-full border border-gray-200/80 bg-white/70 focus:bg-white focus:border-[#f47b20] outline-none text-xs transition-colors"
+                />
+                {portfolioSearchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setPortfolioSearchQuery('')}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 p-0.5"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Category Filter Pills (fully rounded) */}
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-3">
+              {PORTFOLIO_CATEGORIES.map((cat) => {
+                const isSelected = portfolioCategoryFilter === cat;
+                const count = cat === 'All Projects'
+                  ? portfolioItems.length
+                  : portfolioItems.filter(p => p.category === cat).length;
+
+                return (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setPortfolioCategoryFilter(cat)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                      isSelected
+                        ? 'bg-[#1d1d1f] text-white shadow-2xs'
+                        : 'bg-black/5 hover:bg-black/10 text-gray-600'
+                    }`}
+                  >
+                    <span>{cat}</span>
+                    <span className={`ml-1.5 text-[10px] font-mono ${isSelected ? 'text-white/70' : 'text-gray-400'}`}>
+                      ({count})
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Portfolio Grid */}
+            {filteredPortfolio.length === 0 ? (
+              <div className="text-center py-12">
+                <Briefcase className="w-8 h-8 mx-auto text-gray-300 mb-2" />
+                <p className="text-xs text-gray-500 font-medium">No projects found matching your query.</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPortfolioSearchQuery('');
+                    setPortfolioCategoryFilter('All Projects');
+                  }}
+                  className="mt-3 px-4 py-1.5 rounded-full bg-black/5 hover:bg-black/10 text-xs font-semibold text-gray-700 cursor-pointer"
+                >
+                  Clear filters
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-5">
+                {filteredPortfolio.map((item) => (
+                  <div
+                    key={item.id}
+                    className="group bg-white/70 hover:bg-white/90 backdrop-blur-xl rounded-[28px] p-4 border border-white/90 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_16px_rgba(0,0,0,0.02)] transition-all flex flex-col justify-between"
+                  >
+                    <div>
+                      {/* Photo Container */}
+                      <div className="relative rounded-[20px] overflow-hidden aspect-16/10 bg-gray-100 shadow-2xs mb-3">
+                        <img 
+                          src={item.imageUrl} 
+                          alt={item.title} 
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60" />
+
+                        {/* Category & Year Badges */}
+                        <span className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full bg-white/90 backdrop-blur-md text-[9px] font-bold text-[#c95510] uppercase tracking-wider">
+                          {item.category}
+                        </span>
+                        <span className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-white text-[9px] font-mono border border-white/20">
+                          {item.year}
+                        </span>
+
+                        {/* Client Name on photo */}
+                        <div className="absolute bottom-2 left-2.5 right-2.5 text-white text-xs font-semibold truncate drop-shadow-xs">
+                          {item.client}
+                        </div>
+                      </div>
+
+                      <div className="flex items-start justify-between gap-2 mb-1.5">
+                        <h4 className="font-display text-sm font-bold text-gray-900 leading-snug line-clamp-2">
+                          {item.title}
+                        </h4>
+                        
+                        {/* Featured Star toggle button */}
+                        <button
+                          type="button"
+                          onClick={() => handleToggleFeaturedPortfolio(item)}
+                          className={`p-1.5 rounded-full transition-colors cursor-pointer shrink-0 ${
+                            item.featured 
+                              ? 'text-amber-500 bg-amber-50' 
+                              : 'text-gray-300 hover:text-amber-500 hover:bg-gray-50'
+                          }`}
+                          title={item.featured ? 'Featured landmark project (click to unfeature)' : 'Mark as featured landmark project'}
+                        >
+                          <Star className={`w-4 h-4 ${item.featured ? 'fill-amber-400' : ''}`} />
+                        </button>
+                      </div>
+
+                      <p className="text-[11px] text-gray-500 leading-relaxed line-clamp-2 mb-2 font-light">
+                        {item.description}
+                      </p>
+
+                      {/* Impact outcome tag if present */}
+                      {item.impact && (
+                        <div className="p-2 rounded-xl bg-orange-50/70 border border-orange-100 text-[10px] text-orange-950 line-clamp-1 mb-2 font-medium">
+                          ⚡ {item.impact}
+                        </div>
+                      )}
+
+                      {/* Services pills */}
+                      {item.services && item.services.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mb-2">
+                          {item.services.slice(0, 2).map((s, idx) => (
+                            <span key={idx} className="px-2 py-0.5 rounded-full bg-black/5 text-[9px] text-gray-600 font-medium">
+                              {s}
+                            </span>
+                          ))}
+                          {item.services.length > 2 && (
+                            <span className="px-1.5 py-0.5 rounded-full bg-black/5 text-[9px] text-gray-400 font-medium">
+                              +{item.services.length - 2}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Actions Bar */}
+                    <div className="pt-3 border-t border-black/[0.04] flex items-center justify-between">
+                      <span className="text-[10px] text-gray-400 font-mono">
+                        {item.gallery ? `${item.gallery.length} photos` : '1 photo'}
+                      </span>
+
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => openEditPortfolio(item)}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-gray-200 bg-white/70 hover:bg-white text-gray-700 text-[11px] font-semibold cursor-pointer transition-colors shadow-2xs active:scale-95"
+                        >
+                          <Edit3 className="w-3 h-3" />
+                          <span>Edit</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setPortfolioToDelete(item)}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-red-200 bg-red-50/80 hover:bg-red-100 text-red-600 text-[11px] font-semibold cursor-pointer transition-colors shadow-2xs active:scale-95"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                          <span>Delete</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+          </div>
+        </div>
+      )}
+
       {/* ========================================================
           TESTIMONIAL ADD / EDIT MODAL
           ======================================================== */}
       {isTestimonialModalOpen && (
         <div 
-          className="fixed inset-0 z-[160] bg-black/40 backdrop-blur-xl flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-150"
+          className="fixed inset-0 z-[160] bg-black/40 backdrop-blur-xl flex items-center justify-center p-2.5 sm:p-4 overscroll-none touch-none animate-in fade-in duration-150"
           onClick={() => !tSaving && setIsTestimonialModalOpen(false)}
         >
           <div 
-            className="relative bg-white/90 backdrop-blur-2xl rounded-[36px] w-full max-w-lg p-6 sm:p-7 shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_24px_64px_rgba(0,0,0,0.18)] border border-white/90 animate-in zoom-in-95 duration-150 overflow-hidden"
+            className="relative bg-white/90 backdrop-blur-2xl rounded-[32px] sm:rounded-[36px] w-full max-w-lg p-6 sm:p-7 shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_24px_64px_rgba(0,0,0,0.18)] border border-white/90 animate-in zoom-in-95 duration-150 overflow-hidden max-h-[calc(100dvh-24px)] sm:max-h-[calc(100dvh-40px)] flex flex-col touch-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* iOS Sheet Grabber */}
@@ -1769,15 +2233,311 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
       )}
 
       {/* ========================================================
+          PORTFOLIO ADD / EDIT MODAL
+          ======================================================== */}
+      {isPortfolioModalOpen && (
+        <div 
+          className="fixed inset-0 z-[160] bg-black/40 backdrop-blur-xl flex items-center justify-center p-2.5 sm:p-4 overscroll-none touch-none animate-in fade-in duration-150"
+          onClick={() => !portSaving && setIsPortfolioModalOpen(false)}
+        >
+          <div 
+            className="relative bg-white/95 backdrop-blur-2xl rounded-[32px] sm:rounded-[36px] w-full max-w-2xl p-6 sm:p-7 shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_24px_64px_rgba(0,0,0,0.18)] border border-white/90 animate-in zoom-in-95 duration-150 max-h-[calc(100dvh-24px)] sm:max-h-[calc(100dvh-40px)] flex flex-col overflow-hidden touch-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* iOS Sheet Grabber */}
+            <div className="w-9 h-1 rounded-full bg-gray-300/80 mx-auto -mt-1 mb-3" />
+
+            <div className="flex items-center justify-between pb-3 border-b border-black/[0.04] mb-4 pr-1">
+              <div className="min-w-0 pr-2">
+                <h2 className="font-display text-lg sm:text-xl font-bold text-[#1d1d1f]">
+                  {editingPortfolioItem ? 'Edit Project' : 'Add Showcase Project'}
+                </h2>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  Present your products, services, and client experiences to prospective buyers.
+                </p>
+              </div>
+              <button
+                type="button"
+                disabled={portSaving}
+                onClick={() => setIsPortfolioModalOpen(false)}
+                className="p-1.5 rounded-full hover:bg-black/5 text-gray-400 hover:text-gray-700 transition-colors cursor-pointer disabled:opacity-50"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {portError && (
+              <div className="mb-4 p-3 rounded-2xl bg-red-50/90 border border-red-200 text-red-700 text-xs flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 text-red-600 ml-1" />
+                <span>{portError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSavePortfolio} className="space-y-4 text-xs">
+              
+              {/* Project Title */}
+              <div>
+                <label className="block font-semibold text-gray-800 mb-1">
+                  Project / Contract Title *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. University Faculty Complex 3D Backlit Architectural Facade Signage"
+                  value={portTitle}
+                  onChange={(e) => setPortTitle(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-full border border-gray-200 bg-white/70 focus:bg-white focus:border-[#f47b20] outline-none text-xs transition-colors"
+                />
+              </div>
+
+              {/* Client & Year */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-semibold text-gray-800 mb-1">
+                    Client / Organization *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. University of Maiduguri (UNIMAID)"
+                    value={portClient}
+                    onChange={(e) => setPortClient(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-full border border-gray-200 bg-white/70 focus:bg-white focus:border-[#f47b20] outline-none text-xs transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-gray-800 mb-1">
+                    Year / Completion Date
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 2025"
+                    value={portYear}
+                    onChange={(e) => setPortYear(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-full border border-gray-200 bg-white/70 focus:bg-white focus:border-[#f47b20] outline-none text-xs transition-colors font-mono"
+                  />
+                </div>
+              </div>
+
+              {/* Category */}
+              <div>
+                <label className="block font-semibold text-gray-800 mb-1">
+                  Primary Service Category *
+                </label>
+                <select
+                  value={portCategory}
+                  onChange={(e) => setPortCategory(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-full border border-gray-200 bg-white focus:border-[#f47b20] outline-none text-xs transition-colors cursor-pointer"
+                >
+                  {PORTFOLIO_CATEGORIES.filter(c => c !== 'All Projects').map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Cover Photo & Upload */}
+              <div>
+                <label className="block font-semibold text-gray-800 mb-1">
+                  Cover Photo URL or File Upload *
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="url"
+                    placeholder="https://images.unsplash.com/... or paste image URL"
+                    value={portImageUrl}
+                    onChange={(e) => setPortImageUrl(e.target.value)}
+                    className="flex-1 px-4 py-2.5 rounded-full border border-gray-200 bg-white/70 focus:bg-white focus:border-[#f47b20] outline-none text-xs transition-colors"
+                  />
+                  <input
+                    type="file"
+                    ref={portfolioFileInputRef}
+                    accept="image/*"
+                    multiple
+                    onChange={handleUploadPortfolioImage}
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => portfolioFileInputRef.current?.click()}
+                    className="px-4 py-2 rounded-full border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-xs font-semibold flex items-center gap-1.5 shrink-0 cursor-pointer shadow-2xs"
+                  >
+                    <UploadCloud className="w-3.5 h-3.5 text-[#f47b20]" />
+                    <span>Upload Photo</span>
+                  </button>
+                </div>
+
+                {/* Gallery Previews */}
+                {portGallery.length > 0 && (
+                  <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-2 mt-2">
+                    {portGallery.map((img, idx) => (
+                      <div key={idx} className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 group border border-gray-200">
+                        <img src={img} alt="Preview" className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPortGallery(prev => prev.filter((_, i) => i !== idx));
+                            if (portImageUrl === img) {
+                              setPortImageUrl(portGallery.find((_, i) => i !== idx) || '');
+                            }
+                          }}
+                          className="absolute inset-0 bg-red-600/70 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                          title="Remove image"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Key Services & Deliverables */}
+              <div>
+                <label className="block font-semibold text-gray-800 mb-1">
+                  Key Deliverables & Specifications (comma-separated)
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. 3D Acrylic Lettering, Samsung LED Modules, Structural Facade Mounting"
+                  value={portServices}
+                  onChange={(e) => setPortServices(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-full border border-gray-200 bg-white/70 focus:bg-white focus:border-[#f47b20] outline-none text-xs transition-colors"
+                />
+              </div>
+
+              {/* Key Project Outcome / Impact metric */}
+              <div>
+                <label className="block font-semibold text-gray-800 mb-1">
+                  Key Project Outcome / Impact Metric
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Over 40m illuminated frontage with 99.8% energy-efficient LED modules."
+                  value={portImpact}
+                  onChange={(e) => setPortImpact(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-full border border-gray-200 bg-white/70 focus:bg-white focus:border-[#f47b20] outline-none text-xs transition-colors"
+                />
+              </div>
+
+              {/* Project Description */}
+              <div>
+                <label className="block font-semibold text-gray-800 mb-1">
+                  Project Narrative & Experience Details *
+                </label>
+                <textarea
+                  rows={3}
+                  required
+                  placeholder="Describe the challenge, materials supplied or installed, turnaround time, and client outcome..."
+                  value={portDescription}
+                  onChange={(e) => setPortDescription(e.target.value)}
+                  className="w-full p-3 rounded-2xl border border-gray-200 bg-white/70 focus:bg-white focus:border-[#f47b20] outline-none text-xs leading-relaxed transition-colors resize-none"
+                />
+              </div>
+
+              {/* Featured Case Study Toggle */}
+              <div className="flex items-center gap-2 pt-1">
+                <input
+                  type="checkbox"
+                  id="portFeatured"
+                  checked={portFeatured}
+                  onChange={(e) => setPortFeatured(e.target.checked)}
+                  className="w-4 h-4 text-[#f47b20] rounded border-gray-300 focus:ring-[#f47b20] cursor-pointer"
+                />
+                <label htmlFor="portFeatured" className="font-medium text-gray-700 cursor-pointer select-none">
+                  Spotlight as a Featured Landmark Case Study on Portfolio hero
+                </label>
+              </div>
+
+              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-black/[0.04]">
+                <button
+                  type="button"
+                  disabled={portSaving}
+                  onClick={() => setIsPortfolioModalOpen(false)}
+                  className="px-5 py-2.5 rounded-full border border-gray-200 text-gray-600 hover:bg-gray-50 text-xs font-semibold cursor-pointer transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={portSaving}
+                  className="px-7 py-2.5 rounded-full bg-[#1d1d1f] hover:bg-black text-white text-xs font-semibold shadow-[0_2px_10px_rgba(0,0,0,0.2)] disabled:opacity-50 cursor-pointer transition-all active:scale-95"
+                >
+                  {portSaving ? 'Saving…' : editingPortfolioItem ? 'Save Changes' : 'Publish Project'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Portfolio Modal */}
+      {portfolioToDelete && (
+        <div 
+          className="fixed inset-0 z-[200] bg-black/40 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-150"
+          onClick={() => !isDeletingPortfolio && setPortfolioToDelete(null)}
+        >
+          <div 
+            className="relative bg-white rounded-[32px] w-full max-w-sm p-6 shadow-2xl border border-gray-100 text-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Floating Cancel Button */}
+            <button
+              type="button"
+              disabled={isDeletingPortfolio}
+              onClick={() => setPortfolioToDelete(null)}
+              className="absolute top-3.5 right-3.5 z-20 inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs transition-all cursor-pointer active:scale-95 shadow-2xs border border-gray-200/60 disabled:opacity-50"
+              aria-label="Cancel deletion"
+            >
+              <X className="w-3.5 h-3.5" />
+              <span>Cancel</span>
+            </button>
+
+            <div className="w-12 h-12 rounded-full bg-red-50 text-red-600 flex items-center justify-center mx-auto mb-3.5 border border-red-100">
+              <Trash2 className="w-6 h-6" />
+            </div>
+
+            <h3 className="font-display text-lg font-bold text-gray-900 mb-1">
+              Delete Project?
+            </h3>
+
+            <p className="text-xs text-gray-500 mb-5 leading-relaxed">
+              Remove <strong className="text-gray-900 block truncate">{portfolioToDelete.title}</strong> for <span className="text-gray-700 font-medium">{portfolioToDelete.client}</span>? It will immediately disappear from the public portfolio page.
+            </p>
+
+            <div className="flex items-center gap-2.5">
+              <button
+                type="button"
+                disabled={isDeletingPortfolio}
+                onClick={() => setPortfolioToDelete(null)}
+                className="flex-1 py-2.5 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50 text-xs font-semibold cursor-pointer transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={isDeletingPortfolio}
+                onClick={confirmDeletePortfolio}
+                className="flex-1 py-2.5 rounded-full bg-red-600 hover:bg-red-700 text-white text-xs font-semibold shadow-xs cursor-pointer transition-colors disabled:opacity-50"
+              >
+                {isDeletingPortfolio ? 'Deleting…' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
           SIMPLE PRODUCT ADD / EDIT MODAL
           ======================================================== */}
       {isFormOpen && (
         <div 
-          className="fixed inset-0 z-[150] bg-black/40 backdrop-blur-xl flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-150"
+          className="fixed inset-0 z-[150] bg-black/40 backdrop-blur-xl flex items-center justify-center p-2.5 sm:p-4 overscroll-none touch-none animate-in fade-in duration-150"
           onClick={() => setIsFormOpen(false)}
         >
           <div 
-            className="relative bg-white/90 backdrop-blur-2xl rounded-[36px] w-full max-w-2xl shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_24px_64px_rgba(0,0,0,0.18)] border border-white/90 max-h-[92vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150"
+            className="relative bg-white/90 backdrop-blur-2xl rounded-[32px] sm:rounded-[36px] w-full max-w-2xl shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_24px_64px_rgba(0,0,0,0.18)] border border-white/90 max-h-[calc(100dvh-20px)] sm:max-h-[calc(100dvh-40px)] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150 touch-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* iOS Sheet Grabber */}
