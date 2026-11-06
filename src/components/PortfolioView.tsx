@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   ChevronLeft, 
   ChevronRight, 
-  X, 
-  Briefcase
+  ArrowLeft,
+  Briefcase,
+  ChevronDown
 } from 'lucide-react';
 import { 
   PortfolioItem, 
-  PORTFOLIO_CATEGORIES, 
   getLocalPortfolio, 
   fetchLivePortfolio, 
   PORTFOLIO_CHANGED_EVENT 
@@ -18,11 +19,12 @@ interface PortfolioViewProps {
   onNavigateContact: () => void;
 }
 
-export default function PortfolioView({ onNavigateShop, onNavigateContact }: PortfolioViewProps) {
+export default function PortfolioView({ onNavigateShop: _onNavigateShop, onNavigateContact: _onNavigateContact }: PortfolioViewProps) {
   const [items, setItems] = useState<PortfolioItem[]>(() => getLocalPortfolio());
-  const [selectedCategory, setSelectedCategory] = useState<string>('All Projects');
   const [selectedProjectIndex, setSelectedProjectIndex] = useState<number | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
+  const [isPhotoMenuOpen, setIsPhotoMenuOpen] = useState<boolean>(false);
+  const [isProjectMenuOpen, setIsProjectMenuOpen] = useState<boolean>(false);
 
   // Sync portfolio from Firestore and listen to local updates
   useEffect(() => {
@@ -49,14 +51,8 @@ export default function PortfolioView({ onNavigateShop, onNavigateContact }: Por
     };
   }, []);
 
-  // Filter items based on selected category
-  const filteredItems = items.filter(item => {
-    if (selectedCategory === 'All Projects') return true;
-    return item.category === selectedCategory;
-  });
-
-  const selectedProject = selectedProjectIndex !== null && filteredItems[selectedProjectIndex] 
-    ? filteredItems[selectedProjectIndex] 
+  const selectedProject = selectedProjectIndex !== null && items[selectedProjectIndex] 
+    ? items[selectedProjectIndex] 
     : null;
 
   // Compile list of unique images for the current active project
@@ -76,9 +72,13 @@ export default function PortfolioView({ onNavigateShop, onNavigateContact }: Por
   const handleOpenProject = (index: number) => {
     setSelectedProjectIndex(index);
     setCurrentImageIndex(0);
+    setIsPhotoMenuOpen(false);
+    setIsProjectMenuOpen(false);
   };
 
   const handleCloseModal = () => {
+    setIsPhotoMenuOpen(false);
+    setIsProjectMenuOpen(false);
     setSelectedProjectIndex(null);
     setCurrentImageIndex(0);
   };
@@ -86,65 +86,121 @@ export default function PortfolioView({ onNavigateShop, onNavigateContact }: Por
   // Navigate to previous picture or previous project
   const handlePrevPicture = useCallback((e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
+    setIsPhotoMenuOpen(false);
+    setIsProjectMenuOpen(false);
     if (selectedProjectIndex === null) return;
 
     if (currentImageIndex > 0) {
-      // Step back within the current project's photos
+      // Step back within current project's photos
       setCurrentImageIndex(prev => prev - 1);
     } else {
-      // Jump to previous project in the filtered list
-      const prevProjIdx = (selectedProjectIndex - 1 + filteredItems.length) % filteredItems.length;
+      // Jump to previous project
+      const prevProjIdx = (selectedProjectIndex - 1 + items.length) % items.length;
       setSelectedProjectIndex(prevProjIdx);
-      const prevProj = filteredItems[prevProjIdx];
+      const prevProj = items[prevProjIdx];
       const prevImages = [prevProj.imageUrl, ...(prevProj.gallery || []).filter(img => img !== prevProj.imageUrl)];
       setCurrentImageIndex(Math.max(0, prevImages.length - 1));
     }
-  }, [currentImageIndex, selectedProjectIndex, filteredItems]);
+  }, [currentImageIndex, selectedProjectIndex, items]);
 
   // Navigate to next picture or next project
   const handleNextPicture = useCallback((e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
+    setIsPhotoMenuOpen(false);
+    setIsProjectMenuOpen(false);
     if (selectedProjectIndex === null) return;
 
     if (currentImageIndex < currentProjectImages.length - 1) {
       // Step forward within current project's photos
       setCurrentImageIndex(prev => prev + 1);
     } else {
-      // Advance to next project in the filtered list
-      const nextProjIdx = (selectedProjectIndex + 1) % filteredItems.length;
+      // Advance to next project
+      const nextProjIdx = (selectedProjectIndex + 1) % items.length;
       setSelectedProjectIndex(nextProjIdx);
       setCurrentImageIndex(0);
     }
-  }, [currentImageIndex, currentProjectImages.length, selectedProjectIndex, filteredItems]);
+  }, [currentImageIndex, currentProjectImages.length, selectedProjectIndex, items]);
 
-  // Lock background scroll when modal is open to avoid background scroll
+  // Lock background scroll completely when modal is open
   useEffect(() => {
     if (selectedProjectIndex === null) return;
-    const originalOverflow = document.body.style.overflow;
+    const originalBodyOverflow = document.body.style.overflow;
+    const originalHtmlOverflow = document.documentElement.style.overflow;
+    const originalTouchAction = document.body.style.touchAction;
+
     document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.touchAction = 'none';
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        handleCloseModal();
+        e.preventDefault();
+        if (isPhotoMenuOpen || isProjectMenuOpen) {
+          setIsPhotoMenuOpen(false);
+          setIsProjectMenuOpen(false);
+        } else {
+          handleCloseModal();
+        }
       } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        setIsPhotoMenuOpen(false);
+        setIsProjectMenuOpen(false);
         handlePrevPicture();
       } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        setIsPhotoMenuOpen(false);
+        setIsProjectMenuOpen(false);
         handleNextPicture();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => {
-      document.body.style.overflow = originalOverflow;
+      document.body.style.overflow = originalBodyOverflow;
+      document.documentElement.style.overflow = originalHtmlOverflow;
+      document.body.style.touchAction = originalTouchAction;
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [selectedProjectIndex, handlePrevPicture, handleNextPicture]);
 
+  // Touch swipe support on mobile devices
+  const touchStartX = React.useRef<number | null>(null);
+  const touchStartY = React.useRef<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      touchStartX.current = e.touches[0].clientX;
+      touchStartY.current = e.touches[0].clientY;
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null || touchStartY.current === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const touchEndY = e.changedTouches[0].clientY;
+    const deltaX = touchEndX - touchStartX.current;
+    const deltaY = touchEndY - touchStartY.current;
+
+    // Minimum swipe threshold of 35px and verify horizontal trajectory
+    if (Math.abs(deltaX) > 35 && Math.abs(deltaX) > Math.abs(deltaY) * 1.2) {
+      if (deltaX < 0) {
+        // Swiped left -> Next picture
+        handleNextPicture();
+      } else {
+        // Swiped right -> Previous picture
+        handlePrevPicture();
+      }
+    }
+
+    touchStartX.current = null;
+    touchStartY.current = null;
+  };
+
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 animate-in fade-in duration-300 pt-2 pb-16">
       
-      {/* 1. CLEAN HEADER */}
-      <div className="grid grid-cols-1 md:grid-cols-2 items-end gap-6 mb-7">
+      {/* 1. CLEAN HEADER (Categories removed completely) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 items-end gap-6 mb-8">
         <div>
           <p className="text-[10px] font-bold tracking-widest text-[#6e6e73] uppercase mb-1.5">
             Portfolio & Projects
@@ -160,200 +216,272 @@ export default function PortfolioView({ onNavigateShop, onNavigateContact }: Por
         </div>
       </div>
 
-      {/* 2. CATEGORY FILTER PILLS (Fully Rounded Liquid Glass Pills) */}
-      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-2 mb-8 -mx-4 px-4 sm:mx-0 sm:px-0">
-        {PORTFOLIO_CATEGORIES.map((category) => {
-          const count = category === 'All Projects' 
-            ? items.length 
-            : items.filter(p => p.category === category).length;
-          const isSelected = selectedCategory === category;
-
-          return (
-            <button
-              key={category}
-              type="button"
-              onClick={() => setSelectedCategory(category)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer touch-action-btn ${
-                isSelected
-                  ? 'bg-[#1d1d1f] text-white shadow-xs scale-[1.02]'
-                  : 'apple-liquid-glass-pill hover:bg-white text-[#515154] hover:text-[#1d1d1f]'
-              }`}
-            >
-              <span>{category}</span>
-              <span className={`ml-1.5 text-[10px] font-mono ${
-                isSelected ? 'text-white/75' : 'text-[#86868b]'
-              }`}>
-                ({count})
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* 3. ULTRA-CLEAN PORTFOLIO CARDS GRID (Just a Card with the Cover Page) */}
-      {filteredItems.length === 0 ? (
+      {/* 2. MOSAIC PICTURE GRID (Matching user reference layout: Row 1 [2 cols + 1 col], Row 2 [1 + 1 + 1], Row 3 [1 + 2 cols]) */}
+      {items.length === 0 ? (
         <div className="p-12 text-center rounded-[28px] apple-liquid-glass border border-white/90 shadow-xs mb-10 overflow-hidden relative">
           <div className="specular-highlight opacity-50" />
           <Briefcase className="w-8 h-8 mx-auto text-gray-300 mb-2.5 relative z-10" />
-          <h3 className="text-sm font-semibold text-gray-900 relative z-10">No projects found in this category</h3>
-          <p className="text-xs text-gray-500 mt-1 relative z-10">
-            Switch back to 'All Projects' to see all completed works.
-          </p>
-          <button
-            onClick={() => setSelectedCategory('All Projects')}
-            className="mt-4 px-5 py-2 rounded-full bg-[#1d1d1f] text-white text-xs font-medium cursor-pointer relative z-10 touch-action-btn"
-          >
-            Reset Filter
-          </button>
+          <h3 className="text-sm font-semibold text-gray-900 relative z-10">No projects to display</h3>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-12">
-          {filteredItems.map((project, index) => (
-            <article
-              key={project.id}
-              onClick={() => handleOpenProject(index)}
-              className="group relative rounded-[28px] p-3 apple-liquid-glass-interactive border border-white/90 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.95),0_10px_28px_-4px_rgba(0,0,0,0.05)] overflow-hidden cursor-pointer touch-action-card transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5 flex flex-col"
-            >
-              {/* Glass specular top highlight */}
-              <div className="specular-highlight opacity-80" />
+        <div className="grid grid-cols-3 gap-2.5 sm:gap-3.5 md:gap-4 mb-16">
+          {items.map((project, index) => {
+            const patternIndex = index % 7;
+            let mosaicSpanClass = 'col-span-1 h-36 sm:h-52 md:h-64';
 
-              {/* Just the Cover Page Card: Concentric Rounded Radius (28px - 12px padding = 16px inner) */}
-              <div className="relative w-full aspect-4/3 rounded-[16px] overflow-hidden bg-gray-100 shadow-2xs">
+            if (patternIndex === 0) {
+              // Row 1, Left: Wide (2 cols)
+              mosaicSpanClass = 'col-span-2 h-44 sm:h-64 md:h-80';
+            } else if (patternIndex === 1) {
+              // Row 1, Right: Normal (1 col)
+              mosaicSpanClass = 'col-span-1 h-44 sm:h-64 md:h-80';
+            } else if (patternIndex === 2 || patternIndex === 3 || patternIndex === 4) {
+              // Row 2: 3 equal columns (1 + 1 + 1)
+              mosaicSpanClass = 'col-span-1 h-36 sm:h-52 md:h-64';
+            } else if (patternIndex === 5) {
+              // Row 3, Left: Normal (1 col)
+              mosaicSpanClass = 'col-span-1 h-44 sm:h-64 md:h-80';
+            } else if (patternIndex === 6) {
+              // Row 3, Right: Wide (2 cols)
+              mosaicSpanClass = 'col-span-2 h-44 sm:h-64 md:h-80';
+            }
+
+            return (
+              <div
+                key={project.id}
+                onClick={() => handleOpenProject(index)}
+                className={`group relative rounded-[18px] sm:rounded-[24px] overflow-hidden cursor-pointer touch-action-card transition-all duration-300 hover:shadow-2xl hover:scale-[1.015] active:scale-[0.985] bg-gray-100 border border-white/90 shadow-xs ${mosaicSpanClass}`}
+              >
                 <img 
                   src={project.imageUrl} 
                   alt={project.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   loading="lazy"
                 />
-
-                {/* Subtle dark gradient overlay on hover for luxury depth */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3.5 text-white">
-                  <span className="text-[10px] uppercase font-bold tracking-wider text-[#f47b20] mb-0.5">
-                    {project.category}
-                  </span>
-                  <h3 className="font-display text-sm font-semibold leading-tight line-clamp-2">
-                    {project.title}
-                  </h3>
-                </div>
-
-                {/* Client badge top-left (fully rounded) */}
-                <span className="absolute top-2.5 left-2.5 px-3 py-1 rounded-full bg-white/90 backdrop-blur-md text-[10px] font-semibold text-[#1d1d1f] shadow-xs border border-white/80">
-                  {project.client}
-                </span>
-
-                {/* Photo count indicator if multiple images available */}
-                {project.gallery && project.gallery.length > 1 && (
-                  <span className="absolute top-2.5 right-2.5 px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-mono text-white border border-white/20">
-                    +{project.gallery.length} photos
-                  </span>
-                )}
               </div>
-
-              {/* Minimal Project Title beneath the cover card */}
-              <div className="pt-3 px-1 flex items-center justify-between gap-2">
-                <h3 className="font-display text-xs sm:text-sm font-semibold text-[#1d1d1f] truncate group-hover:text-[#c95510] transition-colors">
-                  {project.title}
-                </h3>
-                <span className="text-[10px] font-mono text-gray-400 shrink-0">
-                  {project.year}
-                </span>
-              </div>
-            </article>
-          ))}
+            );
+          })}
         </div>
       )}
 
-      {/* 4. EXPANSIVE BIG PICTURE LIGHTBOX MODAL (Fits to initial screen with zero background scroll) */}
-      {selectedProject && (
+      {/* 3. FULL-SCREEN PICTURE LIGHTBOX OVERLAY WITH TOUCH SWIPE & 3-COLUMN TOP BAR */}
+      {selectedProject && typeof document !== 'undefined' && createPortal(
         <div 
-          className="fixed inset-0 z-50 flex flex-col items-center justify-between p-3 sm:p-5 bg-black/92 backdrop-blur-3xl animate-in fade-in duration-200 select-none overflow-hidden h-[100dvh] max-h-[100dvh] overscroll-none"
-          onClick={handleCloseModal}
+          className="fixed inset-0 z-[9999] w-screen h-[100dvh] overflow-hidden select-none overscroll-none touch-none bg-black"
+          onClick={() => {
+            if (isPhotoMenuOpen || isProjectMenuOpen) {
+              setIsPhotoMenuOpen(false);
+              setIsProjectMenuOpen(false);
+              return;
+            }
+            handleCloseModal();
+          }}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
         >
-          {/* Top Bar: Picture count pill & Fully Rounded Close button */}
-          <div className="w-full max-w-5xl flex items-center justify-between shrink-0 z-20 pt-1 pb-1.5">
-            <div className="flex items-center gap-2">
-              <span className="apple-liquid-glass-pill px-4 py-1.5 rounded-full text-xs font-medium text-white/90 border border-white/20 backdrop-blur-xl">
-                Photo {currentImageIndex + 1} of {currentProjectImages.length}
-              </span>
-              <span className="hidden sm:inline-block px-3 py-1.5 rounded-full bg-white/10 text-[11px] font-mono text-white/70 border border-white/10">
-                Project {selectedProjectIndex! + 1} of {filteredItems.length}
-              </span>
-            </div>
+          {/* Ambient blurred backdrop of the current photo for seamless edge-to-edge glow */}
+          <img 
+            src={activeBigImageUrl} 
+            alt="" 
+            aria-hidden="true" 
+            className="absolute inset-0 w-full h-full object-cover blur-3xl scale-110 opacity-70 pointer-events-none select-none transition-all duration-300"
+          />
+          <div className="absolute inset-0 bg-black/40 pointer-events-none" />
 
-            <button
-              type="button"
-              onClick={handleCloseModal}
-              className="w-11 h-11 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 text-white flex items-center justify-center backdrop-blur-2xl border border-white/25 transition-all cursor-pointer shadow-lg touch-action-btn"
-              aria-label="Close modal"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-
-          {/* Center Stage: The Picture So Big with Arrow Navigation (Fills available screen space) */}
+          {/* Main Picture Fitting the Screen (Fit without cropping) */}
           <div 
-            className="relative w-full max-w-5xl flex-1 min-h-0 flex items-center justify-center my-auto py-1 overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
+            className="absolute inset-0 w-full h-full flex items-center justify-center p-2 sm:p-4 overflow-hidden"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (isPhotoMenuOpen || isProjectMenuOpen) {
+                setIsPhotoMenuOpen(false);
+                setIsProjectMenuOpen(false);
+              }
+            }}
           >
-            {/* The Big Picture */}
-            <div className="relative rounded-[20px] sm:rounded-[28px] overflow-hidden shadow-2xl border border-white/15 bg-black/40 flex items-center justify-center max-h-full max-w-full h-full">
-              <img 
-                src={activeBigImageUrl} 
-                alt={selectedProject.title}
-                className="w-auto h-auto max-h-full max-w-full object-contain animate-in fade-in duration-200"
-              />
-            </div>
-
-            {/* Previous Picture Arrow Button (<) */}
-            <button
-              type="button"
-              onClick={handlePrevPicture}
-              className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-black/60 hover:bg-black/85 active:scale-90 text-white backdrop-blur-2xl border border-white/25 flex items-center justify-center transition-all cursor-pointer shadow-2xl touch-action-btn group z-20"
-              aria-label="Previous picture"
-            >
-              <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 group-hover:-translate-x-0.5 transition-transform" />
-            </button>
-
-            {/* Next Picture Arrow Button (>) */}
-            <button
-              type="button"
-              onClick={handleNextPicture}
-              className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-black/60 hover:bg-black/85 active:scale-90 text-white backdrop-blur-2xl border border-white/25 flex items-center justify-center transition-all cursor-pointer shadow-2xl touch-action-btn group z-20"
-              aria-label="Next picture"
-            >
-              <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 group-hover:translate-x-0.5 transition-transform" />
-            </button>
+            <img 
+              key={activeBigImageUrl}
+              src={activeBigImageUrl} 
+              alt={selectedProject.title}
+              className="w-full h-full object-contain select-none transition-all duration-300 animate-in fade-in"
+            />
           </div>
 
-          {/* Bottom Info: The name of the Project beneath, and little description */}
+          {/* Floating Top Bar: 3-column layout (Left: Back Button, Middle: Photo count expander, Right: Project count expander) */}
           <div 
-            className="w-full max-w-3xl text-center px-4 pt-1.5 pb-2 shrink-0 z-20"
-            onClick={(e) => e.stopPropagation()}
+            className="absolute top-0 inset-x-0 z-40 grid grid-cols-3 items-center px-3 sm:px-6 md:px-8 pointer-events-none"
+            style={{
+              paddingTop: 'max(1rem, env(safe-area-inset-top, 20px))',
+              paddingBottom: '0.75rem'
+            }}
           >
-            {/* Project Name */}
-            <h2 className="font-display text-base sm:text-xl font-semibold text-white tracking-tight leading-snug drop-shadow-sm mb-1">
-              {selectedProject.title}
-            </h2>
+            {/* Left: Circle back button to return to portfolio layout */}
+            <div className="flex items-center justify-start pointer-events-auto">
+              <button
+                type="button"
+                onClick={handleCloseModal}
+                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full apple-floating-glass flex items-center justify-center text-gray-900 active:scale-90 transition-all cursor-pointer touch-action-btn relative overflow-hidden group shrink-0 shadow-xs"
+                aria-label="Back to portfolio"
+                title="Back to portfolio"
+              >
+                <div className="specular-highlight opacity-40" />
+                <ArrowLeft className="w-5 h-5 sm:w-5.5 sm:h-5.5 text-gray-900 group-hover:-translate-x-0.5 transition-transform" />
+              </button>
+            </div>
 
-            {/* Little Description */}
-            <p className="text-xs sm:text-sm text-gray-300 leading-relaxed max-w-2xl mx-auto font-light drop-shadow-xs mb-2 line-clamp-2">
-              {selectedProject.description}
-            </p>
+            {/* Middle: Photo count pill with tap-to-expand number selector */}
+            <div className="relative flex items-center justify-center pointer-events-auto">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsPhotoMenuOpen(prev => !prev);
+                  setIsProjectMenuOpen(false);
+                }}
+                className={`apple-floating-glass px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs font-semibold text-gray-900 tracking-wide relative overflow-hidden shadow-xs whitespace-nowrap cursor-pointer touch-action-btn transition-all flex items-center gap-1.5 ${
+                  isPhotoMenuOpen ? 'ring-2 ring-black/25 scale-[1.03]' : 'hover:scale-[1.02]'
+                }`}
+                title="Select photo number"
+                aria-expanded={isPhotoMenuOpen}
+              >
+                <div className="specular-highlight opacity-40" />
+                <span className="relative z-10">Photo {currentImageIndex + 1} of {currentProjectImages.length}</span>
+                <ChevronDown className={`w-3 h-3 text-gray-700 transition-transform duration-200 relative z-10 ${isPhotoMenuOpen ? 'rotate-180' : ''}`} />
+              </button>
 
-            {/* Client, Category & Year Badges (fully rounded) */}
-            <div className="flex flex-wrap items-center justify-center gap-2">
-              <span className="px-3 py-0.5 rounded-full bg-white/10 text-white text-[11px] font-medium border border-white/15 backdrop-blur-md">
-                Client: {selectedProject.client}
-              </span>
-              <span className="px-3 py-0.5 rounded-full bg-[#f47b20]/25 text-[#f47b20] text-[11px] font-semibold border border-[#f47b20]/40 backdrop-blur-md">
-                {selectedProject.category}
-              </span>
-              <span className="px-2.5 py-0.5 rounded-full bg-white/5 text-gray-400 text-[11px] font-mono border border-white/10">
-                {selectedProject.year}
+              {/* Photo Selector Popover (Expands on that position) */}
+              {isPhotoMenuOpen && (
+                <div 
+                  className="absolute top-full mt-2 left-1/2 -translate-x-1/2 apple-floating-glass p-2.5 rounded-[22px] shadow-2xl border border-white/95 flex flex-col items-center gap-2 min-w-[150px] max-w-[280px] animate-ios-slide-up z-50 overflow-hidden"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="specular-highlight opacity-40" />
+                  <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider text-center relative z-10">
+                    Select Photo
+                  </span>
+                  <div className="flex flex-wrap items-center justify-center gap-1.5 relative z-10">
+                    {currentProjectImages.map((_, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCurrentImageIndex(idx);
+                          setIsPhotoMenuOpen(false);
+                        }}
+                        className={`w-8 h-8 rounded-full text-xs font-semibold transition-all cursor-pointer touch-action-btn flex items-center justify-center ${
+                          currentImageIndex === idx
+                            ? 'bg-black text-white shadow-xs font-bold scale-110'
+                            : 'bg-black/5 hover:bg-black/15 text-gray-900'
+                        }`}
+                      >
+                        {idx + 1}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Right: Project Counter pill (NO word 'Project', just numbers) with tap-to-expand number selector */}
+            <div className="relative flex items-center justify-end pointer-events-auto">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsProjectMenuOpen(prev => !prev);
+                  setIsPhotoMenuOpen(false);
+                }}
+                className={`apple-floating-glass px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs font-mono font-medium text-gray-900 relative overflow-hidden shadow-xs whitespace-nowrap cursor-pointer touch-action-btn transition-all flex items-center gap-1.5 ${
+                  isProjectMenuOpen ? 'ring-2 ring-black/25 scale-[1.03]' : 'hover:scale-[1.02]'
+                }`}
+                title="Select project number"
+                aria-expanded={isProjectMenuOpen}
+              >
+                <div className="specular-highlight opacity-40" />
+                <span className="relative z-10">{selectedProjectIndex! + 1} of {items.length}</span>
+                <ChevronDown className={`w-3 h-3 text-gray-700 transition-transform duration-200 relative z-10 ${isProjectMenuOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {/* Project Selector Popover (Expands on that position) */}
+              {isProjectMenuOpen && (
+                <div 
+                  className="absolute top-full mt-2 right-0 apple-floating-glass p-2.5 rounded-[22px] shadow-2xl border border-white/95 flex flex-col gap-2 min-w-[190px] max-w-[280px] animate-ios-slide-up z-50 overflow-hidden"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="specular-highlight opacity-40" />
+                  <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider text-center relative z-10">
+                    Jump to Number
+                  </span>
+                  <div className="grid grid-cols-4 sm:grid-cols-5 gap-1.5 max-h-[220px] overflow-y-auto relative z-10 p-0.5">
+                    {items.map((proj, idx) => (
+                      <button
+                        key={proj.id || idx}
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenProject(idx);
+                          setIsProjectMenuOpen(false);
+                        }}
+                        title={proj.title}
+                        className={`h-8 rounded-xl text-xs font-semibold transition-all cursor-pointer touch-action-btn flex items-center justify-center ${
+                          selectedProjectIndex === idx
+                            ? 'bg-black text-white shadow-xs font-bold scale-110'
+                            : 'bg-black/5 hover:bg-black/15 text-gray-900'
+                        }`}
+                      >
+                        {idx + 1}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Left Arrow Button (Prev) - Hidden on mobile, visible on desktop (desktop navigation) */}
+          <button
+            type="button"
+            onClick={handlePrevPicture}
+            className="hidden md:flex absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 w-12 h-12 lg:w-14 lg:h-14 rounded-full apple-floating-glass text-gray-900 items-center justify-center active:scale-90 transition-all cursor-pointer touch-action-btn z-40 overflow-hidden group shadow-xs"
+            aria-label="Previous picture"
+            title="Previous picture (Left Arrow key)"
+          >
+            <div className="specular-highlight opacity-40" />
+            <ChevronLeft className="w-6 h-6 lg:w-7 lg:h-7 text-gray-900 group-hover:-translate-x-0.5 transition-transform" />
+          </button>
+
+          {/* Right Arrow Button (Next) - Hidden on mobile, visible on desktop (desktop navigation) */}
+          <button
+            type="button"
+            onClick={handleNextPicture}
+            className="hidden md:flex absolute right-4 lg:right-8 top-1/2 -translate-y-1/2 w-12 h-12 lg:w-14 lg:h-14 rounded-full apple-floating-glass text-gray-900 items-center justify-center active:scale-90 transition-all cursor-pointer touch-action-btn z-40 overflow-hidden group shadow-xs"
+            aria-label="Next picture"
+            title="Next picture (Right Arrow key)"
+          >
+            <div className="specular-highlight opacity-40" />
+            <ChevronRight className="w-6 h-6 lg:w-7 lg:h-7 text-gray-900 group-hover:translate-x-0.5 transition-transform" />
+          </button>
+
+          {/* Bottom Floating Capsule: Project Title with black text for high visibility */}
+          <div 
+            className="absolute bottom-5 sm:bottom-7 inset-x-0 z-40 flex justify-center px-4 pointer-events-none"
+            style={{
+              paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom, 12px))'
+            }}
+          >
+            <div 
+              className="pointer-events-auto inline-flex items-center justify-center px-5 py-2 sm:py-2.5 rounded-full apple-floating-glass max-w-[min(90vw,600px)] text-center relative overflow-hidden shadow-xs"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="specular-highlight opacity-40" />
+              <span className="font-display text-xs sm:text-sm font-semibold tracking-tight text-gray-900 truncate relative z-10">
+                {selectedProject.title}
               </span>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
     </div>

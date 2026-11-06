@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   Search, 
   ShoppingCart, 
@@ -455,19 +456,19 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
       {/* ========================================================
           DETAILED PRODUCT MODAL: MULTIPLE PICTURES, SPECS, COLORS & SIZES
          ======================================================== */}
-      {selectedProduct && (
+      {selectedProduct && typeof document !== 'undefined' && createPortal(
         <div 
-          className="fixed inset-0 z-[150] bg-black/40 backdrop-blur-md flex items-center justify-center p-2.5 sm:p-4 overscroll-none touch-none animate-in fade-in duration-200"
+          className="fixed inset-0 z-[9999] bg-black/40 backdrop-blur-md flex items-center justify-center p-2.5 sm:p-4 overscroll-none touch-none animate-in fade-in duration-200 w-screen h-[100dvh]"
           onClick={() => setSelectedProduct(null)}
         >
           <div 
-            className="relative bg-white/95 backdrop-blur-2xl rounded-[32px] sm:rounded-[36px] w-full max-w-2xl shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_24px_64px_rgba(0,0,0,0.18)] border border-white/95 overflow-hidden animate-in zoom-in-95 duration-200 max-h-[calc(100dvh-20px)] sm:max-h-[calc(100dvh-40px)] flex flex-col touch-auto"
+            className="relative bg-white/95 backdrop-blur-2xl rounded-[28px] sm:rounded-[36px] w-full max-w-2xl shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_24px_64px_rgba(0,0,0,0.22)] border border-white/95 overflow-hidden animate-in zoom-in-95 duration-200 max-h-[calc(100dvh-24px)] sm:max-h-[calc(100dvh-48px)] flex flex-col touch-auto my-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="specular-highlight opacity-70" />
 
             {/* Modal Header: Sticky Floating Bar with Fixed Cancel Button */}
-            <div className="sticky top-0 z-30 px-6 sm:px-7 py-3.5 border-b border-black/5 flex items-center justify-between shrink-0 bg-white/75 backdrop-blur-xl rounded-t-[32px] sm:rounded-t-[36px]">
+            <div className="sticky top-0 z-30 px-5 sm:px-6 py-3 border-b border-black/5 flex items-center justify-between shrink-0 bg-white/85 backdrop-blur-xl rounded-t-[28px] sm:rounded-t-[36px]">
               <div className="flex items-center gap-2 text-xs text-gray-500 min-w-0 pr-2">
                 <span className="font-semibold text-[#f47b20] uppercase tracking-wider text-[11px] truncate">
                   {selectedProduct.category}
@@ -488,13 +489,13 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
               </button>
             </div>
 
-            {/* Modal Body: Scrollable */}
-            <div className="p-6 sm:p-7 overflow-y-auto space-y-6 flex-1">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">
+            {/* Modal Body: Scrollable & Properly Padded */}
+            <div className="p-4 sm:p-6 overflow-y-auto space-y-4 flex-1 overscroll-contain">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 items-start">
                 
                 {/* Left: Images & Gallery switcher */}
-                <div className="space-y-3">
-                  <div className="relative h-60 sm:h-68 rounded-[24px] overflow-hidden bg-gray-50 border border-gray-200">
+                <div className="space-y-2.5">
+                  <div className="relative h-48 sm:h-56 rounded-[20px] overflow-hidden bg-gray-50 border border-gray-200">
                     <img 
                       src={activeImage || selectedProduct.imageUrl} 
                       alt={selectedProduct.title}
@@ -724,7 +725,8 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
     </div>

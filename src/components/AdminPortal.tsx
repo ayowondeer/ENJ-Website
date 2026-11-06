@@ -264,6 +264,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
   const [isDeletingPortfolio, setIsDeletingPortfolio] = useState(false);
   const [portfolioSearchQuery, setPortfolioSearchQuery] = useState('');
   const [portfolioCategoryFilter, setPortfolioCategoryFilter] = useState('All Projects');
+  const [portUrlInput, setPortUrlInput] = useState('');
   const portfolioFileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Sync Portfolio from storage and custom events
@@ -291,17 +292,28 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
     };
   }, []);
 
+  const handleAddImageUrl = () => {
+    const trimmed = portUrlInput.trim();
+    if (!trimmed) return;
+    setPortGallery(prev => (prev.includes(trimmed) ? prev : [...prev, trimmed]));
+    if (!portImageUrl) {
+      setPortImageUrl(trimmed);
+    }
+    setPortUrlInput('');
+  };
+
   const openCreatePortfolio = () => {
     setEditingPortfolioItem(null);
     setPortTitle('');
-    setPortClient('');
-    setPortCategory(PORTFOLIO_CATEGORIES[1]);
+    setPortClient('Client Project');
+    setPortCategory(PORTFOLIO_CATEGORIES[1] || 'Digital Printing');
     setPortYear(String(new Date().getFullYear()));
     setPortDescription('');
     setPortServices('');
     setPortImpact('');
     setPortImageUrl('');
     setPortGallery([]);
+    setPortUrlInput('');
     setPortFeatured(false);
     setPortError(null);
     setIsPortfolioModalOpen(true);
@@ -310,14 +322,18 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
   const openEditPortfolio = (item: PortfolioItem) => {
     setEditingPortfolioItem(item);
     setPortTitle(item.title);
-    setPortClient(item.client);
-    setPortCategory(item.category);
+    setPortClient(item.client || 'Client Project');
+    setPortCategory(item.category || PORTFOLIO_CATEGORIES[1] || 'Digital Printing');
     setPortYear(item.year || String(new Date().getFullYear()));
     setPortDescription(item.description);
     setPortServices(item.services ? item.services.join(', ') : '');
     setPortImpact(item.impact || '');
     setPortImageUrl(item.imageUrl || '');
-    setPortGallery(item.gallery && Array.isArray(item.gallery) ? item.gallery : []);
+    const initialGallery = item.gallery && Array.isArray(item.gallery) && item.gallery.length > 0
+      ? item.gallery
+      : (item.imageUrl ? [item.imageUrl] : []);
+    setPortGallery(initialGallery);
+    setPortUrlInput('');
     setPortFeatured(Boolean(item.featured));
     setPortError(null);
     setIsPortfolioModalOpen(true);
@@ -355,16 +371,10 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
 
   const handleSavePortfolio = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!portTitle.trim()) {
-      setPortError('Please enter the project or contract title.');
-      return;
-    }
-    if (!portClient.trim()) {
-      setPortError('Please enter the client organization name (e.g. UNIMAID, Ministry, or Private Firm).');
-      return;
-    }
+    const finalTitle = portTitle.trim() || `Project ${editingPortfolioItem ? editingPortfolioItem.order ?? 1 : portfolioItems.length + 1}`;
+
     if (!portImageUrl.trim() && portGallery.length === 0) {
-      setPortError('Please provide a project cover photo URL or upload an image.');
+      setPortError('Please provide at least one project picture (upload an image or paste a photo link).');
       return;
     }
 
@@ -373,19 +383,15 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
 
     const primaryImg = portImageUrl.trim() || portGallery[0];
     const fullGallery = portGallery.includes(primaryImg) ? portGallery : [primaryImg, ...portGallery];
-    const servicesArray = portServices
-      .split(',')
-      .map(s => s.trim())
-      .filter(Boolean);
 
     const payload: PortfolioItem = {
       id: editingPortfolioItem ? editingPortfolioItem.id : `port-${Date.now()}`,
-      title: portTitle.trim(),
-      client: portClient.trim(),
-      category: portCategory,
+      title: finalTitle,
+      client: portClient.trim() || 'Client Project',
+      category: portCategory || 'Digital Printing',
       year: portYear.trim() || String(new Date().getFullYear()),
-      description: portDescription.trim() || 'Custom delivered project by ENJ Digital Concept.',
-      services: servicesArray.length > 0 ? servicesArray : [portCategory],
+      description: portDescription.trim() || 'Project executed by ENJ Digital Concept.',
+      services: portServices ? portServices.split(',').map(s => s.trim()).filter(Boolean) : [portCategory || 'Digital Printing'],
       impact: portImpact.trim() || undefined,
       imageUrl: primaryImg,
       gallery: fullGallery,
@@ -397,7 +403,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
     setPortfolioItems(getLocalPortfolio());
     setPortSaving(false);
     setIsPortfolioModalOpen(false);
-    setStatusMessage(editingPortfolioItem ? 'Portfolio project updated live!' : 'New project added to portfolio!');
+    setStatusMessage(editingPortfolioItem ? 'Project updated live!' : 'New project added to portfolio!');
     setTimeout(() => setStatusMessage(null), 3000);
   };
 
@@ -1959,110 +1965,87 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-5">
-                {filteredPortfolio.map((item) => (
-                  <div
-                    key={item.id}
-                    className="group bg-white/70 hover:bg-white/90 backdrop-blur-xl rounded-[28px] p-4 border border-white/90 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_16px_rgba(0,0,0,0.02)] transition-all flex flex-col justify-between"
-                  >
-                    <div>
-                      {/* Photo Container */}
-                      <div className="relative rounded-[20px] overflow-hidden aspect-16/10 bg-gray-100 shadow-2xs mb-3">
-                        <img 
-                          src={item.imageUrl} 
-                          alt={item.title} 
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60" />
+                {filteredPortfolio.map((item) => {
+                  const gallery = (item.gallery && item.gallery.length > 0)
+                    ? item.gallery
+                    : (item.imageUrl ? [item.imageUrl] : []);
 
-                        {/* Category & Year Badges */}
-                        <span className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full bg-white/90 backdrop-blur-md text-[9px] font-bold text-[#c95510] uppercase tracking-wider">
-                          {item.category}
-                        </span>
-                        <span className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-white text-[9px] font-mono border border-white/20">
-                          {item.year}
-                        </span>
+                  return (
+                    <div
+                      key={item.id}
+                      className="group bg-white/70 hover:bg-white/95 backdrop-blur-xl rounded-[28px] p-4 border border-white/90 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_16px_rgba(0,0,0,0.02)] transition-all flex flex-col justify-between"
+                    >
+                      <div>
+                        {/* 1. Primary Photo Container */}
+                        <div className="relative rounded-[20px] overflow-hidden aspect-16/10 bg-gray-100 shadow-2xs mb-2.5">
+                          <img 
+                            src={item.imageUrl} 
+                            alt={item.title} 
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60" />
 
-                        {/* Client Name on photo */}
-                        <div className="absolute bottom-2 left-2.5 right-2.5 text-white text-xs font-semibold truncate drop-shadow-xs">
-                          {item.client}
+                          {/* Photos Count Badge */}
+                          <span className="absolute top-2.5 right-2.5 px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-white text-[10px] font-mono border border-white/20">
+                            {gallery.length} {gallery.length === 1 ? 'picture' : 'pictures'}
+                          </span>
                         </div>
-                      </div>
 
-                      <div className="flex items-start justify-between gap-2 mb-1.5">
-                        <h4 className="font-display text-sm font-bold text-gray-900 leading-snug line-clamp-2">
+                        {/* Multiple Pictures Gallery Strip if more than 1 picture */}
+                        {gallery.length > 1 && (
+                          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 mb-2.5 scrollbar-none">
+                            {gallery.map((pic, pIdx) => (
+                              <div
+                                key={pIdx}
+                                className={`w-11 h-11 rounded-lg overflow-hidden border shrink-0 bg-gray-100 ${
+                                  pic === item.imageUrl ? 'border-[#f47b20] ring-1 ring-orange-300' : 'border-gray-200'
+                                }`}
+                              >
+                                <img src={pic} alt={`Thumbnail ${pIdx + 1}`} className="w-full h-full object-cover" />
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* 2. Project Title */}
+                        <h4 className="font-display text-sm font-bold text-gray-900 leading-snug mb-1.5">
                           {item.title}
                         </h4>
-                        
-                        {/* Featured Star toggle button */}
-                        <button
-                          type="button"
-                          onClick={() => handleToggleFeaturedPortfolio(item)}
-                          className={`p-1.5 rounded-full transition-colors cursor-pointer shrink-0 ${
-                            item.featured 
-                              ? 'text-amber-500 bg-amber-50' 
-                              : 'text-gray-300 hover:text-amber-500 hover:bg-gray-50'
-                          }`}
-                          title={item.featured ? 'Featured landmark project (click to unfeature)' : 'Mark as featured landmark project'}
-                        >
-                          <Star className={`w-4 h-4 ${item.featured ? 'fill-amber-400' : ''}`} />
-                        </button>
+
+                        {/* 3. Project Description */}
+                        <p className="text-xs text-gray-600 leading-relaxed font-normal mb-3 whitespace-pre-line">
+                          {item.description}
+                        </p>
                       </div>
 
-                      <p className="text-[11px] text-gray-500 leading-relaxed line-clamp-2 mb-2 font-light">
-                        {item.description}
-                      </p>
+                      {/* Actions Bar */}
+                      <div className="pt-3 border-t border-black/[0.04] flex items-center justify-between">
+                        <span className="text-[10px] text-gray-400 font-mono">
+                          {gallery.length} {gallery.length === 1 ? 'photo' : 'photos'}
+                        </span>
 
-                      {/* Impact outcome tag if present */}
-                      {item.impact && (
-                        <div className="p-2 rounded-xl bg-orange-50/70 border border-orange-100 text-[10px] text-orange-950 line-clamp-1 mb-2 font-medium">
-                          ⚡ {item.impact}
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => openEditPortfolio(item)}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-gray-200 bg-white/70 hover:bg-white text-gray-700 text-[11px] font-semibold cursor-pointer transition-colors shadow-2xs active:scale-95"
+                          >
+                            <Edit3 className="w-3 h-3" />
+                            <span>Edit</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setPortfolioToDelete(item)}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-red-200 bg-red-50/80 hover:bg-red-100 text-red-600 text-[11px] font-semibold cursor-pointer transition-colors shadow-2xs active:scale-95"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                            <span>Delete</span>
+                          </button>
                         </div>
-                      )}
-
-                      {/* Services pills */}
-                      {item.services && item.services.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mb-2">
-                          {item.services.slice(0, 2).map((s, idx) => (
-                            <span key={idx} className="px-2 py-0.5 rounded-full bg-black/5 text-[9px] text-gray-600 font-medium">
-                              {s}
-                            </span>
-                          ))}
-                          {item.services.length > 2 && (
-                            <span className="px-1.5 py-0.5 rounded-full bg-black/5 text-[9px] text-gray-400 font-medium">
-                              +{item.services.length - 2}
-                            </span>
-                          )}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Actions Bar */}
-                    <div className="pt-3 border-t border-black/[0.04] flex items-center justify-between">
-                      <span className="text-[10px] text-gray-400 font-mono">
-                        {item.gallery ? `${item.gallery.length} photos` : '1 photo'}
-                      </span>
-
-                      <div className="flex items-center gap-1.5">
-                        <button
-                          type="button"
-                          onClick={() => openEditPortfolio(item)}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-gray-200 bg-white/70 hover:bg-white text-gray-700 text-[11px] font-semibold cursor-pointer transition-colors shadow-2xs active:scale-95"
-                        >
-                          <Edit3 className="w-3 h-3" />
-                          <span>Edit</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setPortfolioToDelete(item)}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-red-200 bg-red-50/80 hover:bg-red-100 text-red-600 text-[11px] font-semibold cursor-pointer transition-colors shadow-2xs active:scale-95"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                          <span>Delete</span>
-                        </button>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
 
@@ -2233,7 +2216,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
       )}
 
       {/* ========================================================
-          PORTFOLIO ADD / EDIT MODAL
+          PORTFOLIO ADD / EDIT MODAL (PICTURES & DESCRIPTION)
           ======================================================== */}
       {isPortfolioModalOpen && (
         <div 
@@ -2247,109 +2230,63 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
             {/* iOS Sheet Grabber */}
             <div className="w-9 h-1 rounded-full bg-gray-300/80 mx-auto -mt-1 mb-3" />
 
-            <div className="flex items-center justify-between pb-3 border-b border-black/[0.04] mb-4 pr-1">
+            <div className="flex items-center justify-between pb-3 border-b border-black/[0.04] mb-3 pr-1 shrink-0">
               <div className="min-w-0 pr-2">
                 <h2 className="font-display text-lg sm:text-xl font-bold text-[#1d1d1f]">
-                  {editingPortfolioItem ? 'Edit Project' : 'Add Showcase Project'}
+                  {editingPortfolioItem ? 'Edit Project' : 'Add Project'}
                 </h2>
                 <p className="text-xs text-gray-500 mt-0.5">
-                  Present your products, services, and client experiences to prospective buyers.
+                  Upload project pictures and write a description for this work.
                 </p>
               </div>
               <button
                 type="button"
                 disabled={portSaving}
                 onClick={() => setIsPortfolioModalOpen(false)}
-                className="p-1.5 rounded-full hover:bg-black/5 text-gray-400 hover:text-gray-700 transition-colors cursor-pointer disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/5 hover:bg-black/10 text-gray-700 font-semibold text-xs transition-all cursor-pointer active:scale-95 shadow-2xs border border-black/5 shrink-0"
+                aria-label="Cancel and close"
               >
-                <X className="w-5 h-5" />
+                <X className="w-3.5 h-3.5" />
+                <span>Cancel</span>
               </button>
             </div>
 
             {portError && (
-              <div className="mb-4 p-3 rounded-2xl bg-red-50/90 border border-red-200 text-red-700 text-xs flex items-center gap-2">
+              <div className="mb-3 p-3 rounded-2xl bg-red-50/90 border border-red-200 text-red-700 text-xs flex items-center gap-2 shrink-0">
                 <AlertCircle className="w-4 h-4 shrink-0 text-red-600 ml-1" />
                 <span>{portError}</span>
               </div>
             )}
 
-            <form onSubmit={handleSavePortfolio} className="space-y-4 text-xs">
+            <form onSubmit={handleSavePortfolio} className="space-y-4 text-xs overflow-y-auto flex-1 pr-1 overscroll-contain">
               
-              {/* Project Title */}
+              {/* 1. Project Title / Name */}
               <div>
                 <label className="block font-semibold text-gray-800 mb-1">
-                  Project / Contract Title *
+                  Project Name / Title
                 </label>
                 <input
                   type="text"
-                  required
-                  placeholder="e.g. University Faculty Complex 3D Backlit Architectural Facade Signage"
+                  placeholder="e.g. Fleet Vehicle Wrapping & Branding"
                   value={portTitle}
                   onChange={(e) => setPortTitle(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-full border border-gray-200 bg-white/70 focus:bg-white focus:border-[#f47b20] outline-none text-xs transition-colors"
+                  className="w-full px-4 py-2.5 rounded-full border border-gray-200 bg-white/80 focus:bg-white focus:border-[#f47b20] outline-none text-xs transition-colors"
                 />
               </div>
 
-              {/* Client & Year */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-semibold text-gray-800 mb-1">
-                    Client / Organization *
+              {/* 2. Pictures Section (Upload & URL & Gallery Preview) */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="block font-semibold text-gray-800">
+                    Project Pictures *
                   </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. University of Maiduguri (UNIMAID)"
-                    value={portClient}
-                    onChange={(e) => setPortClient(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-full border border-gray-200 bg-white/70 focus:bg-white focus:border-[#f47b20] outline-none text-xs transition-colors"
-                  />
+                  <span className="text-[11px] text-gray-400 font-mono">
+                    {portGallery.length} {portGallery.length === 1 ? 'picture' : 'pictures'}
+                  </span>
                 </div>
-                <div>
-                  <label className="block font-semibold text-gray-800 mb-1">
-                    Year / Completion Date
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. 2025"
-                    value={portYear}
-                    onChange={(e) => setPortYear(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-full border border-gray-200 bg-white/70 focus:bg-white focus:border-[#f47b20] outline-none text-xs transition-colors font-mono"
-                  />
-                </div>
-              </div>
 
-              {/* Category */}
-              <div>
-                <label className="block font-semibold text-gray-800 mb-1">
-                  Primary Service Category *
-                </label>
-                <select
-                  value={portCategory}
-                  onChange={(e) => setPortCategory(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-full border border-gray-200 bg-white focus:border-[#f47b20] outline-none text-xs transition-colors cursor-pointer"
-                >
-                  {PORTFOLIO_CATEGORIES.filter(c => c !== 'All Projects').map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Cover Photo & Upload */}
-              <div>
-                <label className="block font-semibold text-gray-800 mb-1">
-                  Cover Photo URL or File Upload *
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="url"
-                    placeholder="https://images.unsplash.com/... or paste image URL"
-                    value={portImageUrl}
-                    onChange={(e) => setPortImageUrl(e.target.value)}
-                    className="flex-1 px-4 py-2.5 rounded-full border border-gray-200 bg-white/70 focus:bg-white focus:border-[#f47b20] outline-none text-xs transition-colors"
-                  />
+                {/* Upload Buttons & URL Paste */}
+                <div className="flex flex-col sm:flex-row gap-2">
                   <input
                     type="file"
                     ref={portfolioFileInputRef}
@@ -2361,95 +2298,121 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                   <button
                     type="button"
                     onClick={() => portfolioFileInputRef.current?.click()}
-                    className="px-4 py-2 rounded-full border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-xs font-semibold flex items-center gap-1.5 shrink-0 cursor-pointer shadow-2xs"
+                    className="w-full sm:w-auto px-5 py-2.5 rounded-full bg-[#1d1d1f] hover:bg-black text-white text-xs font-semibold flex items-center justify-center gap-2 shrink-0 cursor-pointer shadow-xs active:scale-95 transition-all"
                   >
-                    <UploadCloud className="w-3.5 h-3.5 text-[#f47b20]" />
-                    <span>Upload Photo</span>
+                    <UploadCloud className="w-4 h-4 text-[#f47b20]" />
+                    <span>Upload Pictures</span>
                   </button>
+
+                  <div className="flex-1 flex gap-1.5">
+                    <input
+                      type="url"
+                      placeholder="Or paste image URL (https://...)"
+                      value={portUrlInput}
+                      onChange={(e) => setPortUrlInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleAddImageUrl();
+                        }
+                      }}
+                      className="flex-1 px-4 py-2 rounded-full border border-gray-200 bg-white/80 focus:bg-white focus:border-[#f47b20] outline-none text-xs transition-colors"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddImageUrl}
+                      className="px-3.5 py-2 rounded-full border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-xs font-semibold shrink-0 cursor-pointer shadow-2xs active:scale-95 transition-all"
+                    >
+                      + Add
+                    </button>
+                  </div>
                 </div>
 
-                {/* Gallery Previews */}
-                {portGallery.length > 0 && (
-                  <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-2 mt-2">
-                    {portGallery.map((img, idx) => (
-                      <div key={idx} className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 group border border-gray-200">
-                        <img src={img} alt="Preview" className="w-full h-full object-cover" />
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setPortGallery(prev => prev.filter((_, i) => i !== idx));
-                            if (portImageUrl === img) {
-                              setPortImageUrl(portGallery.find((_, i) => i !== idx) || '');
-                            }
-                          }}
-                          className="absolute inset-0 bg-red-600/70 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                          title="Remove image"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ))}
+                {/* Visual Pictures Grid */}
+                {portGallery.length > 0 ? (
+                  <div className="p-3 rounded-2xl bg-gray-50/80 border border-gray-200/70">
+                    <span className="block text-[10px] font-semibold text-gray-400 mb-2 uppercase tracking-wider">
+                      Tap any photo to set as Cover Photo:
+                    </span>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                      {portGallery.map((img, idx) => {
+                        const isCover = (portImageUrl ? portImageUrl === img : idx === 0);
+                        return (
+                          <div 
+                            key={idx} 
+                            onClick={() => setPortImageUrl(img)}
+                            className={`relative aspect-4/3 rounded-xl overflow-hidden group border-2 cursor-pointer transition-all shadow-2xs ${
+                              isCover ? 'border-[#f47b20] ring-2 ring-orange-200' : 'border-gray-200 hover:border-gray-400'
+                            }`}
+                          >
+                            <img src={img} alt={`Project pic ${idx + 1}`} className="w-full h-full object-cover" />
+                            
+                            {/* Cover Badge */}
+                            {isCover ? (
+                              <span className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-full bg-[#f47b20] text-white text-[9px] font-bold shadow-xs">
+                                Cover
+                              </span>
+                            ) : (
+                              <span className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-full bg-black/60 text-white text-[9px] font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                                Make Cover
+                              </span>
+                            )}
+
+                            {/* Picture Number */}
+                            <span className="absolute bottom-1.5 left-1.5 px-1.5 py-0.2 rounded-md bg-black/60 text-white text-[9px] font-mono">
+                              {idx + 1}
+                            </span>
+
+                            {/* Delete Button */}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const filtered = portGallery.filter((_, i) => i !== idx);
+                                setPortGallery(filtered);
+                                if (portImageUrl === img) {
+                                  setPortImageUrl(filtered[0] || '');
+                                }
+                              }}
+                              className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center shadow-xs cursor-pointer active:scale-90 transition-transform"
+                              title="Delete photo"
+                              aria-label="Delete photo"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : (
+                  <div 
+                    onClick={() => portfolioFileInputRef.current?.click()}
+                    className="p-6 rounded-2xl border-2 border-dashed border-gray-200 hover:border-[#f47b20] bg-gray-50/50 hover:bg-orange-50/20 text-center cursor-pointer transition-colors"
+                  >
+                    <ImagePlus className="w-8 h-8 text-gray-300 mx-auto mb-1.5" />
+                    <p className="text-xs font-semibold text-gray-700">No pictures added yet</p>
+                    <p className="text-[11px] text-gray-400 mt-0.5">Click to upload pictures from your computer or phone</p>
                   </div>
                 )}
               </div>
 
-              {/* Key Services & Deliverables */}
+              {/* 3. Description Section */}
               <div>
                 <label className="block font-semibold text-gray-800 mb-1">
-                  Key Deliverables & Specifications (comma-separated)
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. 3D Acrylic Lettering, Samsung LED Modules, Structural Facade Mounting"
-                  value={portServices}
-                  onChange={(e) => setPortServices(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-full border border-gray-200 bg-white/70 focus:bg-white focus:border-[#f47b20] outline-none text-xs transition-colors"
-                />
-              </div>
-
-              {/* Key Project Outcome / Impact metric */}
-              <div>
-                <label className="block font-semibold text-gray-800 mb-1">
-                  Key Project Outcome / Impact Metric
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Over 40m illuminated frontage with 99.8% energy-efficient LED modules."
-                  value={portImpact}
-                  onChange={(e) => setPortImpact(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-full border border-gray-200 bg-white/70 focus:bg-white focus:border-[#f47b20] outline-none text-xs transition-colors"
-                />
-              </div>
-
-              {/* Project Description */}
-              <div>
-                <label className="block font-semibold text-gray-800 mb-1">
-                  Project Narrative & Experience Details *
+                  Project Description *
                 </label>
                 <textarea
-                  rows={3}
+                  rows={4}
                   required
-                  placeholder="Describe the challenge, materials supplied or installed, turnaround time, and client outcome..."
+                  placeholder="Describe the project, materials used, turnaround time, installation details, or client outcome..."
                   value={portDescription}
                   onChange={(e) => setPortDescription(e.target.value)}
-                  className="w-full p-3 rounded-2xl border border-gray-200 bg-white/70 focus:bg-white focus:border-[#f47b20] outline-none text-xs leading-relaxed transition-colors resize-none"
+                  className="w-full p-3.5 rounded-2xl border border-gray-200 bg-white/80 focus:bg-white focus:border-[#f47b20] outline-none text-xs leading-relaxed transition-colors resize-none placeholder:text-gray-400"
                 />
               </div>
 
-              {/* Featured Case Study Toggle */}
-              <div className="flex items-center gap-2 pt-1">
-                <input
-                  type="checkbox"
-                  id="portFeatured"
-                  checked={portFeatured}
-                  onChange={(e) => setPortFeatured(e.target.checked)}
-                  className="w-4 h-4 text-[#f47b20] rounded border-gray-300 focus:ring-[#f47b20] cursor-pointer"
-                />
-                <label htmlFor="portFeatured" className="font-medium text-gray-700 cursor-pointer select-none">
-                  Spotlight as a Featured Landmark Case Study on Portfolio hero
-                </label>
-              </div>
-
+              {/* Action Buttons */}
               <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-black/[0.04]">
                 <button
                   type="button"
@@ -2464,7 +2427,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                   disabled={portSaving}
                   className="px-7 py-2.5 rounded-full bg-[#1d1d1f] hover:bg-black text-white text-xs font-semibold shadow-[0_2px_10px_rgba(0,0,0,0.2)] disabled:opacity-50 cursor-pointer transition-all active:scale-95"
                 >
-                  {portSaving ? 'Saving…' : editingPortfolioItem ? 'Save Changes' : 'Publish Project'}
+                  {portSaving ? 'Saving…' : editingPortfolioItem ? 'Save Changes' : 'Save Project'}
                 </button>
               </div>
             </form>

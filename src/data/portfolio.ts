@@ -129,6 +129,23 @@ export const DEFAULT_PORTFOLIO: PortfolioItem[] = [
     ],
     featured: false,
     order: 6
+  },
+  {
+    id: 'port-7',
+    title: 'Solar Inverter & Renewable Backup Power Installation',
+    category: 'Solar & Renewable Energy',
+    client: 'Al-Ansar Foundation Commercial Complex',
+    year: '2024',
+    description: 'High-capacity solar backup installation comprising Tier-1 solar photovoltaic panels and smart hybrid inverters powering corporate offices and IT servers with uninterrupted clean energy.',
+    services: ['Solar Engineering', 'Smart Inverter Hybrid', 'Battery Rack Storage', 'Energy Audit'],
+    impact: '100% uninterrupted daytime solar power with smart grid auto-changeover.',
+    imageUrl: 'https://images.unsplash.com/photo-1497440001374-f26997328c1b?auto=format&fit=crop&w=1200&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1497440001374-f26997328c1b?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=1200&q=80'
+    ],
+    featured: true,
+    order: 7
   }
 ];
 

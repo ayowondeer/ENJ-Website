@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   X, 
   Trash2, 
@@ -292,8 +293,10 @@ export default function CartDrawer({
 
   const currentAvailableLgas = NIGERIA_STATES_LGAS[selectedState] || [];
 
-  return (
-    <div className="fixed inset-0 z-[130] bg-black/40 backdrop-blur-md flex justify-end animate-in fade-in duration-200 font-sans overscroll-none touch-none h-[100dvh] max-h-[100dvh] overflow-hidden">
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] bg-black/40 backdrop-blur-md flex justify-end animate-in fade-in duration-200 font-sans overscroll-none touch-none h-[100dvh] max-h-[100dvh] w-screen overflow-hidden">
       
       {/* Backdrop click */}
       <div className="flex-1 no-print" onClick={onClose} />
@@ -1202,6 +1205,7 @@ export default function CartDrawer({
         </div>
       )}
 
-    </div>
+    </div>,
+    document.body
   );
 }

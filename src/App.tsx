@@ -32,6 +32,7 @@ import {
   getLocalTestimonials, 
   fetchLiveTestimonials 
 } from './data/testimonials';
+import { applySEOForPage, PageType } from './utils/seo';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<'home' | 'portfolio' | 'shop' | 'company' | 'contact' | 'admin'>('home');
@@ -181,21 +182,25 @@ export default function App() {
     };
   }, [currentPage]);
 
+  // Synchronize SEO meta tags (title, description, OpenGraph, Twitter, canonical, JSON-LD) on route change
+  useEffect(() => {
+    applySEOForPage(currentPage as PageType);
+  }, [currentPage]);
+
   // Sync hash routing and browser back/forward buttons
   useEffect(() => {
-    const getCleanHash = () => {
-      return window.location.hash.replace(/^#\/?/, '').replace(/\/$/, '').toLowerCase();
+    const getCleanHash = (): PageType => {
+      const hash = window.location.hash.replace(/^#\/?/, '').replace(/\/$/, '').toLowerCase();
+      if (hash === 'portfolio') return 'portfolio';
+      if (hash === 'shop') return 'shop';
+      if (hash === 'admin') return 'admin';
+      if (hash === 'company') return 'company';
+      if (hash === 'contact') return 'contact';
+      return 'home';
     };
 
     const handleHashChange = () => {
-      const hash = getCleanHash();
-      const target: 'home' | 'portfolio' | 'shop' | 'company' | 'contact' | 'admin' = 
-        hash === 'portfolio' ? 'portfolio' :
-        hash === 'shop' ? 'shop' :
-        hash === 'admin' ? 'admin' :
-        hash === 'company' ? 'company' : 
-        hash === 'contact' ? 'contact' : 'home';
-
+      const target = getCleanHash();
       setCurrentPage((prev) => {
         if (prev !== target) {
           window.scrollTo({ top: 0, behavior: 'instant' });
@@ -203,37 +208,22 @@ export default function App() {
         }
         return prev;
       });
-
-      if (target === 'portfolio') {
-        document.title = 'Portfolio & Projects — ENJ Digital Concept';
-      } else if (target === 'shop') {
-        document.title = 'Store & Products — ENJ Digital Concept';
-      } else if (target === 'admin') {
-        document.title = 'Merchant Admin — ENJ Store Manager';
-      } else if (target === 'company') {
-        document.title = 'Company — ENJ Digital Concept';
-      } else if (target === 'contact') {
-        document.title = 'Contact — ENJ Digital Concept';
-      } else {
-        document.title = 'ENJ Digital Concept — High-Quality Prints';
-      }
+      applySEOForPage(target);
     };
 
     const initial = getCleanHash();
-    if (initial === 'portfolio' || initial === 'shop' || initial === 'admin' || initial === 'company' || initial === 'contact') {
+    if (initial !== 'home') {
       setCurrentPage(initial);
-      if (initial === 'portfolio') document.title = 'Portfolio & Projects — ENJ Digital Concept';
-      if (initial === 'shop') document.title = 'Store & Products — ENJ Digital Concept';
-      if (initial === 'admin') document.title = 'Merchant Admin — ENJ Store Manager';
-      if (initial === 'company') document.title = 'Company — ENJ Digital Concept';
-      if (initial === 'contact') document.title = 'Contact — ENJ Digital Concept';
+      applySEOForPage(initial);
+    } else {
+      applySEOForPage('home');
     }
 
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  const navigateTo = (page: 'home' | 'portfolio' | 'shop' | 'company' | 'contact' | 'admin') => {
+  const navigateTo = (page: PageType) => {
     if (page === currentPage) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
@@ -243,20 +233,7 @@ export default function App() {
     setCurrentPage(page);
     window.location.hash = page === 'home' ? '' : page;
     window.scrollTo({ top: 0, behavior: 'instant' });
-
-    if (page === 'portfolio') {
-      document.title = 'Portfolio & Projects — ENJ Digital Concept';
-    } else if (page === 'shop') {
-      document.title = 'Store & Products — ENJ Digital Concept';
-    } else if (page === 'admin') {
-      document.title = 'Merchant Admin — ENJ Store Manager';
-    } else if (page === 'company') {
-      document.title = 'Company — ENJ Digital Concept';
-    } else if (page === 'contact') {
-      document.title = 'Contact — ENJ Digital Concept';
-    } else {
-      document.title = 'ENJ Digital Concept — High-Quality Prints';
-    }
+    applySEOForPage(page);
   };
 
   const handleContactSubmit = async (e: React.FormEvent) => {
@@ -348,7 +325,7 @@ export default function App() {
   // If on the dedicated Shop App: render the isolated clean ShopView
   if (currentPage === 'shop') {
     return (
-      <div className="animate-ios-enter selection:bg-[#f47b20] selection:text-white">
+      <div className="w-full max-w-full overflow-x-hidden min-h-screen selection:bg-[#f47b20] selection:text-white">
         <ShopView
           cart={cart}
           addToCart={addToCart}
@@ -371,7 +348,7 @@ export default function App() {
   // If on the dedicated Store Owner / Merchant Portal: render AdminPortal
   if (currentPage === 'admin') {
     return (
-      <div className="animate-ios-enter selection:bg-[#f47b20] selection:text-white">
+      <div className="w-full max-w-full overflow-x-hidden min-h-screen selection:bg-[#f47b20] selection:text-white">
         <AdminPortal
           onNavigateHome={() => navigateTo('home')}
           onNavigateShop={() => navigateTo('shop')}
@@ -381,7 +358,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen text-[#1d1d1f] relative flex flex-col selection:bg-[#f47b20] selection:text-white">
+    <div className="min-h-screen text-[#1d1d1f] relative flex flex-col selection:bg-[#f47b20] selection:text-white w-full max-w-full overflow-x-hidden">
       {/* Hidden SVG Symbols for Supply & Print Categories */}
       <svg className="hidden" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <symbol id="icon-appliance" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2" fill="none" stroke="currentColor" strokeWidth="1.8"/><path d="M5 8h14M8 5.5h.01M11 5.5h.01" fill="none" stroke="currentColor" strokeWidth="1.8"/><circle cx="12" cy="14" r="3.5" fill="none" stroke="currentColor" strokeWidth="1.8"/></symbol>
@@ -545,10 +522,10 @@ export default function App() {
         />
       )}
 
-      {/* Entire Page Content: fast, snappy bouncy transition per view */}
+      {/* Entire Page Content: fast, snappy transition per view */}
       <div 
         key={currentPage}
-        className="flex-1 flex flex-col min-h-screen animate-ios-enter"
+        className="flex-1 flex flex-col min-h-screen w-full max-w-full overflow-x-hidden animate-ios-fade"
       >
         <main className={`flex-1 ${currentPage === 'home' ? 'pt-0' : 'pt-20 sm:pt-24'} pb-16`}>
 
@@ -620,17 +597,17 @@ export default function App() {
                     Turning ideas into striking physical realities. As a premier printing powerhouse, we specialize in high-impact print solutions for ambitious brands, corporate organizations, and creative individuals.
                   </p>
 
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-3 w-full sm:w-auto px-4 sm:px-0">
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full sm:w-auto px-4 sm:px-0">
                     <button
                       onClick={() => navigateTo('shop')}
-                      className="w-full sm:w-auto inline-flex items-center justify-center px-7 py-3 sm:py-2.5 rounded-full bg-[#f47b20] hover:bg-[#c95510] text-white text-xs sm:text-sm font-semibold shadow-md transition-all touch-action-btn cursor-pointer"
+                      className="w-full sm:w-auto min-h-[46px] inline-flex items-center justify-center px-8 py-3 rounded-full bg-[#f47b20] hover:bg-[#c95510] text-white text-xs sm:text-sm font-semibold shadow-md transition-all touch-action-btn cursor-pointer"
                     >
                       <span>Start Order</span>
                     </button>
 
                     <button
                       onClick={() => navigateTo('company')}
-                      className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 sm:py-2.5 rounded-full bg-black/40 hover:bg-black/60 text-white border border-white/25 text-xs sm:text-sm font-medium backdrop-blur-md transition-all touch-action-btn cursor-pointer"
+                      className="w-full sm:w-auto min-h-[46px] inline-flex items-center justify-center px-7 py-3 rounded-full bg-black/40 hover:bg-black/60 text-white border border-white/25 text-xs sm:text-sm font-medium backdrop-blur-md transition-all touch-action-btn cursor-pointer"
                     >
                       <span>Explore Company</span>
                     </button>
