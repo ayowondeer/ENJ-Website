@@ -308,8 +308,8 @@ export default function ShopView({
       <div className="fixed inset-0 pointer-events-none -z-10 bg-[radial-gradient(ellipse_60%_50%_at_85%_85%,rgba(124,156,200,0.08),rgba(255,255,255,0))]" />
       
       {/* Floating Shop Navigation Header matching the website navbar */}
-      <header className="fixed top-3 sm:top-5 left-1/2 -translate-x-1/2 z-50 w-[min(780px,calc(100%-20px))] sm:w-[min(780px,calc(100%-32px))] pointer-events-auto">
-        <nav className="glass-pill rounded-full px-2.5 sm:px-4 py-1.5 flex items-center justify-between gap-2 sm:gap-4 shadow-[0_16px_36px_-6px_rgba(0,0,0,0.14),0_3px_12px_rgba(0,0,0,0.06)] border border-white/85">
+      <header className="fixed top-3 sm:top-5 inset-x-0 mx-auto z-50 w-[min(780px,calc(100%-20px))] sm:w-[min(780px,calc(100%-32px))] pointer-events-auto">
+        <nav className="glass-pill backdrop-blur-2xl backdrop-saturate-200 rounded-full px-2.5 sm:px-4 py-1.5 flex items-center justify-between gap-2 sm:gap-4 shadow-[0_16px_36px_-6px_rgba(0,0,0,0.14),0_3px_12px_rgba(0,0,0,0.06)] border border-white/90">
           {/* 1. Main Website */}
           <button
             onClick={onNavigateHome}

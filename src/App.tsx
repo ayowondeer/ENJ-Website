@@ -390,8 +390,8 @@ export default function App() {
       </svg>
 
       {/* Persistent Floating Pill Navigation Header: Consistent across all pages */}
-      <header className="fixed top-3 sm:top-5 left-1/2 -translate-x-1/2 z-50 w-[min(780px,calc(100%-24px))] sm:w-[min(780px,calc(100%-32px))] pointer-events-auto">
-        <nav className="glass-pill rounded-full px-3 sm:px-4 py-2 sm:py-1.5 flex items-center justify-between shadow-[0_16px_36px_-6px_rgba(0,0,0,0.14),0_3px_12px_rgba(0,0,0,0.06)] border border-white/85">
+      <header className="fixed top-3 sm:top-5 inset-x-0 mx-auto z-50 w-[min(780px,calc(100%-24px))] sm:w-[min(780px,calc(100%-32px))] pointer-events-auto">
+        <nav className="glass-pill backdrop-blur-2xl backdrop-saturate-200 rounded-full px-3 sm:px-4 py-2 sm:py-1.5 flex items-center justify-between shadow-[0_16px_36px_-6px_rgba(0,0,0,0.14),0_3px_12px_rgba(0,0,0,0.06)] border border-white/90">
           {/* Logo Icon Only */}
           <button 
             onClick={() => navigateTo('home')} 
