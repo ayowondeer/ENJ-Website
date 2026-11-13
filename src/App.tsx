@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   CheckCircle2, 
   Phone, 
@@ -26,6 +26,7 @@ import ShopView from './components/ShopView';
 import AdminPortal from './components/AdminPortal';
 import CartDrawer from './components/CartDrawer';
 import PortfolioView from './components/PortfolioView';
+import SplashScreen from './components/SplashScreen';
 import { CartItem, ProductItem } from './firebase';
 import { 
   TestimonialItem, 
@@ -39,6 +40,7 @@ export default function App() {
   const [targetPage, setTargetPage] = useState<'home' | 'portfolio' | 'shop' | 'company' | 'contact' | 'admin' | null>(null);
   const [isPageLoading, setIsPageLoading] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
 
   // Testimonials State (authentic Nigerian names, horizontally scrollable)
   const [testimonials, setTestimonials] = useState<TestimonialItem[]>(() => getLocalTestimonials());
@@ -325,40 +327,48 @@ export default function App() {
   // If on the dedicated Shop App: render the isolated clean ShopView
   if (currentPage === 'shop') {
     return (
-      <div className="w-full max-w-full overflow-x-hidden min-h-screen selection:bg-[#f47b20] selection:text-white">
-        <ShopView
-          cart={cart}
-          addToCart={addToCart}
-          openCart={() => setIsCartOpen(true)}
-          onNavigateHome={() => navigateTo('home')}
-          onNavigateAdmin={() => navigateTo('admin')}
-        />
-        <CartDrawer
-          isOpen={isCartOpen}
-          onClose={() => setIsCartOpen(false)}
-          cart={cart}
-          updateQuantity={updateQuantity}
-          removeFromCart={removeFromCart}
-          clearCart={clearCart}
-        />
-      </div>
+      <>
+        {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
+        <div className="w-full max-w-full overflow-x-clip min-h-screen selection:bg-[#f47b20] selection:text-white">
+          <ShopView
+            cart={cart}
+            addToCart={addToCart}
+            openCart={() => setIsCartOpen(true)}
+            onNavigateHome={() => navigateTo('home')}
+            onNavigateAdmin={() => navigateTo('admin')}
+          />
+          <CartDrawer
+            isOpen={isCartOpen}
+            onClose={() => setIsCartOpen(false)}
+            cart={cart}
+            updateQuantity={updateQuantity}
+            removeFromCart={removeFromCart}
+            clearCart={clearCart}
+          />
+        </div>
+      </>
     );
   }
 
   // If on the dedicated Store Owner / Merchant Portal: render AdminPortal
   if (currentPage === 'admin') {
     return (
-      <div className="w-full max-w-full overflow-x-hidden min-h-screen selection:bg-[#f47b20] selection:text-white">
-        <AdminPortal
-          onNavigateHome={() => navigateTo('home')}
-          onNavigateShop={() => navigateTo('shop')}
-        />
-      </div>
+      <>
+        {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
+        <div className="w-full max-w-full overflow-x-clip min-h-screen selection:bg-[#f47b20] selection:text-white">
+          <AdminPortal
+            onNavigateHome={() => navigateTo('home')}
+            onNavigateShop={() => navigateTo('shop')}
+          />
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="min-h-screen text-[#1d1d1f] relative flex flex-col selection:bg-[#f47b20] selection:text-white w-full max-w-full overflow-x-hidden">
+    <>
+      {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
+      <div className="min-h-screen text-[#1d1d1f] relative flex flex-col selection:bg-[#f47b20] selection:text-white w-full max-w-full overflow-x-clip">
       {/* Hidden SVG Symbols for Supply & Print Categories */}
       <svg className="hidden" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <symbol id="icon-appliance" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2" fill="none" stroke="currentColor" strokeWidth="1.8"/><path d="M5 8h14M8 5.5h.01M11 5.5h.01" fill="none" stroke="currentColor" strokeWidth="1.8"/><circle cx="12" cy="14" r="3.5" fill="none" stroke="currentColor" strokeWidth="1.8"/></symbol>
@@ -379,7 +389,7 @@ export default function App() {
         <symbol id="icon-print" viewBox="0 0 24 24"><path d="M7 8V3h10v5M6 17H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" fill="none" stroke="currentColor" strokeWidth="1.8"/><path d="M6 14h12v7H6zM18 11h.01" fill="none" stroke="currentColor" strokeWidth="1.8"/></symbol>
       </svg>
 
-      {/* Floating Pill Navigation Header: Scaled for a refined, compact, luxury feel */}
+      {/* Persistent Floating Pill Navigation Header: Consistent across all pages */}
       <header className="fixed top-3 sm:top-5 left-1/2 -translate-x-1/2 z-50 w-[min(780px,calc(100%-24px))] sm:w-[min(780px,calc(100%-32px))] pointer-events-auto">
         <nav className="glass-pill rounded-full px-3 sm:px-4 py-2 sm:py-1.5 flex items-center justify-between shadow-[0_16px_36px_-6px_rgba(0,0,0,0.14),0_3px_12px_rgba(0,0,0,0.06)] border border-white/85">
           {/* Logo Icon Only */}
@@ -451,7 +461,7 @@ export default function App() {
               <span>Start Order</span>
             </button>
 
-            {/* Mobile Menu Toggle Button (Generous finger tap hitbox 42x42px) */}
+            {/* Mobile Menu Toggle Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="md:hidden w-10 h-10 rounded-full bg-black/5 hover:bg-black/10 active:bg-black/15 text-[#1d1d1f] flex items-center justify-center transition-all cursor-pointer touch-action-btn"
@@ -463,10 +473,9 @@ export default function App() {
           </div>
         </nav>
 
-        {/* Floating Mobile Dropdown Panel with comfortable touch targets */}
         {/* Floating Mobile Dropdown Panel with Apple Liquid Glass and fully rounded touch targets */}
         {mobileMenuOpen && (
-          <div className="md:hidden mt-2 p-3 apple-liquid-glass border border-white/90 rounded-[28px] shadow-2xl flex flex-col gap-1.5 animate-ios-slide-up relative overflow-hidden">
+          <div className="md:hidden mt-2 p-3 apple-liquid-glass border border-white/90 rounded-[28px] shadow-2xl flex flex-col gap-1.5 animate-fluid-sheet relative overflow-hidden">
             <div className="specular-highlight opacity-75" />
             <button
               onClick={() => navigateTo('home')}
@@ -525,7 +534,7 @@ export default function App() {
       {/* Entire Page Content: fast, snappy transition per view */}
       <div 
         key={currentPage}
-        className="flex-1 flex flex-col min-h-screen w-full max-w-full overflow-x-hidden animate-ios-fade"
+        className="flex-1 flex flex-col min-h-screen w-full max-w-full overflow-x-clip"
       >
         <main className={`flex-1 ${currentPage === 'home' ? 'pt-0' : 'pt-20 sm:pt-24'} pb-16`}>
 
@@ -533,7 +542,7 @@ export default function App() {
             PAGE 1: HOME PAGE
            ======================================================== */}
         {currentPage === 'home' && (
-          <div className="animate-in fade-in duration-300">
+          <div className="animate-fluid-page">
             {/* Hero Banner: Fullscreen viewport height (100dvh) fitting any screen before scrolling */}
             <div className="w-full m-0 p-0 relative">
               <div className="relative w-full h-[100dvh] min-h-[560px] overflow-hidden text-white flex flex-col justify-between items-center px-4 sm:px-8 md:px-12 pt-20 sm:pt-24 pb-6 sm:pb-8 isolate">
@@ -864,8 +873,8 @@ export default function App() {
 
               {/* Horizontal Scrollable Testimonial Cards Track */}
               <div 
-                className="flex items-stretch gap-4 sm:gap-5 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory touch-momentum -mx-4 px-4 sm:mx-0 sm:px-0"
-                style={{ WebkitOverflowScrolling: 'touch' }}
+                className="flex items-stretch gap-4 sm:gap-5 overflow-x-auto overflow-y-hidden overscroll-x-contain overscroll-y-auto pt-2 pb-4 scrollbar-none snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0"
+                style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-x pan-y' }}
               >
                 {testimonials.map((item) => (
                   <figure 
@@ -911,7 +920,7 @@ export default function App() {
             PAGE 2: COMPANY PAGE - Refined & Balanced
            ======================================================== */}
         {currentPage === 'company' && (
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 animate-in fade-in duration-300 pt-2">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 animate-fluid-page pt-2">
             <div className="grid grid-cols-1 md:grid-cols-2 items-end gap-6 mb-10">
               <div>
                 <p className="text-[10px] font-bold tracking-widest text-[#6e6e73] uppercase mb-2">What we do</p>
@@ -1018,7 +1027,7 @@ export default function App() {
             PAGE 3: CONTACT PAGE - Refined & Balanced
            ======================================================== */}
         {currentPage === 'contact' && (
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 animate-in fade-in duration-300 pt-2">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 animate-fluid-page pt-2">
             <div className="max-w-xl mb-8">
               <p className="text-[10px] font-bold tracking-widest text-[#6e6e73] uppercase mb-1.5">
                 ENJ Digital Concept · Maiduguri, Nigeria
@@ -1070,7 +1079,7 @@ export default function App() {
               <section className="p-6 sm:p-7 rounded-[28px] apple-liquid-glass border border-white/90 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.95),0_10px_28px_-4px_rgba(0,0,0,0.05)] flex flex-col justify-between relative overflow-hidden">
                 <div className="specular-highlight opacity-60" />
                 {submittedData ? (
-                  <div className="py-4 flex flex-col items-start gap-4 animate-in fade-in zoom-in-95 duration-200 relative z-10">
+                  <div className="py-4 flex flex-col items-start gap-4 animate-fluid-sheet relative z-10">
                     <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 shadow-xs">
                       <CheckCircle2 className="w-7 h-7" />
                     </div>
@@ -1183,15 +1192,18 @@ export default function App() {
                       </div>
 
                       {submitStatus.type === 'error' && (
-                        <div className="p-3.5 rounded-[18px] bg-red-50/90 border border-red-200/80 text-xs text-red-700 space-y-2">
-                          <div className="flex items-start gap-1.5">
-                            <AlertCircle className="w-3.5 h-3.5 text-red-600 shrink-0 mt-0.5" />
-                            <p className="leading-relaxed text-[11px]">{submitStatus.message}</p>
+                        <div className="p-4 rounded-2xl apple-liquid-glass-error text-xs text-rose-950 space-y-2.5 shadow-sm animate-fluid-sheet">
+                          <div className="specular-highlight opacity-40" />
+                          <div className="flex items-start gap-2.5 relative z-10">
+                            <div className="w-6 h-6 rounded-full bg-rose-500/15 border border-rose-500/25 flex items-center justify-center shrink-0 mt-0.5">
+                              <AlertCircle className="w-3.5 h-3.5 text-rose-600" />
+                            </div>
+                            <p className="leading-relaxed text-xs font-medium text-rose-950">{submitStatus.message}</p>
                           </div>
-                          <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                          <div className="flex flex-wrap items-center gap-2 pt-0.5 relative z-10">
                             <a
                               href={`mailto:enjdigitalconcept@gmail.com?subject=${encodeURIComponent(`Website enquiry from ${formData.name || 'Client'}: ${formData.service || 'General'}`)}&body=${encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\nService: ${formData.service}\n\nMessage:\n${formData.message}`)}`}
-                              className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full bg-red-600 hover:bg-red-700 text-white font-medium text-xs transition-colors touch-action-btn"
+                              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white font-medium text-xs transition-colors touch-action-btn shadow-xs"
                             >
                               <Mail className="w-3.5 h-3.5" />
                               Open Mail App
@@ -1200,7 +1212,7 @@ export default function App() {
                               href={`https://wa.me/2348133535756?text=${encodeURIComponent(`Hello ENJ Digital Concept! My name is ${formData.name || 'a customer'}. I would like to enquire about ${formData.service || 'your services'}: ${formData.message}`)}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full bg-white border border-red-300 hover:bg-red-100 text-red-800 font-medium text-xs transition-colors touch-action-btn"
+                              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white/90 border border-rose-300 hover:bg-white text-rose-900 font-medium text-xs transition-colors touch-action-btn shadow-2xs"
                             >
                               <Phone className="w-3.5 h-3.5" />
                               Send via WhatsApp
@@ -1307,7 +1319,7 @@ export default function App() {
       {/* Elegant Page Loader with Full-Page Blur */}
       {isPageLoading && (
         <div 
-          className="fixed inset-0 z-[110] flex items-center justify-center p-4 pointer-events-none animate-in fade-in duration-150"
+          className="fixed inset-0 z-[110] flex items-center justify-center p-4 pointer-events-none animate-fluid-page"
           aria-live="polite"
         >
           <div className="flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/90 backdrop-blur-2xl border border-white/90 shadow-md">
@@ -1316,6 +1328,7 @@ export default function App() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }

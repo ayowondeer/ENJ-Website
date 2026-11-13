@@ -296,13 +296,13 @@ export default function CartDrawer({
   if (typeof document === 'undefined') return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[9999] bg-black/40 backdrop-blur-md flex justify-end animate-in fade-in duration-200 font-sans overscroll-none touch-none h-[100dvh] max-h-[100dvh] w-screen overflow-hidden">
+    <div className="fixed inset-0 z-[9999] bg-black/40 backdrop-blur-md flex justify-end animate-fluid-page font-sans overscroll-none touch-none h-[100dvh] max-h-[100dvh] w-screen overflow-hidden">
       
       {/* Backdrop click */}
       <div className="flex-1 no-print" onClick={onClose} />
 
       {/* Slide-over Drawer Panel */}
-      <div className="w-full max-w-sm sm:max-w-md bg-white/95 backdrop-blur-2xl h-[100dvh] max-h-[100dvh] shadow-2xl flex flex-col justify-between animate-in slide-in-from-right duration-300 relative sm:rounded-l-[36px] overflow-hidden border-l border-white/90 touch-auto">
+      <div className="w-full max-w-sm sm:max-w-md bg-white/95 backdrop-blur-2xl h-[100dvh] max-h-[100dvh] shadow-2xl flex flex-col justify-between animate-drawer-bounce relative sm:rounded-l-[36px] overflow-hidden border-l border-white/90 touch-auto">
         
         {/* Top Header: Sticky Floating Bar with Fixed Cancel Button */}
         <div className="px-5 py-3.5 border-b border-black/5 flex items-center justify-between no-print bg-white/80 backdrop-blur-xl sticky top-0 z-40 shadow-2xs sm:rounded-tl-[36px]">
@@ -550,9 +550,12 @@ export default function CartDrawer({
           {step === 'checkout' && (
             <form onSubmit={handlePaymentCheckout} className="space-y-3.5 text-xs">
               {submitError && (
-                <div className="p-3.5 rounded-full bg-red-50 border border-red-200 text-red-700 flex items-center gap-2 text-xs animate-in shake">
-                  <AlertCircle className="w-4 h-4 shrink-0 text-red-600 ml-1" />
-                  <span>{submitError}</span>
+                <div className="p-3.5 rounded-2xl apple-liquid-glass-error text-xs text-rose-950 flex items-center gap-2.5 shadow-sm animate-fluid-sheet">
+                  <div className="specular-highlight opacity-40" />
+                  <div className="w-6 h-6 rounded-full bg-rose-500/15 border border-rose-500/25 flex items-center justify-center shrink-0">
+                    <AlertCircle className="w-3.5 h-3.5 text-rose-600" />
+                  </div>
+                  <span className="font-medium relative z-10 leading-relaxed text-left">{submitError}</span>
                 </div>
               )}
 
@@ -727,7 +730,7 @@ export default function CartDrawer({
 
           {/* STEP 3: ORDER SUCCESS & PROFESSIONAL MINIMAL RECEIPT */}
           {step === 'success' && completedOrder && (
-            <div className="py-1 animate-in zoom-in-95 duration-200 font-sans">
+            <div className="py-1 animate-fluid-sheet font-sans">
               
               {/* Minimal Luxury Official Receipt Card */}
               <div 
@@ -992,8 +995,8 @@ export default function CartDrawer({
 
       {/* High-Speed Instant Payment Gateway Modal */}
       {showPaymentFallback && (
-        <div className="fixed inset-0 z-[140] bg-black/40 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 no-print animate-in fade-in duration-150">
-          <div className="relative bg-white rounded-3xl max-w-sm sm:max-w-md w-full p-5 sm:p-6 shadow-2xl border border-gray-100 animate-in zoom-in-95 duration-200 max-h-[92vh] overflow-y-auto">
+        <div className="fixed inset-0 z-[140] bg-black/40 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 no-print animate-fluid-page">
+          <div className="relative bg-white rounded-3xl max-w-sm sm:max-w-md w-full p-5 sm:p-6 shadow-2xl border border-gray-100 animate-fluid-sheet max-h-[92vh] overflow-y-auto">
             
             {/* Header: Sticky Floating Bar with Fixed Cancel Button */}
             <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md -mx-5 -mt-5 px-5 pt-5 pb-3 border-b border-gray-100 mb-3.5 flex items-center justify-between shadow-2xs">
@@ -1070,7 +1073,7 @@ export default function CartDrawer({
 
             {/* Tab 1: Instant Card Checkout */}
             {gatewayTab === 'card' && (
-              <div className="space-y-3 mb-2 animate-in fade-in duration-150 text-xs">
+              <div className="space-y-3 mb-2 animate-fluid-sheet text-xs">
                 <div className="p-3 bg-emerald-50/70 rounded-xl border border-emerald-100 text-emerald-950 text-[11px] leading-relaxed">
                   <div className="font-bold text-emerald-900 mb-0.5 flex items-center gap-1.5">
                     <Zap className="w-3.5 h-3.5 text-emerald-600" />
@@ -1114,7 +1117,7 @@ export default function CartDrawer({
 
             {/* Tab 2: Instant Dedicated Bank Transfer */}
             {gatewayTab === 'transfer' && (
-              <div className="space-y-2.5 mb-2 animate-in fade-in duration-150 text-xs">
+              <div className="space-y-2.5 mb-2 animate-fluid-sheet text-xs">
                 <div className="p-3 bg-gray-50 rounded-xl border border-gray-200/80 space-y-2">
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Bank Name:</span>

@@ -116,7 +116,13 @@ export const formatSizeLabel = (rawSize: string): string => {
   return trimmed.replace(/\s*x\s*/gi, '×');
 };
 
-export default function ShopView({ cart, addToCart, openCart, onNavigateHome, onNavigateAdmin }: ShopViewProps) {
+export default function ShopView({ 
+  cart, 
+  addToCart, 
+  openCart, 
+  onNavigateHome, 
+  onNavigateAdmin
+}: ShopViewProps) {
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
@@ -296,7 +302,10 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
   }, [selectedProduct]);
 
   return (
-    <div className="min-h-screen bg-[#fafafa] text-[#1d1d1f] flex flex-col pb-20 animate-in fade-in duration-200">
+    <div className="min-h-screen apple-liquid-glass-mesh text-[#1d1d1f] flex flex-col pb-20 animate-fluid-page relative isolate overflow-x-clip">
+      {/* Ambient Apple Liquid Glass Refraction mesh */}
+      <div className="fixed inset-0 pointer-events-none -z-10 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(244,123,32,0.10),rgba(255,255,255,0))]" />
+      <div className="fixed inset-0 pointer-events-none -z-10 bg-[radial-gradient(ellipse_60%_50%_at_85%_85%,rgba(124,156,200,0.08),rgba(255,255,255,0))]" />
       
       {/* Floating Shop Navigation Header matching the website navbar */}
       <header className="fixed top-3 sm:top-5 left-1/2 -translate-x-1/2 z-50 w-[min(780px,calc(100%-20px))] sm:w-[min(780px,calc(100%-32px))] pointer-events-auto">
@@ -458,11 +467,11 @@ export default function ShopView({ cart, addToCart, openCart, onNavigateHome, on
          ======================================================== */}
       {selectedProduct && typeof document !== 'undefined' && createPortal(
         <div 
-          className="fixed inset-0 z-[9999] bg-black/40 backdrop-blur-md flex items-center justify-center p-2.5 sm:p-4 overscroll-none touch-none animate-in fade-in duration-200 w-screen h-[100dvh]"
+          className="fixed inset-0 z-[9999] bg-black/40 backdrop-blur-md flex items-center justify-center p-2.5 sm:p-4 overscroll-none touch-none animate-fluid-page w-screen h-[100dvh]"
           onClick={() => setSelectedProduct(null)}
         >
           <div 
-            className="relative bg-white/95 backdrop-blur-2xl rounded-[28px] sm:rounded-[36px] w-full max-w-2xl shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_24px_64px_rgba(0,0,0,0.22)] border border-white/95 overflow-hidden animate-in zoom-in-95 duration-200 max-h-[calc(100dvh-24px)] sm:max-h-[calc(100dvh-48px)] flex flex-col touch-auto my-auto"
+            className="relative bg-white/95 backdrop-blur-2xl rounded-[28px] sm:rounded-[36px] w-full max-w-2xl shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_24px_64px_rgba(0,0,0,0.22)] border border-white/95 overflow-hidden animate-fluid-sheet max-h-[calc(100dvh-24px)] sm:max-h-[calc(100dvh-48px)] flex flex-col touch-auto my-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="specular-highlight opacity-70" />

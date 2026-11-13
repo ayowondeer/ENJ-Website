@@ -41,8 +41,7 @@ import {
   TestimonialItem, 
   getLocalTestimonials, 
   syncTestimonialToStorage, 
-  removeTestimonialFromStorage, 
-  resetTestimonialsToDefault 
+  removeTestimonialFromStorage
 } from '../data/testimonials';
 import { 
   PortfolioItem, 
@@ -51,7 +50,6 @@ import {
   fetchLivePortfolio, 
   syncPortfolioItemToStorage, 
   removePortfolioItemFromStorage, 
-  resetPortfolioToDefault, 
   PORTFOLIO_CHANGED_EVENT 
 } from '../data/portfolio';
 import { 
@@ -237,13 +235,6 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
     setTimeout(() => setStatusMessage(null), 3000);
   };
 
-  const handleResetTestimonials = async () => {
-    const list = await resetTestimonialsToDefault();
-    setTestimonials(list);
-    setStatusMessage('Reviews reset to authentic Nigerian client testimonials.');
-    setTimeout(() => setStatusMessage(null), 3000);
-  };
-
   // Portfolio Management State (Showcase services, products, and experiences)
   const [portfolioItems, setPortfolioItems] = useState<PortfolioItem[]>(() => getLocalPortfolio());
   const [isPortfolioModalOpen, setIsPortfolioModalOpen] = useState(false);
@@ -415,13 +406,6 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
     setIsDeletingPortfolio(false);
     setPortfolioToDelete(null);
     setStatusMessage('Project deleted from portfolio.');
-    setTimeout(() => setStatusMessage(null), 3000);
-  };
-
-  const handleResetPortfolio = async () => {
-    const list = await resetPortfolioToDefault();
-    setPortfolioItems(list);
-    setStatusMessage('Portfolio showcase reset to default landmark projects.');
     setTimeout(() => setStatusMessage(null), 3000);
   };
 
@@ -1062,7 +1046,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
   // If not authenticated, render clean minimal password protection lock screen
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-[#f2f2f7] relative flex flex-col items-center justify-center p-4 font-sans overflow-hidden">
+      <div className="min-h-screen bg-[#f2f2f7] relative flex flex-col items-center justify-center p-4 font-sans overflow-x-clip animate-fluid-page">
         {/* Apple Liquid Glass Ambient Light mesh */}
         <div className="fixed inset-0 pointer-events-none -z-10 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(244,123,32,0.12),rgba(255,255,255,0))]" />
         <div className="fixed inset-0 pointer-events-none -z-10 bg-[radial-gradient(ellipse_60%_50%_at_80%_90%,rgba(52,199,89,0.06),rgba(255,255,255,0))]" />
@@ -1079,27 +1063,29 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
         </div>
 
         {/* Apple Liquid Glass Concentric Lock Card */}
-        <div className="w-full max-w-sm bg-white/75 backdrop-blur-2xl rounded-[36px] p-8 shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_20px_50px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.03)] border border-white/90 relative overflow-hidden animate-in zoom-in-95 duration-200">
-          {/* Top specular reflection gloss shine */}
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/70 via-white/20 to-transparent rounded-t-[36px]" />
-          
-          <div className="text-center mb-6 relative">
-            <div className="w-14 h-14 rounded-[20px] bg-gradient-to-br from-orange-500/15 via-orange-500/10 to-orange-500/5 border border-orange-200/60 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_16px_rgba(244,123,32,0.15)] flex items-center justify-center text-[#f47b20] mx-auto mb-3">
+        <div className="w-full max-w-sm apple-liquid-glass rounded-[32px] p-8 shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_20px_50px_rgba(0,0,0,0.06),0_2px_6px_rgba(0,0,0,0.03)] border border-white/95 relative overflow-hidden animate-fluid-sheet">
+          <div className="specular-highlight opacity-65" />
+
+          <div className="text-center mb-6 relative z-10">
+            <div className="w-14 h-14 rounded-[18px] bg-gradient-to-br from-orange-500/15 via-orange-500/10 to-orange-500/5 border border-orange-200/70 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_16px_rgba(244,123,32,0.14)] flex items-center justify-center text-[#f47b20] mx-auto mb-3.5">
               <Lock className="w-6 h-6" />
             </div>
-            <h1 className="font-display text-xl font-bold text-gray-900 tracking-tight">
+            <h1 className="font-display text-xl font-bold text-[#1d1d1f] tracking-tight">
               Admin Access
             </h1>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-[#6e6e73] mt-1">
               Enter passcode to continue
             </p>
           </div>
 
-          <form onSubmit={handleUnlock} className="space-y-4 relative">
+          <form onSubmit={handleUnlock} className="space-y-4 relative z-10">
             {authError && (
-              <div className="p-3 rounded-full bg-red-50/90 backdrop-blur-md border border-red-200 text-red-700 text-xs flex items-center gap-2 justify-center">
-                <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
-                <span>{authError}</span>
+              <div className="p-3.5 rounded-[18px] apple-liquid-glass-error text-xs text-rose-950 flex items-center gap-2.5 shadow-sm animate-fluid-sheet">
+                <div className="specular-highlight opacity-40" />
+                <div className="w-6 h-6 rounded-full bg-rose-500/15 border border-rose-500/25 flex items-center justify-center shrink-0">
+                  <AlertCircle className="w-3.5 h-3.5 text-rose-600" />
+                </div>
+                <span className="font-medium relative z-10 leading-relaxed text-left">{authError}</span>
               </div>
             )}
 
@@ -1112,12 +1098,12 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                   placeholder="Enter passcode"
                   value={passcodeInput}
                   onChange={(e) => setPasscodeInput(e.target.value)}
-                  className="w-full pl-5 pr-12 py-3 rounded-full border border-gray-200/80 bg-white/70 focus:bg-white focus:border-[#f47b20] focus:ring-1 focus:ring-[#f47b20] outline-none text-xs font-medium transition-all shadow-2xs"
+                  className="w-full pl-5 pr-12 py-3 rounded-full border border-black/[0.08] bg-white/85 focus:bg-white focus:border-[#f47b20] focus:ring-1 focus:ring-[#f47b20] outline-none text-xs font-medium transition-all shadow-2xs"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPasscode(!showPasscode)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 cursor-pointer p-1"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#1d1d1f] cursor-pointer p-1 transition-colors"
                   title={showPasscode ? "Hide passcode" : "Show passcode"}
                 >
                   {showPasscode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -1127,7 +1113,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
 
             <button
               type="submit"
-              className="w-full py-3 rounded-full bg-[#1d1d1f] hover:bg-black text-white text-xs font-semibold shadow-[0_4px_14px_rgba(0,0,0,0.18)] transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-95"
+              className="w-full py-3 rounded-full bg-[#1d1d1f] hover:bg-black text-white text-xs font-semibold shadow-[0_4px_14px_rgba(0,0,0,0.16)] transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-95"
             >
               <span>Unlock</span>
             </button>
@@ -1138,7 +1124,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
   }
 
   return (
-    <div className="min-h-screen bg-[#f2f2f7] text-[#1d1d1f] pb-24 pt-6 sm:pt-8 animate-in fade-in duration-300 font-sans relative overflow-x-hidden">
+    <div className="min-h-screen bg-[#f2f2f7] text-[#1d1d1f] pb-24 pt-6 sm:pt-8 font-sans relative overflow-x-clip">
       {/* Apple Liquid Glass Ambient Refraction light mesh */}
       <div className="fixed inset-0 pointer-events-none -z-10 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(244,123,32,0.10),rgba(255,255,255,0))]" />
       <div className="fixed inset-0 pointer-events-none -z-10 bg-[radial-gradient(ellipse_60%_50%_at_85%_85%,rgba(52,199,89,0.06),rgba(255,255,255,0))]" />
@@ -1146,7 +1132,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
       {/* Status Alert Notification */}
       {statusMessage && (
         <div className="w-[min(1240px,calc(100%-24px))] sm:w-[min(1240px,calc(100%-32px))] mx-auto mb-5">
-          <div className="p-3.5 rounded-full bg-emerald-50/80 backdrop-blur-xl border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2 px-5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_16px_rgba(16,185,129,0.1)] animate-in slide-in-from-top-2">
+          <div className="p-3.5 rounded-full bg-emerald-50/80 backdrop-blur-xl border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2 px-5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_16px_rgba(16,185,129,0.1)] animate-fluid-sheet">
             <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
             <span>{statusMessage}</span>
           </div>
@@ -1155,7 +1141,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
 
       {/* VIEW 0: OVERVIEW ROOT (NO DUPLICATE TABS - CONCENTRIC APPLE LIQUID GLASS CARDS) */}
       {activeTab === 'overview' && (
-        <div className="w-[min(1240px,calc(100%-24px))] sm:w-[min(1240px,calc(100%-32px))] mx-auto animate-in fade-in duration-200">
+        <div className="w-[min(1240px,calc(100%-24px))] sm:w-[min(1240px,calc(100%-32px))] mx-auto animate-fluid-page">
           
           {/* Top Bar: Return to storefront & Lock */}
           <div className="flex items-center justify-between mb-5">
@@ -1199,28 +1185,28 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
             <button 
               type="button"
               onClick={() => setActiveTab('products')}
-              className="group bg-white/75 hover:bg-white/90 backdrop-blur-2xl rounded-[36px] p-6 border border-white/90 hover:border-white shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_12px_32px_rgba(0,0,0,0.04),0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_20px_48px_rgba(244,123,32,0.12)] transition-all duration-300 text-left flex flex-col justify-between min-h-[230px] cursor-pointer active:scale-[0.98] relative overflow-hidden"
+              className="group apple-liquid-glass-interactive rounded-[32px] p-6 border border-white/90 text-left flex flex-col justify-between min-h-[215px] cursor-pointer relative overflow-hidden"
             >
-              <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-white/70 via-white/20 to-transparent rounded-t-[36px]" />
-              <div className="relative">
+              <div className="specular-highlight opacity-65" />
+              <div className="relative z-10">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-13 h-13 rounded-[20px] bg-gradient-to-br from-orange-500/15 via-orange-500/10 to-orange-500/5 text-[#f47b20] border border-orange-200/60 flex items-center justify-center group-hover:scale-105 group-hover:bg-[#f47b20] group-hover:text-white transition-all shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_14px_rgba(244,123,32,0.15)]">
-                    <Package className="w-6 h-6" />
+                  <div className="w-12 h-12 rounded-[16px] bg-gradient-to-br from-orange-500/15 to-orange-500/5 text-[#f47b20] border border-orange-200/60 flex items-center justify-center group-hover:scale-105 group-hover:bg-[#f47b20] group-hover:text-white transition-all shadow-2xs">
+                    <Package className="w-5 h-5" />
                   </div>
-                  <span className="text-[11px] font-bold text-[#c95510] font-mono bg-orange-50/80 backdrop-blur-md px-3 py-1 rounded-full border border-orange-200/60 shadow-2xs">
+                  <span className="text-[11px] font-bold text-[#c95510] font-mono bg-orange-50/85 px-3 py-1 rounded-full border border-orange-200/60">
                     {products.length} Products
                   </span>
                 </div>
-                <h3 className="font-display text-lg font-bold text-gray-900 group-hover:text-[#f47b20] transition-colors mb-1.5">
+                <h3 className="font-display text-lg font-bold text-[#1d1d1f] group-hover:text-[#f47b20] transition-colors mb-1.5">
                   Products
                 </h3>
-                <p className="text-xs text-gray-500 leading-relaxed">
+                <p className="text-xs text-[#6e6e73] leading-relaxed">
                   Manage store catalog, prices, photos, and positions.
                 </p>
               </div>
 
-              <div className="relative flex items-center justify-between pt-4 border-t border-black/[0.04] mt-4 text-xs font-semibold text-gray-400 group-hover:text-[#f47b20] transition-colors">
-                <span className="px-3 py-1 rounded-full bg-black/[0.03] group-hover:bg-[#f47b20]/10 transition-colors">View catalog</span>
+              <div className="relative z-10 flex items-center justify-between pt-4 border-t border-black/[0.05] mt-4 text-xs font-semibold text-gray-500 group-hover:text-[#f47b20] transition-colors">
+                <span className="px-3 py-1 rounded-full bg-black/[0.04] group-hover:bg-[#f47b20]/10 transition-colors">View catalog</span>
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </div>
             </button>
@@ -1229,28 +1215,28 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
             <button 
               type="button"
               onClick={() => setActiveTab('orders')}
-              className="group bg-white/75 hover:bg-white/90 backdrop-blur-2xl rounded-[36px] p-6 border border-white/90 hover:border-white shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_12px_32px_rgba(0,0,0,0.04),0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_20px_48px_rgba(16,185,129,0.12)] transition-all duration-300 text-left flex flex-col justify-between min-h-[230px] cursor-pointer active:scale-[0.98] relative overflow-hidden"
+              className="group apple-liquid-glass-interactive rounded-[32px] p-6 border border-white/90 text-left flex flex-col justify-between min-h-[215px] cursor-pointer relative overflow-hidden"
             >
-              <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-white/70 via-white/20 to-transparent rounded-t-[36px]" />
-              <div className="relative">
+              <div className="specular-highlight opacity-65" />
+              <div className="relative z-10">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-13 h-13 rounded-[20px] bg-gradient-to-br from-emerald-500/15 via-emerald-500/10 to-emerald-500/5 text-emerald-600 border border-emerald-200/60 flex items-center justify-center group-hover:scale-105 group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_14px_rgba(16,185,129,0.15)]">
-                    <CreditCard className="w-6 h-6" />
+                  <div className="w-12 h-12 rounded-[16px] bg-gradient-to-br from-emerald-500/15 to-emerald-500/5 text-emerald-600 border border-emerald-200/60 flex items-center justify-center group-hover:scale-105 group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-2xs">
+                    <CreditCard className="w-5 h-5" />
                   </div>
-                  <span className="text-[11px] font-bold text-emerald-700 font-mono bg-emerald-50/80 backdrop-blur-md px-3 py-1 rounded-full border border-emerald-200/60 shadow-2xs">
+                  <span className="text-[11px] font-bold text-emerald-700 font-mono bg-emerald-50/85 px-3 py-1 rounded-full border border-emerald-200/60">
                     {orders.length} Orders
                   </span>
                 </div>
-                <h3 className="font-display text-lg font-bold text-gray-900 group-hover:text-emerald-700 transition-colors mb-1.5">
+                <h3 className="font-display text-lg font-bold text-[#1d1d1f] group-hover:text-emerald-700 transition-colors mb-1.5">
                   Orders
                 </h3>
-                <p className="text-xs text-gray-500 leading-relaxed">
+                <p className="text-xs text-[#6e6e73] leading-relaxed">
                   Track orders, delivery destinations, and payments.
                 </p>
               </div>
 
-              <div className="relative flex items-center justify-between pt-4 border-t border-black/[0.04] mt-4 text-xs font-semibold text-gray-400 group-hover:text-emerald-700 transition-colors">
-                <span className="px-3 py-1 rounded-full bg-black/[0.03] group-hover:bg-emerald-600/10 transition-colors">View orders</span>
+              <div className="relative z-10 flex items-center justify-between pt-4 border-t border-black/[0.05] mt-4 text-xs font-semibold text-gray-500 group-hover:text-emerald-700 transition-colors">
+                <span className="px-3 py-1 rounded-full bg-black/[0.04] group-hover:bg-emerald-600/10 transition-colors">View orders</span>
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </div>
             </button>
@@ -1259,28 +1245,28 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
             <button 
               type="button"
               onClick={() => setActiveTab('testimonials')}
-              className="group bg-white/75 hover:bg-white/90 backdrop-blur-2xl rounded-[36px] p-6 border border-white/90 hover:border-white shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_12px_32px_rgba(0,0,0,0.04),0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_20px_48px_rgba(245,158,11,0.12)] transition-all duration-300 text-left flex flex-col justify-between min-h-[230px] cursor-pointer active:scale-[0.98] relative overflow-hidden"
+              className="group apple-liquid-glass-interactive rounded-[32px] p-6 border border-white/90 text-left flex flex-col justify-between min-h-[215px] cursor-pointer relative overflow-hidden"
             >
-              <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-white/70 via-white/20 to-transparent rounded-t-[36px]" />
-              <div className="relative">
+              <div className="specular-highlight opacity-65" />
+              <div className="relative z-10">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-13 h-13 rounded-[20px] bg-gradient-to-br from-amber-500/15 via-amber-500/10 to-amber-500/5 text-amber-600 border border-amber-200/60 flex items-center justify-center group-hover:scale-105 group-hover:bg-amber-600 group-hover:text-white transition-all shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_14px_rgba(245,158,11,0.15)]">
-                    <MessageSquare className="w-6 h-6" />
+                  <div className="w-12 h-12 rounded-[16px] bg-gradient-to-br from-amber-500/15 to-amber-500/5 text-amber-600 border border-amber-200/60 flex items-center justify-center group-hover:scale-105 group-hover:bg-amber-600 group-hover:text-white transition-all shadow-2xs">
+                    <MessageSquare className="w-5 h-5" />
                   </div>
-                  <span className="text-[11px] font-bold text-amber-700 font-mono bg-amber-50/80 backdrop-blur-md px-3 py-1 rounded-full border border-amber-200/60 shadow-2xs">
+                  <span className="text-[11px] font-bold text-amber-700 font-mono bg-amber-50/85 px-3 py-1 rounded-full border border-amber-200/60">
                     {testimonials.length} Reviews
                   </span>
                 </div>
-                <h3 className="font-display text-lg font-bold text-gray-900 group-hover:text-amber-700 transition-colors mb-1.5">
+                <h3 className="font-display text-lg font-bold text-[#1d1d1f] group-hover:text-amber-700 transition-colors mb-1.5">
                   Reviews
                 </h3>
-                <p className="text-xs text-gray-500 leading-relaxed">
+                <p className="text-xs text-[#6e6e73] leading-relaxed">
                   Add and edit client reviews and testimonials.
                 </p>
               </div>
 
-              <div className="relative flex items-center justify-between pt-4 border-t border-black/[0.04] mt-4 text-xs font-semibold text-gray-400 group-hover:text-amber-700 transition-colors">
-                <span className="px-3 py-1 rounded-full bg-black/[0.03] group-hover:bg-amber-600/10 transition-colors">Manage reviews</span>
+              <div className="relative z-10 flex items-center justify-between pt-4 border-t border-black/[0.05] mt-4 text-xs font-semibold text-gray-500 group-hover:text-amber-700 transition-colors">
+                <span className="px-3 py-1 rounded-full bg-black/[0.04] group-hover:bg-amber-600/10 transition-colors">Manage reviews</span>
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </div>
             </button>
@@ -1289,28 +1275,28 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
             <button 
               type="button"
               onClick={() => setActiveTab('portfolio')}
-              className="group bg-white/75 hover:bg-white/90 backdrop-blur-2xl rounded-[36px] p-6 border border-white/90 hover:border-white shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_12px_32px_rgba(0,0,0,0.04),0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_20px_48px_rgba(99,102,241,0.12)] transition-all duration-300 text-left flex flex-col justify-between min-h-[230px] cursor-pointer active:scale-[0.98] relative overflow-hidden"
+              className="group apple-liquid-glass-interactive rounded-[32px] p-6 border border-white/90 text-left flex flex-col justify-between min-h-[215px] cursor-pointer relative overflow-hidden"
             >
-              <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-white/70 via-white/20 to-transparent rounded-t-[36px]" />
-              <div className="relative">
+              <div className="specular-highlight opacity-65" />
+              <div className="relative z-10">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-13 h-13 rounded-[20px] bg-gradient-to-br from-indigo-500/15 via-indigo-500/10 to-indigo-500/5 text-indigo-600 border border-indigo-200/60 flex items-center justify-center group-hover:scale-105 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_14px_rgba(99,102,241,0.15)]">
-                    <Briefcase className="w-6 h-6" />
+                  <div className="w-12 h-12 rounded-[16px] bg-gradient-to-br from-indigo-500/15 to-indigo-500/5 text-indigo-600 border border-indigo-200/60 flex items-center justify-center group-hover:scale-105 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-2xs">
+                    <Briefcase className="w-5 h-5" />
                   </div>
-                  <span className="text-[11px] font-bold text-indigo-700 font-mono bg-indigo-50/80 backdrop-blur-md px-3 py-1 rounded-full border border-indigo-200/60 shadow-2xs">
+                  <span className="text-[11px] font-bold text-indigo-700 font-mono bg-indigo-50/85 px-3 py-1 rounded-full border border-indigo-200/60">
                     {portfolioItems.length} Projects
                   </span>
                 </div>
-                <h3 className="font-display text-lg font-bold text-gray-900 group-hover:text-indigo-700 transition-colors mb-1.5">
+                <h3 className="font-display text-lg font-bold text-[#1d1d1f] group-hover:text-indigo-700 transition-colors mb-1.5">
                   Portfolio
                 </h3>
-                <p className="text-xs text-gray-500 leading-relaxed">
+                <p className="text-xs text-[#6e6e73] leading-relaxed">
                   Showcase completed works, client experiences & services.
                 </p>
               </div>
 
-              <div className="relative flex items-center justify-between pt-4 border-t border-black/[0.04] mt-4 text-xs font-semibold text-gray-400 group-hover:text-indigo-700 transition-colors">
-                <span className="px-3 py-1 rounded-full bg-black/[0.03] group-hover:bg-indigo-600/10 transition-colors">Manage portfolio</span>
+              <div className="relative z-10 flex items-center justify-between pt-4 border-t border-black/[0.05] mt-4 text-xs font-semibold text-gray-500 group-hover:text-indigo-700 transition-colors">
+                <span className="px-3 py-1 rounded-full bg-black/[0.04] group-hover:bg-indigo-600/10 transition-colors">Manage portfolio</span>
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </div>
             </button>
@@ -1321,7 +1307,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
 
       {/* VIEW 1: PRODUCTS MANAGER */}
       {activeTab === 'products' && (
-        <div className="w-[min(1240px,calc(100%-24px))] sm:w-[min(1240px,calc(100%-32px))] mx-auto animate-in fade-in duration-200">
+        <div className="w-[min(1240px,calc(100%-24px))] sm:w-[min(1240px,calc(100%-32px))] mx-auto animate-fluid-page">
           
           {/* iOS Navigation Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
@@ -1356,27 +1342,28 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
           </div>
 
           {/* Search & Categories Bar with Apple Liquid Glass */}
-          <div className="bg-white/75 backdrop-blur-2xl p-5 rounded-[32px] border border-white/90 shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_8px_28px_rgba(0,0,0,0.03)] flex flex-col gap-3.5 mb-5">
-            <div className="relative w-full">
+          <div className="apple-liquid-glass p-5 rounded-[28px] border border-white/90 flex flex-col gap-3.5 mb-5 relative overflow-hidden">
+            <div className="specular-highlight opacity-55" />
+            <div className="relative w-full z-10">
               <Search className="w-3.5 h-3.5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
                 placeholder="Search products by title or category..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-white/70 border border-black/[0.06] rounded-full text-xs outline-none focus:border-[#f47b20] focus:bg-white transition-all shadow-2xs"
+                className="w-full pl-10 pr-4 py-2.5 bg-white/85 border border-black/[0.07] rounded-full text-xs outline-none focus:border-[#f47b20] focus:bg-white transition-all shadow-2xs"
               />
             </div>
 
-            <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-black/[0.04]">
+            <div className="flex flex-wrap items-center gap-1.5 pt-2.5 border-t border-black/[0.05] relative z-10">
               {CATEGORIES.map(cat => (
                 <button
                   key={cat}
                   onClick={() => setCategoryFilter(cat)}
-                  className={`px-3.5 py-1.5 rounded-full text-[11px] font-medium cursor-pointer transition-all active:scale-95 ${
+                  className={`px-3.5 py-1.5 rounded-full text-[11px] font-medium cursor-pointer transition-all touch-action-btn ${
                     categoryFilter === cat
-                      ? 'bg-[#f47b20] text-white font-semibold shadow-[0_2px_8px_rgba(244,123,32,0.3)]'
-                      : 'bg-white/80 hover:bg-white text-gray-700 border border-white/80 shadow-2xs'
+                      ? 'bg-[#f47b20] text-white font-semibold shadow-xs'
+                      : 'bg-white/85 hover:bg-white text-gray-700 border border-black/[0.05] shadow-2xs'
                   }`}
                 >
                   {cat}
@@ -1388,8 +1375,9 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
           {/* Fully Responsive Products List with Concentric Apple Liquid Glass Cards */}
           <div className="space-y-3 w-full">
             {filteredProducts.length === 0 ? (
-              <div className="bg-white/75 backdrop-blur-2xl rounded-[28px] p-8 border border-white/90 shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_8px_24px_rgba(0,0,0,0.03)] text-center text-gray-500 text-xs">
-                No products match the selected filters.
+              <div className="apple-liquid-glass rounded-[28px] p-10 border border-white/90 text-center text-gray-500 text-xs relative overflow-hidden">
+                <div className="specular-highlight opacity-50" />
+                <span className="relative z-10">No products match the selected filters.</span>
               </div>
             ) : (
               filteredProducts.map((p, pIdx) => {
@@ -1398,10 +1386,11 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                 return (
                   <div 
                     key={p.id}
-                    className="bg-white/75 hover:bg-white/90 backdrop-blur-xl rounded-[28px] p-4 border border-white/80 hover:border-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-[inset_0_1px_1px_rgba(255,255,255,1),0_6px_20px_rgba(0,0,0,0.05)] transition-all flex flex-col md:flex-row md:items-center justify-between gap-3.5 w-full overflow-hidden"
+                    className="apple-liquid-glass-interactive rounded-[24px] p-4 border border-white/90 flex flex-col md:flex-row md:items-center justify-between gap-3.5 w-full overflow-hidden relative"
                   >
+                    <div className="specular-highlight opacity-50" />
                     {/* Left: Position Rank, Concentric Thumbnail & Details */}
-                    <div className="flex items-start gap-3.5 min-w-0 flex-1">
+                    <div className="flex items-start gap-3.5 min-w-0 flex-1 relative z-10">
                       {/* Position Rank Badge with 44px ergonomic tap hitbox */}
                       <button
                         type="button"
@@ -1453,44 +1442,44 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                     </div>
 
                     {/* Right: Position Reordering, Price & Fully Rounded Actions */}
-                    <div className="flex items-center justify-between md:justify-end gap-3.5 shrink-0 pt-2.5 md:pt-0 border-t md:border-t-0 border-gray-100">
+                    <div className="flex items-center justify-between md:justify-end gap-3.5 shrink-0 pt-2.5 md:pt-0 border-t md:border-t-0 border-black/[0.05] relative z-10">
                       <div className="text-left md:text-right">
-                        <span className="font-bold text-sm sm:text-base text-gray-900 block leading-tight tabular-nums">
+                        <span className="font-bold text-sm sm:text-base text-[#1d1d1f] block leading-tight tabular-nums">
                           {formatNaira(p.price)}
                         </span>
-                        <span className="text-[10px] sm:text-[11px] text-gray-500 block tabular-nums">
+                        <span className="text-[10px] sm:text-[11px] text-[#6e6e73] block tabular-nums">
                           Min: {p.minOrderQty} {p.unit}
                         </span>
                       </div>
 
                       {/* Direct Position Ordering Buttons - Capsule Pill */}
                       <div className="flex items-center gap-1.5 shrink-0">
-                        <div className="flex items-center border border-gray-200/90 rounded-full overflow-hidden bg-white/70 backdrop-blur-md shadow-2xs">
+                        <div className="flex items-center border border-black/[0.07] rounded-full overflow-hidden bg-white/85 shadow-2xs">
                           <button
                             type="button"
                             onClick={() => handleMoveProductPosition(p.id, 'up')}
                             disabled={pIdx === 0}
-                            className="min-w-[40px] min-h-[40px] flex items-center justify-center hover:bg-orange-50 hover:text-[#f47b20] active:scale-90 text-gray-600 disabled:opacity-20 disabled:pointer-events-none transition-all cursor-pointer"
+                            className="min-w-[38px] min-h-[38px] flex items-center justify-center hover:bg-orange-50 hover:text-[#f47b20] active:scale-90 text-gray-600 disabled:opacity-20 disabled:pointer-events-none transition-all cursor-pointer"
                             title="Move Up in Storefront Order"
                           >
-                            <ArrowUp className="w-4 h-4" />
+                            <ArrowUp className="w-3.5 h-3.5" />
                           </button>
-                          <div className="w-[1px] h-5 bg-gray-200" />
+                          <div className="w-[1px] h-4 bg-black/[0.07]" />
                           <button
                             type="button"
                             onClick={() => handleMoveProductPosition(p.id, 'down')}
                             disabled={pIdx === filteredProducts.length - 1}
-                            className="min-w-[40px] min-h-[40px] flex items-center justify-center hover:bg-orange-50 hover:text-[#f47b20] active:scale-90 text-gray-600 disabled:opacity-20 disabled:pointer-events-none transition-all cursor-pointer"
+                            className="min-w-[38px] min-h-[38px] flex items-center justify-center hover:bg-orange-50 hover:text-[#f47b20] active:scale-90 text-gray-600 disabled:opacity-20 disabled:pointer-events-none transition-all cursor-pointer"
                             title="Move Down in Storefront Order"
                           >
-                            <ArrowDown className="w-4 h-4" />
+                            <ArrowDown className="w-3.5 h-3.5" />
                           </button>
                         </div>
 
                         <button
                           type="button"
                           onClick={() => openEditModal(p)}
-                          className="min-h-[40px] inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-gray-200 bg-white/70 hover:bg-white active:scale-95 text-gray-700 text-xs font-semibold cursor-pointer transition-all shadow-2xs"
+                          className="min-h-[38px] inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-black/[0.07] bg-white/85 hover:bg-white active:scale-95 text-[#1d1d1f] text-xs font-semibold cursor-pointer transition-all shadow-2xs"
                           title="Edit Product"
                         >
                           <Edit3 className="w-3.5 h-3.5 text-gray-600" />
@@ -1500,7 +1489,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                         <button
                           type="button"
                           onClick={() => setProductToDelete(p)}
-                          className="min-h-[40px] inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-red-200 bg-red-50/80 hover:bg-red-100 active:scale-95 text-red-600 text-xs font-semibold cursor-pointer transition-all shadow-2xs"
+                          className="min-h-[38px] inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-red-200/80 bg-red-50/85 hover:bg-red-100 active:scale-95 text-red-600 text-xs font-semibold cursor-pointer transition-all shadow-2xs"
                           title="Delete Product"
                         >
                           <Trash2 className="w-3.5 h-3.5 text-red-600" />
@@ -1518,7 +1507,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
 
       {/* VIEW 2: ORDERS & PAYSTACK TRANSACTIONS */}
       {activeTab === 'orders' && (
-        <div className="w-[min(1240px,calc(100%-24px))] sm:w-[min(1240px,calc(100%-32px))] mx-auto animate-in fade-in duration-200">
+        <div className="w-[min(1240px,calc(100%-24px))] sm:w-[min(1240px,calc(100%-32px))] mx-auto animate-fluid-page">
           
           {/* iOS Navigation Header */}
           <div className="flex items-center justify-between gap-3 mb-5">
@@ -1536,20 +1525,21 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
             </span>
           </div>
 
-          <div className="bg-white/75 backdrop-blur-2xl rounded-[36px] border border-white/90 shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_12px_36px_rgba(0,0,0,0.04)] p-6 sm:p-7">
+          <div className="apple-liquid-glass rounded-[32px] border border-white/90 p-6 sm:p-7 relative overflow-hidden">
+            <div className="specular-highlight opacity-55" />
             
             {/* Header & Title */}
-            <div className="pb-4 border-b border-gray-100 mb-4">
-              <h3 className="font-display text-lg sm:text-xl font-bold text-gray-900">
+            <div className="pb-4 border-b border-black/[0.05] mb-4 relative z-10">
+              <h3 className="font-display text-lg sm:text-xl font-bold text-[#1d1d1f]">
                 Customer Orders & Transactions
               </h3>
-              <p className="text-xs text-gray-500 mt-0.5">
+              <p className="text-xs text-[#6e6e73] mt-0.5">
                 Manage live checkout submissions, filter, sort order, and remove processed orders.
               </p>
             </div>
 
             {/* Filter & Sort Controls Toolbar */}
-            <div className="bg-gray-50/70 p-4 rounded-[28px] border border-gray-200/70 mb-5 flex flex-col md:flex-row items-center justify-between gap-3">
+            <div className="bg-black/[0.025] p-3.5 sm:p-4 rounded-[22px] border border-black/[0.05] mb-5 flex flex-col md:flex-row items-center justify-between gap-3 relative z-10">
               {/* Search Orders */}
               <div className="relative w-full md:w-72">
                 <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -1558,7 +1548,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                   placeholder="Search order ID, customer, phone..."
                   value={orderSearchQuery}
                   onChange={(e) => setOrderSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-full text-xs outline-none focus:border-[#f47b20] transition-colors"
+                  className="w-full pl-10 pr-4 py-2 bg-white/90 border border-black/[0.07] rounded-full text-xs outline-none focus:border-[#f47b20] focus:bg-white transition-colors shadow-2xs"
                 />
               </div>
 
@@ -1581,7 +1571,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                       className={`px-3 py-1.5 rounded-full text-[11px] font-semibold cursor-pointer transition-all whitespace-nowrap active:scale-95 ${
                         orderStatusFilter === f.id
                           ? 'bg-[#1d1d1f] text-white shadow-2xs'
-                          : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
+                          : 'bg-white/90 text-gray-700 hover:bg-white border border-black/[0.06]'
                       }`}
                     >
                       {f.label}
@@ -1590,7 +1580,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                 </div>
 
                 {/* Sort Order Selector */}
-                <div className="flex items-center gap-1.5 shrink-0 bg-white border border-gray-200 px-3.5 py-1.5 rounded-full shadow-2xs">
+                <div className="flex items-center gap-1.5 shrink-0 bg-white/90 border border-black/[0.07] px-3.5 py-1.5 rounded-full shadow-2xs">
                   <ArrowUpDown className="w-3.5 h-3.5 text-gray-400 shrink-0" />
                   <select
                     value={orderSortBy}
@@ -1610,13 +1600,13 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
 
             {/* Orders List */}
             {filteredOrders.length === 0 ? (
-              <div className="text-center py-12 border border-dashed border-gray-200 rounded-[24px]">
+              <div className="text-center py-12 border border-dashed border-black/[0.08] rounded-[24px] relative z-10">
                 <CreditCard className="w-8 h-8 text-gray-300 mx-auto mb-2" />
                 <p className="text-xs font-semibold text-gray-700">No orders match criteria</p>
                 <p className="text-[11px] text-gray-400 mt-0.5">Try adjusting your filters or search terms.</p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-3 relative z-10">
                 {filteredOrders.map(order => {
                   const isPaid = order.paymentStatus === 'paid' || Boolean(order.paystackReference);
                   const isTransfer = (order.paymentMethod || '').toLowerCase().includes('transfer') || (order.notes || '').toLowerCase().includes('transfer');
@@ -1624,9 +1614,10 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                   return (
                     <div 
                       key={order.id || Math.random()} 
-                      className="p-4.5 rounded-[24px] border border-gray-200/80 bg-white hover:border-gray-300 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-2xs"
+                      className="p-4.5 rounded-[24px] apple-liquid-glass-interactive border border-white/90 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs relative overflow-hidden"
                     >
-                      <div className="space-y-1.5 flex-1 min-w-0">
+                      <div className="specular-highlight opacity-40" />
+                      <div className="space-y-1.5 flex-1 min-w-0 relative z-10">
                         {/* Order ID & Payment Status - HIG Zero-Pill Typography */}
                         <div className="flex items-center gap-2 flex-wrap text-[11px]">
                           <span className="font-mono font-bold text-gray-900 tabular-nums">
@@ -1689,13 +1680,13 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                         )}
 
                         {/* Items Purchased */}
-                        <p className="text-[11px] text-gray-600 pt-0.5 bg-gray-50 p-2.5 rounded-[16px] border border-gray-100">
+                        <p className="text-[11px] text-gray-600 pt-0.5 bg-black/[0.025] p-2.5 rounded-[14px] border border-black/[0.05]">
                           <strong className="text-gray-800">Items:</strong> {order.itemsSummary}
                         </p>
                       </div>
 
                       {/* Right: Total Amount, Status Selector & Delete Button */}
-                      <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2.5 pt-2.5 sm:pt-0 border-t sm:border-t-0 border-gray-100 shrink-0">
+                      <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2.5 pt-2.5 sm:pt-0 border-t sm:border-t-0 border-black/[0.05] shrink-0 relative z-10">
                         <span className="font-bold text-base sm:text-lg text-gray-900 leading-tight tabular-nums">
                           {formatNaira(order.totalAmount)}
                         </span>
@@ -1744,7 +1735,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
 
       {/* VIEW 3: REVIEWS & TESTIMONIALS */}
       {activeTab === 'testimonials' && (
-        <div className="w-[min(1240px,calc(100%-24px))] sm:w-[min(1240px,calc(100%-32px))] mx-auto animate-in fade-in duration-200">
+        <div className="w-[min(1240px,calc(100%-24px))] sm:w-[min(1240px,calc(100%-32px))] mx-auto animate-fluid-page">
           
           {/* iOS Navigation Header */}
           <div className="flex items-center justify-between gap-3 mb-5">
@@ -1760,13 +1751,6 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={handleResetTestimonials}
-                className="px-4 py-2 rounded-full border border-white/80 hover:bg-white text-gray-700 text-xs font-semibold cursor-pointer transition-colors bg-white/70 backdrop-blur-xl shadow-2xs active:scale-95"
-              >
-                Reset Defaults
-              </button>
-              <button
-                type="button"
                 onClick={openCreateTestimonial}
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#f47b20] hover:bg-[#c95510] text-white text-xs font-semibold shadow-[0_2px_10px_rgba(244,123,32,0.3)] cursor-pointer transition-colors active:scale-95"
               >
@@ -1776,28 +1760,30 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
             </div>
           </div>
 
-          <div className="bg-white/75 backdrop-blur-2xl rounded-[36px] border border-white/90 shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_12px_36px_rgba(0,0,0,0.04)] p-6 sm:p-7 mb-5">
-            <div className="pb-4 border-b border-black/[0.04]">
-              <h3 className="font-display text-lg sm:text-xl font-bold text-gray-900">
+          <div className="apple-liquid-glass rounded-[32px] border border-white/90 p-6 sm:p-7 mb-5 relative overflow-hidden">
+            <div className="specular-highlight opacity-55" />
+            <div className="pb-4 border-b border-black/[0.05] relative z-10">
+              <h3 className="font-display text-lg sm:text-xl font-bold text-[#1d1d1f]">
                 Customer Reviews
               </h3>
-              <p className="text-xs text-gray-500 mt-0.5">
+              <p className="text-xs text-[#6e6e73] mt-0.5">
                 Manage reviews and client feedback displayed on the storefront.
               </p>
             </div>
 
             {/* Testimonials Grid with Apple Liquid Glass Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5 relative z-10">
               {testimonials.map((t) => (
                 <div
                   key={t.id}
-                  className={`p-5 rounded-[24px] border transition-all flex flex-col justify-between ${
+                  className={`p-5 rounded-[24px] flex flex-col justify-between relative overflow-hidden ${
                     t.highlight 
-                      ? 'bg-amber-50/70 backdrop-blur-xl border-amber-200/80 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_16px_rgba(245,158,11,0.08)]' 
-                      : 'bg-white/70 hover:bg-white/90 backdrop-blur-xl border-white/90 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_16px_rgba(0,0,0,0.02)]'
+                      ? 'bg-amber-50/75 hover:bg-amber-50/95 backdrop-blur-2xl border border-amber-200/70 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.95),0_10px_28px_-4px_rgba(245,158,11,0.08)] transition-all' 
+                      : 'apple-liquid-glass-interactive border border-white/90'
                   }`}
                 >
-                  <div>
+                  <div className="specular-highlight opacity-50" />
+                  <div className="relative z-10">
                     <div className="flex items-center justify-between gap-2 mb-2">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
                         {t.highlight ? 'Featured Quote' : 'Standard Quote'}
@@ -1814,7 +1800,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                     </p>
                   </div>
 
-                  <div className="pt-3 border-t border-black/5 flex items-center justify-between gap-2">
+                  <div className="pt-3 border-t border-black/[0.05] flex items-center justify-between gap-2 relative z-10">
                     <div>
                       <strong className="text-xs font-semibold text-[#1d1d1f] block">
                         {t.author}
@@ -1828,7 +1814,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                       <button
                         type="button"
                         onClick={() => openEditTestimonial(t)}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-gray-200 bg-white/70 hover:bg-white text-gray-700 text-[11px] font-semibold cursor-pointer transition-colors shadow-2xs active:scale-95"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-black/[0.07] bg-white/85 hover:bg-white text-[#1d1d1f] text-[11px] font-semibold cursor-pointer transition-colors shadow-2xs active:scale-95"
                       >
                         <Edit3 className="w-3 h-3" />
                         <span>Edit</span>
@@ -1836,7 +1822,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                       <button
                         type="button"
                         onClick={() => setTestimonialToDelete(t)}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-red-200 bg-red-50/80 hover:bg-red-100 text-red-600 text-[11px] font-semibold cursor-pointer transition-colors shadow-2xs active:scale-95"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-red-200/80 bg-red-50/85 hover:bg-red-100 text-red-600 text-[11px] font-semibold cursor-pointer transition-colors shadow-2xs active:scale-95"
                       >
                         <Trash2 className="w-3 h-3" />
                         <span>Delete</span>
@@ -1852,7 +1838,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
 
       {/* VIEW 4: PORTFOLIO & PROJECTS MANAGER */}
       {activeTab === 'portfolio' && (
-        <div className="w-[min(1240px,calc(100%-24px))] sm:w-[min(1240px,calc(100%-32px))] mx-auto animate-in fade-in duration-200">
+        <div className="w-[min(1240px,calc(100%-24px))] sm:w-[min(1240px,calc(100%-32px))] mx-auto animate-fluid-page">
           
           {/* iOS Navigation Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
@@ -1868,13 +1854,6 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={handleResetPortfolio}
-                className="px-4 py-2 rounded-full border border-white/80 hover:bg-white text-gray-700 text-xs font-semibold cursor-pointer transition-colors bg-white/70 backdrop-blur-xl shadow-2xs active:scale-95"
-              >
-                Reset Defaults
-              </button>
-              <button
-                type="button"
                 onClick={openCreatePortfolio}
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#1d1d1f] hover:bg-black text-white text-xs font-semibold shadow-[0_2px_10px_rgba(0,0,0,0.2)] cursor-pointer transition-colors active:scale-95"
               >
@@ -1885,14 +1864,15 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
           </div>
 
           {/* Main Card with Search and Filters */}
-          <div className="bg-white/75 backdrop-blur-2xl rounded-[36px] border border-white/90 shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_12px_36px_rgba(0,0,0,0.04)] p-6 sm:p-7 mb-5">
+          <div className="apple-liquid-glass rounded-[32px] border border-white/90 p-6 sm:p-7 mb-5 relative overflow-hidden">
+            <div className="specular-highlight opacity-55" />
             
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-black/[0.04]">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-black/[0.05] relative z-10">
               <div>
-                <h3 className="font-display text-lg sm:text-xl font-bold text-gray-900">
+                <h3 className="font-display text-lg sm:text-xl font-bold text-[#1d1d1f]">
                   Portfolio Showcase
                 </h3>
-                <p className="text-xs text-gray-500 mt-0.5">
+                <p className="text-xs text-[#6e6e73] mt-0.5">
                   Showcase completed client contracts, products, services, and real experiences.
                 </p>
               </div>
@@ -1905,7 +1885,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                   placeholder="Search projects or clients…"
                   value={portfolioSearchQuery}
                   onChange={(e) => setPortfolioSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-8 py-2 rounded-full border border-gray-200/80 bg-white/70 focus:bg-white focus:border-[#f47b20] outline-none text-xs transition-colors"
+                  className="w-full pl-9 pr-8 py-2 rounded-full border border-black/[0.07] bg-white/85 focus:bg-white focus:border-[#f47b20] outline-none text-xs transition-colors shadow-2xs"
                 />
                 {portfolioSearchQuery && (
                   <button
@@ -1920,7 +1900,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
             </div>
 
             {/* Category Filter Pills (fully rounded) */}
-            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-3">
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-3 relative z-10">
               {PORTFOLIO_CATEGORIES.map((cat) => {
                 const isSelected = portfolioCategoryFilter === cat;
                 const count = cat === 'All Projects'
@@ -1935,7 +1915,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                     className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                       isSelected
                         ? 'bg-[#1d1d1f] text-white shadow-2xs'
-                        : 'bg-black/5 hover:bg-black/10 text-gray-600'
+                        : 'bg-black/[0.04] hover:bg-black/[0.08] text-gray-700'
                     }`}
                   >
                     <span>{cat}</span>
@@ -1949,7 +1929,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
 
             {/* Portfolio Grid */}
             {filteredPortfolio.length === 0 ? (
-              <div className="text-center py-12">
+              <div className="text-center py-12 relative z-10">
                 <Briefcase className="w-8 h-8 mx-auto text-gray-300 mb-2" />
                 <p className="text-xs text-gray-500 font-medium">No projects found matching your query.</p>
                 <button
@@ -1964,7 +1944,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-5 relative z-10">
                 {filteredPortfolio.map((item) => {
                   const gallery = (item.gallery && item.gallery.length > 0)
                     ? item.gallery
@@ -1973,17 +1953,18 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                   return (
                     <div
                       key={item.id}
-                      className="group bg-white/70 hover:bg-white/95 backdrop-blur-xl rounded-[28px] p-4 border border-white/90 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_16px_rgba(0,0,0,0.02)] transition-all flex flex-col justify-between"
+                      className="group apple-liquid-glass-interactive rounded-[24px] p-4 border border-white/90 flex flex-col justify-between relative overflow-hidden"
                     >
-                      <div>
-                        {/* 1. Primary Photo Container */}
-                        <div className="relative rounded-[20px] overflow-hidden aspect-16/10 bg-gray-100 shadow-2xs mb-2.5">
+                      <div className="specular-highlight opacity-50" />
+                      <div className="relative z-10">
+                        {/* 1. Primary Photo Container (Concentric: 24px - 16px = 14px-16px) */}
+                        <div className="relative rounded-[16px] overflow-hidden aspect-16/10 bg-gray-100 shadow-2xs mb-2.5">
                           <img 
                             src={item.imageUrl} 
                             alt={item.title} 
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent opacity-60" />
 
                           {/* Photos Count Badge */}
                           <span className="absolute top-2.5 right-2.5 px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-white text-[10px] font-mono border border-white/20">
@@ -1997,8 +1978,8 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                             {gallery.map((pic, pIdx) => (
                               <div
                                 key={pIdx}
-                                className={`w-11 h-11 rounded-lg overflow-hidden border shrink-0 bg-gray-100 ${
-                                  pic === item.imageUrl ? 'border-[#f47b20] ring-1 ring-orange-300' : 'border-gray-200'
+                                className={`w-11 h-11 rounded-xl overflow-hidden border shrink-0 bg-gray-100 ${
+                                  pic === item.imageUrl ? 'border-[#f47b20] ring-1 ring-orange-300' : 'border-black/10'
                                 }`}
                               >
                                 <img src={pic} alt={`Thumbnail ${pIdx + 1}`} className="w-full h-full object-cover" />
@@ -2008,18 +1989,18 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                         )}
 
                         {/* 2. Project Title */}
-                        <h4 className="font-display text-sm font-bold text-gray-900 leading-snug mb-1.5">
+                        <h4 className="font-display text-sm font-bold text-[#1d1d1f] leading-snug mb-1.5">
                           {item.title}
                         </h4>
 
                         {/* 3. Project Description */}
-                        <p className="text-xs text-gray-600 leading-relaxed font-normal mb-3 whitespace-pre-line">
+                        <p className="text-xs text-[#6e6e73] leading-relaxed font-normal mb-3 whitespace-pre-line line-clamp-3">
                           {item.description}
                         </p>
                       </div>
 
                       {/* Actions Bar */}
-                      <div className="pt-3 border-t border-black/[0.04] flex items-center justify-between">
+                      <div className="pt-3 border-t border-black/[0.05] flex items-center justify-between relative z-10">
                         <span className="text-[10px] text-gray-400 font-mono">
                           {gallery.length} {gallery.length === 1 ? 'photo' : 'photos'}
                         </span>
@@ -2028,7 +2009,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                           <button
                             type="button"
                             onClick={() => openEditPortfolio(item)}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-gray-200 bg-white/70 hover:bg-white text-gray-700 text-[11px] font-semibold cursor-pointer transition-colors shadow-2xs active:scale-95"
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-black/[0.07] bg-white/85 hover:bg-white text-[#1d1d1f] text-[11px] font-semibold cursor-pointer transition-colors shadow-2xs active:scale-95"
                           >
                             <Edit3 className="w-3 h-3" />
                             <span>Edit</span>
@@ -2036,7 +2017,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                           <button
                             type="button"
                             onClick={() => setPortfolioToDelete(item)}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-red-200 bg-red-50/80 hover:bg-red-100 text-red-600 text-[11px] font-semibold cursor-pointer transition-colors shadow-2xs active:scale-95"
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-red-200/80 bg-red-50/85 hover:bg-red-100 text-red-600 text-[11px] font-semibold cursor-pointer transition-colors shadow-2xs active:scale-95"
                           >
                             <Trash2 className="w-3 h-3" />
                             <span>Delete</span>
@@ -2058,106 +2039,126 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
           ======================================================== */}
       {isTestimonialModalOpen && (
         <div 
-          className="fixed inset-0 z-[160] bg-black/40 backdrop-blur-xl flex items-center justify-center p-2.5 sm:p-4 overscroll-none touch-none animate-in fade-in duration-150"
+          className="fixed inset-0 z-[160] bg-black/40 backdrop-blur-xl flex items-center justify-center p-2.5 sm:p-4 overscroll-none touch-none animate-fluid-page"
           onClick={() => !tSaving && setIsTestimonialModalOpen(false)}
         >
           <div 
-            className="relative bg-white/90 backdrop-blur-2xl rounded-[32px] sm:rounded-[36px] w-full max-w-lg p-6 sm:p-7 shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_24px_64px_rgba(0,0,0,0.18)] border border-white/90 animate-in zoom-in-95 duration-150 overflow-hidden max-h-[calc(100dvh-24px)] sm:max-h-[calc(100dvh-40px)] flex flex-col touch-auto"
+            className="relative bg-white/95 backdrop-blur-2xl rounded-[32px] w-full max-w-lg shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_24px_64px_rgba(0,0,0,0.2)] border border-white/95 animate-fluid-sheet overflow-hidden max-h-[calc(100dvh-24px)] sm:max-h-[calc(100dvh-40px)] flex flex-col touch-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* iOS Sheet Grabber */}
-            <div className="w-9 h-1 rounded-full bg-gray-300/80 mx-auto -mt-1 mb-3" />
-
-            <div className="flex items-center justify-between pb-3 border-b border-black/[0.04] mb-4 pr-1">
-              <div className="min-w-0 pr-2">
-                <h2 className="font-display text-lg sm:text-xl font-bold text-[#1d1d1f]">
-                  {editingTestimonial ? 'Edit Review' : 'Add Client Review'}
-                </h2>
-              </div>
-              {/* Floating Cancel Button */}
-              <button 
-                type="button"
-                onClick={() => !tSaving && setIsTestimonialModalOpen(false)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/70 hover:bg-white/90 backdrop-blur-md text-gray-700 font-semibold text-xs transition-all cursor-pointer active:scale-95 shadow-2xs border border-white/80 shrink-0"
-                aria-label="Cancel and close"
-              >
-                <X className="w-3.5 h-3.5" />
-                <span>Cancel</span>
-              </button>
-            </div>
-
-            {tError && (
-              <div className="p-3 mb-3.5 rounded-full bg-red-50/90 backdrop-blur-md border border-red-200 text-xs text-red-700 flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0 text-red-600 ml-1" />
-                <span>{tError}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleSaveTestimonial} className="space-y-3.5 text-xs">
-              <div>
-                <label className="block font-semibold text-gray-800 mb-1">
-                  Testimonial Quote *
-                </label>
-                <textarea
-                  required
-                  rows={3}
-                  placeholder="e.g. The quality of our large-format banners completely exceeded expectations."
-                  value={tQuote}
-                  onChange={(e) => setTQuote(e.target.value)}
-                  className="w-full px-4 py-3 rounded-[20px] border border-gray-200 bg-white/70 focus:bg-white focus:border-[#f47b20] outline-none text-xs transition-colors"
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-gray-800 mb-1">
-                  Client Full Name *
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Client name or title"
-                  value={tAuthor}
-                  onChange={(e) => setTAuthor(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-full border border-gray-200 bg-white/70 focus:bg-white focus:border-[#f47b20] outline-none text-xs transition-colors"
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-gray-800 mb-1">
-                  Role / Organization
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Marketing Lead, Apex Logistics"
-                  value={tRole}
-                  onChange={(e) => setTRole(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-full border border-gray-200 bg-white/70 focus:bg-white focus:border-[#f47b20] outline-none text-xs transition-colors"
-                />
-              </div>
-
-              <div className="flex items-center gap-2 pt-1">
-                <input
-                  type="checkbox"
-                  id="tHighlight"
-                  checked={tHighlight}
-                  onChange={(e) => setTHighlight(e.target.checked)}
-                  className="w-4 h-4 text-[#f47b20] rounded border-gray-300 focus:ring-[#f47b20] cursor-pointer"
-                />
-                <label htmlFor="tHighlight" className="font-medium text-gray-700 cursor-pointer select-none">
-                  Highlight this review with warm amber card styling
-                </label>
-              </div>
-
-              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-black/[0.04]">
-                <button
-                  type="submit"
+            {/* Docked Header */}
+            <div className="shrink-0 bg-white/95 border-b border-black/[0.06] px-6 sm:px-7 pt-3 pb-4">
+              <div className="w-9 h-1 rounded-full bg-gray-300/80 mx-auto mb-3" />
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <h2 className="font-display text-lg sm:text-xl font-bold text-[#1d1d1f] truncate">
+                    {editingTestimonial ? 'Edit Review' : 'Add Client Review'}
+                  </h2>
+                  <p className="text-[11px] text-[#6e6e73] mt-0.5 truncate">
+                    Displayed in the homepage client testimonials shelf.
+                  </p>
+                </div>
+                <button 
+                  type="button"
                   disabled={tSaving}
-                  className="w-full sm:w-auto px-7 py-2.5 rounded-full bg-[#f47b20] hover:bg-[#c95510] text-white text-xs font-semibold shadow-[0_2px_10px_rgba(244,123,32,0.3)] disabled:opacity-50 cursor-pointer transition-all active:scale-95"
+                  onClick={() => setIsTestimonialModalOpen(false)}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/[0.05] hover:bg-black/[0.09] text-[#1d1d1f] font-semibold text-xs transition-all cursor-pointer active:scale-95 shrink-0 disabled:opacity-50"
+                  aria-label="Cancel and close"
                 >
-                  {tSaving ? 'Saving…' : editingTestimonial ? 'Save Changes' : 'Publish Review'}
+                  <X className="w-3.5 h-3.5" />
+                  <span>Cancel</span>
                 </button>
               </div>
-            </form>
+            </div>
+
+            {/* Scrollable Body */}
+            <div className="flex-1 overflow-y-auto touch-momentum px-6 sm:px-7 py-5 bg-black/[0.015]">
+              {tError && (
+                <div className="p-3.5 mb-4 rounded-[18px] apple-liquid-glass-error text-xs text-rose-950 flex items-center gap-2.5 shadow-sm animate-fluid-sheet">
+                  <div className="specular-highlight opacity-40" />
+                  <div className="w-6 h-6 rounded-full bg-rose-500/15 border border-rose-500/25 flex items-center justify-center shrink-0">
+                    <AlertCircle className="w-3.5 h-3.5 text-rose-600" />
+                  </div>
+                  <span className="font-medium relative z-10 leading-relaxed text-left">{tError}</span>
+                </div>
+              )}
+
+              <form id="admin-testimonial-form" onSubmit={handleSaveTestimonial} className="space-y-4 text-xs">
+                <div>
+                  <label className="block font-semibold text-[#1d1d1f] mb-1.5">
+                    Testimonial Quote *
+                  </label>
+                  <textarea
+                    required
+                    rows={3}
+                    placeholder="e.g. The quality of our large-format banners completely exceeded expectations."
+                    value={tQuote}
+                    onChange={(e) => setTQuote(e.target.value)}
+                    className="w-full px-4 py-3 rounded-[20px] border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-xs transition-colors shadow-2xs"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-[#1d1d1f] mb-1.5">
+                    Client Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Client name or title"
+                    value={tAuthor}
+                    onChange={(e) => setTAuthor(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-full border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-xs transition-colors shadow-2xs"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-[#1d1d1f] mb-1.5">
+                    Role / Organization
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Marketing Lead, Apex Logistics"
+                    value={tRole}
+                    onChange={(e) => setTRole(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-full border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-xs transition-colors shadow-2xs"
+                  />
+                </div>
+
+                <label htmlFor="tHighlight" className="flex items-center gap-2.5 p-3.5 rounded-[18px] bg-white border border-black/[0.07] cursor-pointer select-none shadow-2xs">
+                  <input
+                    type="checkbox"
+                    id="tHighlight"
+                    checked={tHighlight}
+                    onChange={(e) => setTHighlight(e.target.checked)}
+                    className="w-4 h-4 text-[#f47b20] rounded border-gray-300 focus:ring-[#f47b20] cursor-pointer"
+                  />
+                  <span className="font-medium text-[#1d1d1f]">
+                    Highlight this review with warm amber card styling
+                  </span>
+                </label>
+              </form>
+            </div>
+
+            {/* Docked Footer */}
+            <div className="shrink-0 bg-white/95 border-t border-black/[0.06] px-6 sm:px-7 py-4 flex items-center justify-end gap-2.5">
+              <button
+                type="button"
+                disabled={tSaving}
+                onClick={() => setIsTestimonialModalOpen(false)}
+                className="px-5 py-2.5 rounded-full border border-black/[0.08] bg-white hover:bg-gray-50 text-[#1d1d1f] text-xs font-semibold cursor-pointer transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                form="admin-testimonial-form"
+                disabled={tSaving}
+                className="px-7 py-2.5 rounded-full bg-[#f47b20] hover:bg-[#c95510] text-white text-xs font-semibold shadow-[0_2px_10px_rgba(244,123,32,0.3)] disabled:opacity-50 cursor-pointer transition-all active:scale-95"
+              >
+                {tSaving ? 'Saving…' : editingTestimonial ? 'Save Changes' : 'Publish Review'}
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -2165,41 +2166,40 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
       {/* Delete Testimonial Modal */}
       {testimonialToDelete && (
         <div 
-          className="fixed inset-0 z-[200] bg-black/40 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-150"
+          className="fixed inset-0 z-[200] bg-black/40 backdrop-blur-md flex items-center justify-center p-4 animate-fluid-page"
           onClick={() => setTestimonialToDelete(null)}
         >
           <div 
-            className="relative bg-white rounded-[32px] w-full max-w-sm p-6 shadow-2xl border border-gray-100 text-center"
+            className="relative apple-liquid-glass rounded-[32px] w-full max-w-sm p-6 sm:p-7 shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_24px_64px_rgba(0,0,0,0.18)] border border-white/95 animate-fluid-sheet text-center overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Floating Cancel Button */}
+            <div className="specular-highlight opacity-55" />
             <button
               type="button"
               onClick={() => setTestimonialToDelete(null)}
-              className="absolute top-3.5 right-3.5 z-20 inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs transition-all cursor-pointer active:scale-95 shadow-2xs border border-gray-200/60"
-              aria-label="Cancel deletion"
+              className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-black/[0.05] hover:bg-black/[0.09] text-gray-600 flex items-center justify-center transition-all cursor-pointer active:scale-95"
+              aria-label="Close"
             >
-              <X className="w-3.5 h-3.5" />
-              <span>Cancel</span>
+              <X className="w-4 h-4" />
             </button>
 
-            <div className="w-12 h-12 rounded-full bg-red-50 text-red-600 flex items-center justify-center mx-auto mb-3.5 border border-red-100">
-              <Trash2 className="w-6 h-6" />
+            <div className="w-12 h-12 rounded-[16px] bg-red-50/90 text-red-600 flex items-center justify-center mx-auto mb-3.5 border border-red-200/70 relative z-10">
+              <Trash2 className="w-5 h-5" />
             </div>
 
-            <h3 className="font-display text-lg font-bold text-gray-900 mb-1">
+            <h3 className="font-display text-lg font-bold text-[#1d1d1f] mb-1 relative z-10">
               Delete Review?
             </h3>
 
-            <p className="text-xs text-gray-500 mb-5 leading-relaxed">
-              Remove review from <strong className="text-gray-900 block truncate">{testimonialToDelete.author}</strong>? It will immediately disappear from the homepage.
+            <p className="text-xs text-[#6e6e73] mb-5 leading-relaxed relative z-10">
+              Remove review from <strong className="text-[#1d1d1f] block truncate">{testimonialToDelete.author}</strong>? It will immediately disappear from the homepage.
             </p>
 
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2.5 relative z-10">
               <button
                 type="button"
                 onClick={() => setTestimonialToDelete(null)}
-                className="flex-1 py-2.5 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50 text-xs font-semibold cursor-pointer transition-colors"
+                className="flex-1 py-2.5 rounded-full border border-black/[0.08] bg-white/85 hover:bg-white text-[#1d1d1f] text-xs font-semibold cursor-pointer transition-colors"
               >
                 Cancel
               </button>
@@ -2220,217 +2220,221 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
           ======================================================== */}
       {isPortfolioModalOpen && (
         <div 
-          className="fixed inset-0 z-[160] bg-black/40 backdrop-blur-xl flex items-center justify-center p-2.5 sm:p-4 overscroll-none touch-none animate-in fade-in duration-150"
+          className="fixed inset-0 z-[160] bg-black/40 backdrop-blur-xl flex items-center justify-center p-2.5 sm:p-4 overscroll-none touch-none animate-fluid-page"
           onClick={() => !portSaving && setIsPortfolioModalOpen(false)}
         >
           <div 
-            className="relative bg-white/95 backdrop-blur-2xl rounded-[32px] sm:rounded-[36px] w-full max-w-2xl p-6 sm:p-7 shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_24px_64px_rgba(0,0,0,0.18)] border border-white/90 animate-in zoom-in-95 duration-150 max-h-[calc(100dvh-24px)] sm:max-h-[calc(100dvh-40px)] flex flex-col overflow-hidden touch-auto"
+            className="relative bg-white/95 backdrop-blur-2xl rounded-[32px] w-full max-w-2xl shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_24px_64px_rgba(0,0,0,0.2)] border border-white/95 animate-fluid-sheet max-h-[calc(100dvh-24px)] sm:max-h-[calc(100dvh-40px)] flex flex-col overflow-hidden touch-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* iOS Sheet Grabber */}
-            <div className="w-9 h-1 rounded-full bg-gray-300/80 mx-auto -mt-1 mb-3" />
-
-            <div className="flex items-center justify-between pb-3 border-b border-black/[0.04] mb-3 pr-1 shrink-0">
-              <div className="min-w-0 pr-2">
-                <h2 className="font-display text-lg sm:text-xl font-bold text-[#1d1d1f]">
-                  {editingPortfolioItem ? 'Edit Project' : 'Add Project'}
-                </h2>
-                <p className="text-xs text-gray-500 mt-0.5">
-                  Upload project pictures and write a description for this work.
-                </p>
-              </div>
-              <button
-                type="button"
-                disabled={portSaving}
-                onClick={() => setIsPortfolioModalOpen(false)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/5 hover:bg-black/10 text-gray-700 font-semibold text-xs transition-all cursor-pointer active:scale-95 shadow-2xs border border-black/5 shrink-0"
-                aria-label="Cancel and close"
-              >
-                <X className="w-3.5 h-3.5" />
-                <span>Cancel</span>
-              </button>
-            </div>
-
-            {portError && (
-              <div className="mb-3 p-3 rounded-2xl bg-red-50/90 border border-red-200 text-red-700 text-xs flex items-center gap-2 shrink-0">
-                <AlertCircle className="w-4 h-4 shrink-0 text-red-600 ml-1" />
-                <span>{portError}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleSavePortfolio} className="space-y-4 text-xs overflow-y-auto flex-1 pr-1 overscroll-contain">
-              
-              {/* 1. Project Title / Name */}
-              <div>
-                <label className="block font-semibold text-gray-800 mb-1">
-                  Project Name / Title
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Fleet Vehicle Wrapping & Branding"
-                  value={portTitle}
-                  onChange={(e) => setPortTitle(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-full border border-gray-200 bg-white/80 focus:bg-white focus:border-[#f47b20] outline-none text-xs transition-colors"
-                />
-              </div>
-
-              {/* 2. Pictures Section (Upload & URL & Gallery Preview) */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="block font-semibold text-gray-800">
-                    Project Pictures *
-                  </label>
-                  <span className="text-[11px] text-gray-400 font-mono">
-                    {portGallery.length} {portGallery.length === 1 ? 'picture' : 'pictures'}
-                  </span>
+            {/* Docked Header */}
+            <div className="shrink-0 bg-white/95 border-b border-black/[0.06] px-6 sm:px-7 pt-3 pb-4">
+              <div className="w-9 h-1 rounded-full bg-gray-300/80 mx-auto mb-3" />
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <h2 className="font-display text-lg sm:text-xl font-bold text-[#1d1d1f] truncate">
+                    {editingPortfolioItem ? 'Edit Project' : 'Add Project'}
+                  </h2>
+                  <p className="text-[11px] text-[#6e6e73] mt-0.5 truncate">
+                    Upload project pictures and write a description for this work.
+                  </p>
                 </div>
-
-                {/* Upload Buttons & URL Paste */}
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <input
-                    type="file"
-                    ref={portfolioFileInputRef}
-                    accept="image/*"
-                    multiple
-                    onChange={handleUploadPortfolioImage}
-                    className="hidden"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => portfolioFileInputRef.current?.click()}
-                    className="w-full sm:w-auto px-5 py-2.5 rounded-full bg-[#1d1d1f] hover:bg-black text-white text-xs font-semibold flex items-center justify-center gap-2 shrink-0 cursor-pointer shadow-xs active:scale-95 transition-all"
-                  >
-                    <UploadCloud className="w-4 h-4 text-[#f47b20]" />
-                    <span>Upload Pictures</span>
-                  </button>
-
-                  <div className="flex-1 flex gap-1.5">
-                    <input
-                      type="url"
-                      placeholder="Or paste image URL (https://...)"
-                      value={portUrlInput}
-                      onChange={(e) => setPortUrlInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          handleAddImageUrl();
-                        }
-                      }}
-                      className="flex-1 px-4 py-2 rounded-full border border-gray-200 bg-white/80 focus:bg-white focus:border-[#f47b20] outline-none text-xs transition-colors"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleAddImageUrl}
-                      className="px-3.5 py-2 rounded-full border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-xs font-semibold shrink-0 cursor-pointer shadow-2xs active:scale-95 transition-all"
-                    >
-                      + Add
-                    </button>
-                  </div>
-                </div>
-
-                {/* Visual Pictures Grid */}
-                {portGallery.length > 0 ? (
-                  <div className="p-3 rounded-2xl bg-gray-50/80 border border-gray-200/70">
-                    <span className="block text-[10px] font-semibold text-gray-400 mb-2 uppercase tracking-wider">
-                      Tap any photo to set as Cover Photo:
-                    </span>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                      {portGallery.map((img, idx) => {
-                        const isCover = (portImageUrl ? portImageUrl === img : idx === 0);
-                        return (
-                          <div 
-                            key={idx} 
-                            onClick={() => setPortImageUrl(img)}
-                            className={`relative aspect-4/3 rounded-xl overflow-hidden group border-2 cursor-pointer transition-all shadow-2xs ${
-                              isCover ? 'border-[#f47b20] ring-2 ring-orange-200' : 'border-gray-200 hover:border-gray-400'
-                            }`}
-                          >
-                            <img src={img} alt={`Project pic ${idx + 1}`} className="w-full h-full object-cover" />
-                            
-                            {/* Cover Badge */}
-                            {isCover ? (
-                              <span className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-full bg-[#f47b20] text-white text-[9px] font-bold shadow-xs">
-                                Cover
-                              </span>
-                            ) : (
-                              <span className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-full bg-black/60 text-white text-[9px] font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                                Make Cover
-                              </span>
-                            )}
-
-                            {/* Picture Number */}
-                            <span className="absolute bottom-1.5 left-1.5 px-1.5 py-0.2 rounded-md bg-black/60 text-white text-[9px] font-mono">
-                              {idx + 1}
-                            </span>
-
-                            {/* Delete Button */}
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                const filtered = portGallery.filter((_, i) => i !== idx);
-                                setPortGallery(filtered);
-                                if (portImageUrl === img) {
-                                  setPortImageUrl(filtered[0] || '');
-                                }
-                              }}
-                              className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center shadow-xs cursor-pointer active:scale-90 transition-transform"
-                              title="Delete photo"
-                              aria-label="Delete photo"
-                            >
-                              <X className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ) : (
-                  <div 
-                    onClick={() => portfolioFileInputRef.current?.click()}
-                    className="p-6 rounded-2xl border-2 border-dashed border-gray-200 hover:border-[#f47b20] bg-gray-50/50 hover:bg-orange-50/20 text-center cursor-pointer transition-colors"
-                  >
-                    <ImagePlus className="w-8 h-8 text-gray-300 mx-auto mb-1.5" />
-                    <p className="text-xs font-semibold text-gray-700">No pictures added yet</p>
-                    <p className="text-[11px] text-gray-400 mt-0.5">Click to upload pictures from your computer or phone</p>
-                  </div>
-                )}
-              </div>
-
-              {/* 3. Description Section */}
-              <div>
-                <label className="block font-semibold text-gray-800 mb-1">
-                  Project Description *
-                </label>
-                <textarea
-                  rows={4}
-                  required
-                  placeholder="Describe the project, materials used, turnaround time, installation details, or client outcome..."
-                  value={portDescription}
-                  onChange={(e) => setPortDescription(e.target.value)}
-                  className="w-full p-3.5 rounded-2xl border border-gray-200 bg-white/80 focus:bg-white focus:border-[#f47b20] outline-none text-xs leading-relaxed transition-colors resize-none placeholder:text-gray-400"
-                />
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-black/[0.04]">
                 <button
                   type="button"
                   disabled={portSaving}
                   onClick={() => setIsPortfolioModalOpen(false)}
-                  className="px-5 py-2.5 rounded-full border border-gray-200 text-gray-600 hover:bg-gray-50 text-xs font-semibold cursor-pointer transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/[0.05] hover:bg-black/[0.09] text-[#1d1d1f] font-semibold text-xs transition-all cursor-pointer active:scale-95 shrink-0 disabled:opacity-50"
+                  aria-label="Cancel and close"
                 >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={portSaving}
-                  className="px-7 py-2.5 rounded-full bg-[#1d1d1f] hover:bg-black text-white text-xs font-semibold shadow-[0_2px_10px_rgba(0,0,0,0.2)] disabled:opacity-50 cursor-pointer transition-all active:scale-95"
-                >
-                  {portSaving ? 'Saving…' : editingPortfolioItem ? 'Save Changes' : 'Save Project'}
+                  <X className="w-3.5 h-3.5" />
+                  <span>Cancel</span>
                 </button>
               </div>
-            </form>
+            </div>
+
+            {/* Scrollable Body */}
+            <div className="flex-1 overflow-y-auto touch-momentum px-6 sm:px-7 py-5 bg-black/[0.015]">
+              {portError && (
+                <div className="mb-4 p-3.5 rounded-[18px] apple-liquid-glass-error text-xs text-rose-950 flex items-center gap-2.5 shadow-sm animate-fluid-sheet">
+                  <div className="specular-highlight opacity-40" />
+                  <div className="w-6 h-6 rounded-full bg-rose-500/15 border border-rose-500/25 flex items-center justify-center shrink-0">
+                    <AlertCircle className="w-3.5 h-3.5 text-rose-600" />
+                  </div>
+                  <span className="font-medium relative z-10 leading-relaxed text-left">{portError}</span>
+                </div>
+              )}
+
+              <form id="admin-portfolio-form" onSubmit={handleSavePortfolio} className="space-y-4 text-xs">
+                {/* 1. Project Title / Name */}
+                <div>
+                  <label className="block font-semibold text-[#1d1d1f] mb-1.5">
+                    Project Name / Title
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Fleet Vehicle Wrapping & Branding"
+                    value={portTitle}
+                    onChange={(e) => setPortTitle(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-full border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-xs transition-colors shadow-2xs"
+                  />
+                </div>
+
+                {/* 2. Pictures Section (Upload & URL & Gallery Preview) */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="block font-semibold text-[#1d1d1f]">
+                      Project Pictures *
+                    </label>
+                    <span className="text-[11px] text-[#6e6e73] font-mono tabular-nums">
+                      {portGallery.length} {portGallery.length === 1 ? 'picture' : 'pictures'}
+                    </span>
+                  </div>
+
+                  {/* Upload Buttons & URL Paste */}
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <input
+                      type="file"
+                      ref={portfolioFileInputRef}
+                      accept="image/*"
+                      multiple
+                      onChange={handleUploadPortfolioImage}
+                      className="hidden"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => portfolioFileInputRef.current?.click()}
+                      className="w-full sm:w-auto px-5 py-2.5 rounded-full bg-[#1d1d1f] hover:bg-black text-white text-xs font-semibold flex items-center justify-center gap-2 shrink-0 cursor-pointer shadow-xs active:scale-95 transition-all"
+                    >
+                      <UploadCloud className="w-4 h-4 text-[#f47b20]" />
+                      <span>Upload Pictures</span>
+                    </button>
+
+                    <div className="flex-1 flex gap-1.5">
+                      <input
+                        type="url"
+                        placeholder="Or paste image URL (https://...)"
+                        value={portUrlInput}
+                        onChange={(e) => setPortUrlInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleAddImageUrl();
+                          }
+                        }}
+                        className="flex-1 px-4 py-2 rounded-full border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-xs transition-colors shadow-2xs"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleAddImageUrl}
+                        className="px-4 py-2 rounded-full border border-black/[0.08] bg-white hover:bg-gray-50 text-[#1d1d1f] text-xs font-semibold shrink-0 cursor-pointer shadow-2xs active:scale-95 transition-all"
+                      >
+                        + Add
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Visual Pictures Grid */}
+                  {portGallery.length > 0 ? (
+                    <div className="p-3.5 rounded-[20px] bg-white border border-black/[0.07] shadow-2xs">
+                      <span className="block text-[10px] font-semibold text-[#6e6e73] mb-2.5 uppercase tracking-wider">
+                        Tap any photo to set as Cover Photo
+                      </span>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                        {portGallery.map((img, idx) => {
+                          const isCover = (portImageUrl ? portImageUrl === img : idx === 0);
+                          return (
+                            <div 
+                              key={idx} 
+                              onClick={() => setPortImageUrl(img)}
+                              className={`relative aspect-4/3 rounded-[14px] overflow-hidden group border-2 cursor-pointer transition-all shadow-2xs ${
+                                isCover ? 'border-[#f47b20] ring-2 ring-orange-200/80' : 'border-black/[0.08] hover:border-gray-400'
+                              }`}
+                            >
+                              <img src={img} alt={`Project pic ${idx + 1}`} className="w-full h-full object-cover" />
+                              
+                              {isCover ? (
+                                <span className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-full bg-[#f47b20] text-white text-[9px] font-bold shadow-xs">
+                                  Cover
+                                </span>
+                              ) : (
+                                <span className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-full bg-black/60 text-white text-[9px] font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                                  Make Cover
+                                </span>
+                              )}
+
+                              <span className="absolute bottom-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-black/60 text-white text-[9px] font-mono tabular-nums">
+                                {idx + 1}
+                              </span>
+
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const filtered = portGallery.filter((_, i) => i !== idx);
+                                  setPortGallery(filtered);
+                                  if (portImageUrl === img) {
+                                    setPortImageUrl(filtered[0] || '');
+                                  }
+                                }}
+                                className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center shadow-xs cursor-pointer active:scale-90 transition-transform"
+                                title="Delete photo"
+                                aria-label="Delete photo"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ) : (
+                    <div 
+                      onClick={() => portfolioFileInputRef.current?.click()}
+                      className="p-6 rounded-[20px] border-2 border-dashed border-black/[0.10] hover:border-[#f47b20] bg-white hover:bg-orange-50/20 text-center cursor-pointer transition-colors"
+                    >
+                      <ImagePlus className="w-8 h-8 text-gray-300 mx-auto mb-1.5" />
+                      <p className="text-xs font-semibold text-[#1d1d1f]">No pictures added yet</p>
+                      <p className="text-[11px] text-[#6e6e73] mt-0.5">Click to upload pictures from your computer or phone</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* 3. Description Section */}
+                <div>
+                  <label className="block font-semibold text-[#1d1d1f] mb-1.5">
+                    Project Description *
+                  </label>
+                  <textarea
+                    rows={4}
+                    required
+                    placeholder="Describe the project, materials used, turnaround time, installation details, or client outcome..."
+                    value={portDescription}
+                    onChange={(e) => setPortDescription(e.target.value)}
+                    className="w-full p-3.5 rounded-[20px] border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-xs leading-relaxed transition-colors resize-none placeholder:text-gray-400 shadow-2xs"
+                  />
+                </div>
+              </form>
+            </div>
+
+            {/* Docked Footer */}
+            <div className="shrink-0 bg-white/95 border-t border-black/[0.06] px-6 sm:px-7 py-4 flex items-center justify-end gap-2.5">
+              <button
+                type="button"
+                disabled={portSaving}
+                onClick={() => setIsPortfolioModalOpen(false)}
+                className="px-5 py-2.5 rounded-full border border-black/[0.08] bg-white hover:bg-gray-50 text-[#1d1d1f] text-xs font-semibold cursor-pointer transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                form="admin-portfolio-form"
+                disabled={portSaving}
+                className="px-7 py-2.5 rounded-full bg-[#1d1d1f] hover:bg-black text-white text-xs font-semibold shadow-[0_2px_10px_rgba(0,0,0,0.2)] disabled:opacity-50 cursor-pointer transition-all active:scale-95"
+              >
+                {portSaving ? 'Saving…' : editingPortfolioItem ? 'Save Changes' : 'Save Project'}
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -2438,43 +2442,42 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
       {/* Delete Portfolio Modal */}
       {portfolioToDelete && (
         <div 
-          className="fixed inset-0 z-[200] bg-black/40 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-150"
+          className="fixed inset-0 z-[200] bg-black/40 backdrop-blur-md flex items-center justify-center p-4 animate-fluid-page"
           onClick={() => !isDeletingPortfolio && setPortfolioToDelete(null)}
         >
           <div 
-            className="relative bg-white rounded-[32px] w-full max-w-sm p-6 shadow-2xl border border-gray-100 text-center"
+            className="relative apple-liquid-glass rounded-[32px] w-full max-w-sm p-6 sm:p-7 shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_24px_64px_rgba(0,0,0,0.18)] border border-white/95 animate-fluid-sheet text-center overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Floating Cancel Button */}
+            <div className="specular-highlight opacity-55" />
             <button
               type="button"
               disabled={isDeletingPortfolio}
               onClick={() => setPortfolioToDelete(null)}
-              className="absolute top-3.5 right-3.5 z-20 inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs transition-all cursor-pointer active:scale-95 shadow-2xs border border-gray-200/60 disabled:opacity-50"
-              aria-label="Cancel deletion"
+              className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-black/[0.05] hover:bg-black/[0.09] text-gray-600 flex items-center justify-center transition-all cursor-pointer active:scale-95 disabled:opacity-50"
+              aria-label="Close"
             >
-              <X className="w-3.5 h-3.5" />
-              <span>Cancel</span>
+              <X className="w-4 h-4" />
             </button>
 
-            <div className="w-12 h-12 rounded-full bg-red-50 text-red-600 flex items-center justify-center mx-auto mb-3.5 border border-red-100">
-              <Trash2 className="w-6 h-6" />
+            <div className="w-12 h-12 rounded-[16px] bg-red-50/90 text-red-600 flex items-center justify-center mx-auto mb-3.5 border border-red-200/70 relative z-10">
+              <Trash2 className="w-5 h-5" />
             </div>
 
-            <h3 className="font-display text-lg font-bold text-gray-900 mb-1">
+            <h3 className="font-display text-lg font-bold text-[#1d1d1f] mb-1 relative z-10">
               Delete Project?
             </h3>
 
-            <p className="text-xs text-gray-500 mb-5 leading-relaxed">
-              Remove <strong className="text-gray-900 block truncate">{portfolioToDelete.title}</strong> for <span className="text-gray-700 font-medium">{portfolioToDelete.client}</span>? It will immediately disappear from the public portfolio page.
+            <p className="text-xs text-[#6e6e73] mb-5 leading-relaxed relative z-10">
+              Remove <strong className="text-[#1d1d1f] block truncate">{portfolioToDelete.title}</strong> for <span className="text-[#1d1d1f] font-medium">{portfolioToDelete.client}</span>? It will immediately disappear from the public portfolio page.
             </p>
 
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2.5 relative z-10">
               <button
                 type="button"
                 disabled={isDeletingPortfolio}
                 onClick={() => setPortfolioToDelete(null)}
-                className="flex-1 py-2.5 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50 text-xs font-semibold cursor-pointer transition-colors disabled:opacity-50"
+                className="flex-1 py-2.5 rounded-full border border-black/[0.08] bg-white/85 hover:bg-white text-[#1d1d1f] text-xs font-semibold cursor-pointer transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -2492,444 +2495,441 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
       )}
 
       {/* ========================================================
-          SIMPLE PRODUCT ADD / EDIT MODAL
+          SIMPLE PRODUCT ADD / EDIT MODAL (3-Zone Docked Header / Body / Footer)
           ======================================================== */}
       {isFormOpen && (
         <div 
-          className="fixed inset-0 z-[150] bg-black/40 backdrop-blur-xl flex items-center justify-center p-2.5 sm:p-4 overscroll-none touch-none animate-in fade-in duration-150"
+          className="fixed inset-0 z-[150] bg-black/40 backdrop-blur-xl flex items-center justify-center p-2.5 sm:p-4 overscroll-none touch-none animate-fluid-page"
           onClick={() => setIsFormOpen(false)}
         >
           <div 
-            className="relative bg-white/90 backdrop-blur-2xl rounded-[32px] sm:rounded-[36px] w-full max-w-2xl shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_24px_64px_rgba(0,0,0,0.18)] border border-white/90 max-h-[calc(100dvh-20px)] sm:max-h-[calc(100dvh-40px)] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150 touch-auto"
+            className="relative bg-white/95 backdrop-blur-2xl rounded-[32px] w-full max-w-2xl shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_24px_64px_rgba(0,0,0,0.2)] border border-white/95 max-h-[calc(100dvh-20px)] sm:max-h-[calc(100dvh-40px)] flex flex-col overflow-hidden animate-fluid-sheet touch-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* iOS Sheet Grabber */}
-            <div className="w-9 h-1 rounded-full bg-gray-300/80 mx-auto mt-2.5 mb-1" />
+            {/* Docked Header */}
+            <div className="shrink-0 bg-white/95 border-b border-black/[0.06] px-6 sm:px-7 pt-3 pb-4">
+              <div className="w-9 h-1 rounded-full bg-gray-300/80 mx-auto mb-3" />
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <h2 className="font-display text-lg sm:text-xl font-bold text-[#1d1d1f] truncate">
+                    {editingProduct ? 'Edit Product' : 'Add New Product'}
+                  </h2>
+                  <p className="text-[11px] text-[#6e6e73] mt-0.5 truncate">
+                    Fills in the catalog live on the store.
+                  </p>
+                </div>
 
-            {/* Modal Header: Sticky Floating Bar with Fixed Cancel Button */}
-            <div className="sticky top-0 z-30 px-6 sm:px-8 py-3.5 border-b border-black/[0.04] flex items-center justify-between shrink-0 bg-white/80 backdrop-blur-xl shadow-2xs rounded-t-[36px]">
-              <div className="min-w-0 pr-2">
-                <h2 className="font-display text-lg sm:text-xl font-bold text-[#1d1d1f] truncate">
-                  {editingProduct ? 'Edit Product' : 'Add New Product'}
-                </h2>
-                <p className="text-[11px] text-gray-500 mt-0.5 truncate">
-                  Fills in the catalog live on the store.
-                </p>
+                <button 
+                  type="button"
+                  onClick={() => setIsFormOpen(false)}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/[0.05] hover:bg-black/[0.09] text-[#1d1d1f] font-semibold text-xs transition-all cursor-pointer active:scale-95 shrink-0"
+                  aria-label="Cancel and close form"
+                >
+                  <X className="w-3.5 h-3.5" />
+                  <span>Cancel</span>
+                </button>
               </div>
-              
-              {/* Floating Cancel Button: Always fixed and accessible while scrolling */}
-              <button 
-                type="button"
-                onClick={() => setIsFormOpen(false)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/70 hover:bg-white/90 backdrop-blur-md text-gray-700 font-semibold text-xs transition-all cursor-pointer active:scale-95 shadow-2xs border border-white/80 shrink-0"
-                aria-label="Cancel and close form"
-              >
-                <X className="w-3.5 h-3.5" />
-                <span>Cancel</span>
-              </button>
             </div>
 
-            {/* Modal Body: Scrollable */}
-            <div className="p-6 sm:p-8 overflow-y-auto flex-1">
+            {/* Scrollable Body */}
+            <div className="flex-1 overflow-y-auto touch-momentum px-6 sm:px-7 py-5 bg-black/[0.015]">
               {formError && (
-                <div className="p-3 mb-4 rounded-full bg-red-50 border border-red-200 text-xs text-red-700 flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 shrink-0 text-red-600 ml-1" />
-                  <span>{formError}</span>
+                <div className="p-3.5 mb-4 rounded-[18px] apple-liquid-glass-error text-xs text-rose-950 flex items-center gap-2.5 shadow-sm animate-fluid-sheet">
+                  <div className="specular-highlight opacity-40" />
+                  <div className="w-6 h-6 rounded-full bg-rose-500/15 border border-rose-500/25 flex items-center justify-center shrink-0">
+                    <AlertCircle className="w-3.5 h-3.5 text-rose-600" />
+                  </div>
+                  <span className="font-medium relative z-10 leading-relaxed text-left">{formError}</span>
                 </div>
               )}
 
-              <form onSubmit={handleSaveProduct} className="space-y-4 text-xs">
-              
-              {/* 1. Product Title */}
-              <div>
-                <label className="block font-semibold text-gray-800 mb-1">
-                  Product Title *
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. 3D Acrylic Frontage Channel Letters"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-full border border-gray-200 focus:border-[#f47b20] outline-none text-xs bg-gray-50/50 focus:bg-white transition-colors"
-                />
-              </div>
-
-              {/* 2. Category & Unit Specification */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <form id="admin-product-form" onSubmit={handleSaveProduct} className="space-y-4 text-xs">
+                {/* 1. Product Title */}
                 <div>
-                  <label className="block font-semibold text-gray-800 mb-1">
-                    Category *
-                  </label>
-                  <select
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-full border border-gray-200 focus:border-[#f47b20] outline-none text-xs bg-white cursor-pointer"
-                  >
-                    {CATEGORIES.filter(c => c !== 'All Products').map(c => (
-                      <option key={c} value={c}>{c}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-gray-800 mb-1">
-                    Unit Specification
+                  <label className="block font-semibold text-[#1d1d1f] mb-1.5">
+                    Product Title *
                   </label>
                   <input
                     type="text"
-                    placeholder="e.g. piece, pack (100 pcs), set, yard"
-                    value={unit}
-                    onChange={(e) => setUnit(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-full border border-gray-200 focus:border-[#f47b20] outline-none text-xs bg-gray-50/50 focus:bg-white transition-colors"
+                    required
+                    placeholder="e.g. 3D Acrylic Frontage Channel Letters"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-full border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-xs transition-colors shadow-2xs"
                   />
                 </div>
-              </div>
 
-              {/* 3. Price & Min Order Qty */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                <div>
-                  <label className="block font-semibold text-gray-800 mb-1">
-                    Price (₦) *
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-gray-400">₦</span>
+                {/* 2. Category & Unit Specification */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div>
+                    <label className="block font-semibold text-[#1d1d1f] mb-1.5">
+                      Category *
+                    </label>
+                    <select
+                      value={category}
+                      onChange={(e) => setCategory(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-full border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-xs cursor-pointer shadow-2xs"
+                    >
+                      {CATEGORIES.filter(c => c !== 'All Products').map(c => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block font-semibold text-[#1d1d1f] mb-1.5">
+                      Unit Specification
+                    </label>
                     <input
-                      type="number"
-                      min="0"
-                      required
-                      placeholder="25000"
-                      value={price}
-                      onChange={(e) => setPrice(e.target.value === '' ? '' : Number(e.target.value))}
-                      className="w-full pl-8 pr-4 py-2.5 rounded-full border border-gray-200 focus:border-[#f47b20] outline-none text-xs font-semibold bg-gray-50/50 focus:bg-white transition-colors"
+                      type="text"
+                      placeholder="e.g. piece, pack (100 pcs), set, yard"
+                      value={unit}
+                      onChange={(e) => setUnit(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-full border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-xs transition-colors shadow-2xs"
                     />
                   </div>
                 </div>
 
-                <div>
-                  <label className="block font-semibold text-gray-800 mb-1">
-                    Min Order Qty
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={minOrderQty}
-                    onChange={(e) => setMinOrderQty(Math.max(1, Number(e.target.value)))}
-                    className="w-full px-4 py-2.5 rounded-full border border-gray-200 focus:border-[#f47b20] outline-none text-xs bg-gray-50/50 focus:bg-white transition-colors"
-                  />
-                </div>
-              </div>
+                {/* 3. Price & Min Order Qty */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div>
+                    <label className="block font-semibold text-[#1d1d1f] mb-1.5">
+                      Price (₦) *
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-gray-400">₦</span>
+                      <input
+                        type="number"
+                        min="0"
+                        required
+                        placeholder="25000"
+                        value={price}
+                        onChange={(e) => setPrice(e.target.value === '' ? '' : Number(e.target.value))}
+                        className="w-full pl-8 pr-4 py-2.5 rounded-full border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-xs font-semibold tabular-nums transition-colors shadow-2xs"
+                      />
+                    </div>
+                  </div>
 
-              {/* Storefront Display Position (Rank) */}
-              <div className="bg-orange-50/60 p-4 rounded-[22px] border border-orange-200/80">
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="font-semibold text-gray-900 flex items-center gap-1.5 text-xs">
-                    <SlidersHorizontal className="w-3.5 h-3.5 text-[#f47b20]" />
-                    <span>Storefront Display Position (Rank)</span>
-                  </label>
-                  <span className="text-[10px] font-bold text-[#c95510] bg-white px-2.5 py-0.5 rounded-full border border-orange-200">
-                    Position #{position || 1}
-                  </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="number"
-                    min="1"
-                    placeholder="1"
-                    value={position}
-                    onChange={(e) => setPosition(e.target.value === '' ? '' : Math.max(1, parseInt(e.target.value) || 1))}
-                    className="w-24 px-3.5 py-2 rounded-full border border-gray-300 focus:border-[#f47b20] outline-none text-xs font-bold bg-white text-gray-900 text-center"
-                  />
-                  <p className="text-[11px] text-gray-600 leading-tight">
-                    Lower numbers appear first on the storefront shop page (e.g. 1 = first item shown to customers).
-                  </p>
-                </div>
-              </div>
-
-              {/* 4. Product Image Attach Field (Upload up to 10 local pictures) */}
-              <div className="pt-1">
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="font-semibold text-gray-800">
-                    Product Pictures * <span className="font-normal text-gray-500">(Attach local photo up to 10)</span>
-                  </label>
-                  <span className="text-[11px] text-gray-500 font-medium">
-                    {uploadedImages.length} / 10 attached
-                  </span>
+                  <div>
+                    <label className="block font-semibold text-[#1d1d1f] mb-1.5">
+                      Min Order Qty
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={minOrderQty}
+                      onChange={(e) => setMinOrderQty(Math.max(1, Number(e.target.value)))}
+                      className="w-full px-4 py-2.5 rounded-full border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-xs tabular-nums transition-colors shadow-2xs"
+                    />
+                  </div>
                 </div>
 
-                {/* Hidden File Input */}
-                <input 
-                  type="file"
-                  ref={fileInputRef}
-                  accept="image/*"
-                  multiple
-                  onChange={handleImageFilesUpload}
-                  className="hidden"
-                />
-
-                {/* Upload Trigger Area */}
-                {uploadedImages.length < 10 && (
-                  <div 
-                    onClick={() => fileInputRef.current?.click()}
-                    className="border-2 border-dashed border-gray-200 hover:border-[#f47b20] rounded-[22px] p-4 text-center cursor-pointer transition-colors bg-gray-50/60 hover:bg-orange-50/20 mb-3"
-                  >
-                    <UploadCloud className="w-6 h-6 text-[#f47b20] mx-auto mb-1.5" />
-                    <p className="text-xs font-semibold text-gray-800">
-                      Tap to attach pictures from your phone or computer
-                    </p>
-                    <p className="text-[11px] text-gray-400 mt-0.5">
-                      JPG, PNG, or WEBP supported. You can select multiple files at once.
+                {/* Storefront Display Position (Rank) */}
+                <div className="bg-gradient-to-br from-orange-50/90 to-amber-50/60 p-4 rounded-[20px] border border-orange-200/75 shadow-2xs">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="font-semibold text-[#1d1d1f] flex items-center gap-1.5 text-xs">
+                      <SlidersHorizontal className="w-3.5 h-3.5 text-[#f47b20]" />
+                      <span>Storefront Display Position (Rank)</span>
+                    </label>
+                    <span className="text-[10px] font-bold text-[#c95510] bg-white px-2.5 py-0.5 rounded-full border border-orange-200/80 tabular-nums">
+                      Position #{position || 1}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="number"
+                      min="1"
+                      placeholder="1"
+                      value={position}
+                      onChange={(e) => setPosition(e.target.value === '' ? '' : Math.max(1, parseInt(e.target.value) || 1))}
+                      className="w-24 px-3.5 py-2 rounded-full border border-black/[0.10] focus:border-[#f47b20] outline-none text-xs font-bold bg-white text-[#1d1d1f] text-center tabular-nums shadow-2xs"
+                    />
+                    <p className="text-[11px] text-[#6e6e73] leading-relaxed">
+                      Lower numbers appear first on the storefront shop page (e.g. 1 = first item shown to customers).
                     </p>
                   </div>
-                )}
+                </div>
 
-                {/* Uploaded Images Preview Grid */}
-                {uploadedImages.length > 0 && (
-                  <div className="grid grid-cols-3 sm:grid-cols-5 gap-2.5">
-                    {uploadedImages.map((img, idx) => (
-                      <div 
-                        key={idx} 
-                        className={`relative rounded-[14px] overflow-hidden aspect-square border-2 group bg-gray-100 ${
-                          idx === 0 ? 'border-[#f47b20] shadow-xs' : 'border-gray-200'
-                        }`}
-                      >
-                        <img 
-                          src={img} 
-                          alt={`Uploaded ${idx + 1}`} 
-                          className="w-full h-full object-cover"
-                        />
-                        {/* Primary Badge */}
-                        {idx === 0 && (
-                          <span className="absolute top-1 left-1 bg-[#f47b20] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-xs">
-                            Cover
-                          </span>
-                        )}
+                {/* 4. Product Image Attach Field */}
+                <div className="pt-1">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="font-semibold text-[#1d1d1f]">
+                      Product Pictures * <span className="font-normal text-[#6e6e73]">(Attach local photo up to 10)</span>
+                    </label>
+                    <span className="text-[11px] text-[#6e6e73] font-medium tabular-nums">
+                      {uploadedImages.length} / 10 attached
+                    </span>
+                  </div>
 
-                        {/* Actions overlay */}
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5">
-                          {idx !== 0 && (
+                  <input 
+                    type="file"
+                    ref={fileInputRef}
+                    accept="image/*"
+                    multiple
+                    onChange={handleImageFilesUpload}
+                    className="hidden"
+                  />
+
+                  {uploadedImages.length < 10 && (
+                    <div 
+                      onClick={() => fileInputRef.current?.click()}
+                      className="border-2 border-dashed border-black/[0.10] hover:border-[#f47b20] rounded-[20px] p-4 text-center cursor-pointer transition-colors bg-white hover:bg-orange-50/20 mb-3 shadow-2xs"
+                    >
+                      <UploadCloud className="w-6 h-6 text-[#f47b20] mx-auto mb-1.5" />
+                      <p className="text-xs font-semibold text-[#1d1d1f]">
+                        Tap to attach pictures from your phone or computer
+                      </p>
+                      <p className="text-[11px] text-[#6e6e73] mt-0.5">
+                        JPG, PNG, or WEBP supported. You can select multiple files at once.
+                      </p>
+                    </div>
+                  )}
+
+                  {uploadedImages.length > 0 && (
+                    <div className="grid grid-cols-3 sm:grid-cols-5 gap-2.5">
+                      {uploadedImages.map((img, idx) => (
+                        <div 
+                          key={idx} 
+                          className={`relative rounded-[14px] overflow-hidden aspect-square border-2 group bg-gray-100 ${
+                            idx === 0 ? 'border-[#f47b20] shadow-xs' : 'border-black/[0.08]'
+                          }`}
+                        >
+                          <img 
+                            src={img} 
+                            alt={`Uploaded ${idx + 1}`} 
+                            className="w-full h-full object-cover"
+                          />
+                          {idx === 0 && (
+                            <span className="absolute top-1 left-1 bg-[#f47b20] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-xs">
+                              Cover
+                            </span>
+                          )}
+
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5">
+                            {idx !== 0 && (
+                              <button
+                                type="button"
+                                onClick={() => setPrimaryImage(idx)}
+                                title="Make Cover Photo"
+                                className="p-1.5 rounded-full bg-white text-gray-800 hover:bg-amber-100 cursor-pointer"
+                              >
+                                <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                              </button>
+                            )}
                             <button
                               type="button"
-                              onClick={() => setPrimaryImage(idx)}
-                              title="Make Cover Photo"
-                              className="p-1.5 rounded-full bg-white text-gray-800 hover:bg-amber-100"
+                              onClick={() => removeImage(idx)}
+                              title="Remove Photo"
+                              className="p-1.5 rounded-full bg-red-600 text-white hover:bg-red-700 cursor-pointer"
                             >
-                              <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                              <Trash2 className="w-3.5 h-3.5" />
                             </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* 5. Color Palette Selection + Custom Color */}
+                <div className="pt-1">
+                  <label className="block font-semibold text-[#1d1d1f] mb-1.5">
+                    Color Selection <span className="font-normal text-[#6e6e73]">(Choose from palette or add custom)</span>
+                  </label>
+
+                  <div className="flex flex-wrap items-center gap-2 p-3 bg-white rounded-[20px] border border-black/[0.08] mb-2.5 shadow-2xs">
+                    {PALETTE_COLORS.map(c => {
+                      const isSelected = selectedColors.includes(c.name);
+                      return (
+                        <button
+                          key={c.name}
+                          type="button"
+                          onClick={() => togglePaletteColor(c.name)}
+                          title={c.name}
+                          className={`relative w-7 h-7 rounded-full transition-transform cursor-pointer flex items-center justify-center ${
+                            c.border ? 'border border-gray-300' : ''
+                          } ${isSelected ? 'ring-2 ring-offset-2 ring-[#f47b20] scale-110' : 'hover:scale-105'}`}
+                          style={{ backgroundColor: c.hex }}
+                        >
+                          {isSelected && (
+                            <Check 
+                              className={`w-3.5 h-3.5 stroke-[3] ${
+                                c.hex === '#FFFFFF' || c.hex === '#EAB308' || c.hex === '#D1D5DB' 
+                                  ? 'text-black' 
+                                  : 'text-white'
+                              }`} 
+                            />
                           )}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="flex items-center gap-2 mb-2">
+                    <input
+                      type="color"
+                      value={customColorHex}
+                      onChange={(e) => setCustomColorHex(e.target.value)}
+                      className="w-8 h-8 rounded-full border border-black/[0.08] cursor-pointer p-0.5 bg-white shrink-0 shadow-2xs"
+                      title="Pick Color"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Enter color name (e.g. Olive Green, Rose Gold)"
+                      value={customColorName}
+                      onChange={(e) => setCustomColorName(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustomColor(); } }}
+                      className="flex-1 px-4 py-2 rounded-full border border-black/[0.08] bg-white text-xs outline-none focus:border-[#f47b20] shadow-2xs"
+                    />
+                    <button
+                      type="button"
+                      onClick={addCustomColor}
+                      className="px-4 py-2 rounded-full border border-black/[0.08] bg-white hover:bg-gray-50 text-[#1d1d1f] text-xs font-semibold cursor-pointer active:scale-95 shadow-2xs"
+                    >
+                      + Add
+                    </button>
+                  </div>
+
+                  {selectedColors.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {selectedColors.map(color => (
+                        <span 
+                          key={color} 
+                          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-black/[0.08] text-[11px] font-medium text-[#1d1d1f] shadow-2xs"
+                        >
+                          <span 
+                            className="w-2.5 h-2.5 rounded-full border border-black/10" 
+                            style={{
+                              backgroundColor: PALETTE_COLORS.find(p => p.name === color)?.hex || '#6e6e73'
+                            }} 
+                          />
+                          <span>{color}</span>
                           <button
                             type="button"
-                            onClick={() => removeImage(idx)}
-                            title="Remove Photo"
-                            className="p-1.5 rounded-full bg-red-600 text-white hover:bg-red-700"
+                            onClick={() => togglePaletteColor(color)}
+                            className="text-gray-400 hover:text-black ml-0.5 cursor-pointer"
                           >
-                            <Trash2 className="w-3.5 h-3.5" />
+                            <X className="w-3 h-3" />
                           </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* 5. Color Palette Selection + Custom Color */}
-              <div className="pt-1">
-                <label className="block font-semibold text-gray-800 mb-1">
-                  Color Selection <span className="font-normal text-gray-500">(Choose from palette or add custom)</span>
-                </label>
-
-                {/* Color Palette Swatches */}
-                <div className="flex flex-wrap items-center gap-2 p-3 bg-gray-50 rounded-[20px] border border-gray-200 mb-2.5">
-                  {PALETTE_COLORS.map(c => {
-                    const isSelected = selectedColors.includes(c.name);
-                    return (
-                      <button
-                        key={c.name}
-                        type="button"
-                        onClick={() => togglePaletteColor(c.name)}
-                        title={c.name}
-                        className={`relative w-7 h-7 rounded-full transition-transform cursor-pointer flex items-center justify-center ${
-                          c.border ? 'border border-gray-300' : ''
-                        } ${isSelected ? 'ring-2 ring-offset-2 ring-[#f47b20] scale-110' : 'hover:scale-105'}`}
-                        style={{ backgroundColor: c.hex }}
-                      >
-                        {isSelected && (
-                          <Check 
-                            className={`w-3.5 h-3.5 stroke-[3] ${
-                              c.hex === '#FFFFFF' || c.hex === '#EAB308' || c.hex === '#D1D5DB' 
-                                ? 'text-black' 
-                                : 'text-white'
-                            }`} 
-                          />
-                        )}
-                      </button>
-                    );
-                  })}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
-                {/* Add Custom Color Input */}
-                <div className="flex items-center gap-2 mb-2">
-                  <input
-                    type="color"
-                    value={customColorHex}
-                    onChange={(e) => setCustomColorHex(e.target.value)}
-                    className="w-8 h-8 rounded-full border border-gray-200 cursor-pointer p-0.5 bg-white shrink-0"
-                    title="Pick Color"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Enter color name (e.g. Olive Green, Rose Gold)"
-                    value={customColorName}
-                    onChange={(e) => setCustomColorName(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustomColor(); } }}
-                    className="flex-1 px-4 py-2 rounded-full border border-gray-200 text-xs outline-none focus:border-[#f47b20]"
-                  />
-                  <button
-                    type="button"
-                    onClick={addCustomColor}
-                    className="px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-semibold cursor-pointer active:scale-95"
-                  >
-                    + Add
-                  </button>
-                </div>
+                {/* 6. Size Selection */}
+                <div className="pt-1">
+                  <label className="block font-semibold text-[#1d1d1f] mb-1.5">
+                    Available Sizes / Specs
+                  </label>
 
-                {/* Selected Colors List */}
-                {selectedColors.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5">
-                    {selectedColors.map(color => (
-                      <span 
-                        key={color} 
-                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-gray-200 text-[11px] font-medium text-gray-800 shadow-2xs"
-                      >
-                        <span 
-                          className="w-2.5 h-2.5 rounded-full border border-black/10" 
-                          style={{
-                            backgroundColor: PALETTE_COLORS.find(p => p.name === color)?.hex || '#6e6e73'
-                          }} 
-                        />
-                        <span>{color}</span>
+                  <div className="flex flex-wrap gap-1.5 mb-2">
+                    {PRESET_SIZES.map(s => {
+                      const isSelected = selectedSizes.includes(s);
+                      return (
                         <button
-                          type="button"
-                          onClick={() => togglePaletteColor(color)}
-                          className="text-gray-400 hover:text-black ml-0.5"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* 6. Size Selection */}
-              <div className="pt-1">
-                <label className="block font-semibold text-gray-800 mb-1">
-                  Available Sizes / Specs
-                </label>
-
-                {/* Preset Chips */}
-                <div className="flex flex-wrap gap-1.5 mb-2">
-                  {PRESET_SIZES.map(s => {
-                    const isSelected = selectedSizes.includes(s);
-                    return (
-                      <button
-                        key={s}
-                        type="button"
-                        onClick={() => togglePresetSize(s)}
-                        className={`px-3.5 py-1.5 rounded-full text-xs font-semibold cursor-pointer transition-colors active:scale-95 ${
-                          isSelected 
-                            ? 'bg-[#1d1d1f] text-white shadow-2xs' 
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        }`}
-                      >
-                        {s}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* Add Custom Size */}
-                <div className="flex items-center gap-2 mb-2">
-                  <input
-                    type="text"
-                    placeholder="Custom size (e.g. 85x200cm, 500ml, 2.5kVA)"
-                    value={customSizeInput}
-                    onChange={(e) => setCustomSizeInput(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustomSize(); } }}
-                    className="flex-1 px-4 py-2 rounded-full border border-gray-200 text-xs outline-none focus:border-[#f47b20]"
-                  />
-                  <button
-                    type="button"
-                    onClick={addCustomSize}
-                    className="px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-semibold cursor-pointer active:scale-95"
-                  >
-                    + Add
-                  </button>
-                </div>
-
-                {/* Selected Custom Sizes */}
-                {selectedSizes.some(s => !PRESET_SIZES.includes(s)) && (
-                  <div className="flex flex-wrap gap-1.5">
-                    {selectedSizes.filter(s => !PRESET_SIZES.includes(s)).map(s => (
-                      <span 
-                        key={s} 
-                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-gray-200 text-[11px] font-medium text-gray-800 shadow-2xs"
-                      >
-                        <span>{s}</span>
-                        <button
+                          key={s}
                           type="button"
                           onClick={() => togglePresetSize(s)}
-                          className="text-gray-400 hover:text-black ml-0.5"
+                          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold cursor-pointer transition-colors active:scale-95 ${
+                            isSelected 
+                              ? 'bg-[#1d1d1f] text-white shadow-2xs' 
+                              : 'bg-white border border-black/[0.08] text-[#1d1d1f] hover:bg-gray-50'
+                          }`}
                         >
-                          <X className="w-3 h-3" />
+                          {s}
                         </button>
-                      </span>
-                    ))}
+                      );
+                    })}
                   </div>
-                )}
-              </div>
 
-              {/* 7. Description */}
-              <div className="pt-1">
-                <label className="block font-semibold text-gray-800 mb-1">
-                  Description
-                </label>
-                <textarea
-                  rows={3}
-                  placeholder="Provide product details, material quality, and usage instructions..."
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="w-full px-4 py-3 rounded-[22px] border border-gray-200 focus:border-[#f47b20] outline-none text-xs bg-gray-50/50 focus:bg-white transition-colors resize-y leading-relaxed"
-                />
-              </div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <input
+                      type="text"
+                      placeholder="Custom size (e.g. 85x200cm, 500ml, 2.5kVA)"
+                      value={customSizeInput}
+                      onChange={(e) => setCustomSizeInput(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustomSize(); } }}
+                      className="flex-1 px-4 py-2 rounded-full border border-black/[0.08] bg-white text-xs outline-none focus:border-[#f47b20] shadow-2xs"
+                    />
+                    <button
+                      type="button"
+                      onClick={addCustomSize}
+                      className="px-4 py-2 rounded-full border border-black/[0.08] bg-white hover:bg-gray-50 text-[#1d1d1f] text-xs font-semibold cursor-pointer active:scale-95 shadow-2xs"
+                    >
+                      + Add
+                    </button>
+                  </div>
 
-              {/* In Stock Toggle */}
-              <div className="pt-2 flex items-center justify-between border-t border-gray-100">
-                <label className="flex items-center gap-2 cursor-pointer">
+                  {selectedSizes.some(s => !PRESET_SIZES.includes(s)) && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {selectedSizes.filter(s => !PRESET_SIZES.includes(s)).map(s => (
+                        <span 
+                          key={s} 
+                          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-black/[0.08] text-[11px] font-medium text-[#1d1d1f] shadow-2xs"
+                        >
+                          <span>{s}</span>
+                          <button
+                            type="button"
+                            onClick={() => togglePresetSize(s)}
+                            className="text-gray-400 hover:text-black ml-0.5 cursor-pointer"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* 7. Description */}
+                <div className="pt-1">
+                  <label className="block font-semibold text-[#1d1d1f] mb-1.5">
+                    Description
+                  </label>
+                  <textarea
+                    rows={3}
+                    placeholder="Provide product details, material quality, and usage instructions..."
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="w-full px-4 py-3 rounded-[20px] border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-xs transition-colors resize-y leading-relaxed shadow-2xs"
+                  />
+                </div>
+
+                {/* In Stock Toggle */}
+                <label className="flex items-center gap-2.5 p-3.5 rounded-[18px] bg-white border border-black/[0.07] cursor-pointer select-none shadow-2xs">
                   <input
                     type="checkbox"
                     checked={inStock}
                     onChange={(e) => setInStock(e.target.checked)}
                     className="w-4 h-4 rounded text-[#f47b20] focus:ring-0 cursor-pointer"
                   />
-                  <span className="font-semibold text-gray-800 text-xs">Available In Stock</span>
+                  <span className="font-semibold text-[#1d1d1f] text-xs">Available In Stock</span>
                 </label>
-              </div>
+              </form>
+            </div>
 
-              {/* Submit / Action Bar: Sticky bottom with liquid glass */}
-              <div className="sticky bottom-0 z-20 bg-white/85 backdrop-blur-xl -mx-6 -mb-8 px-6 sm:-mx-8 sm:-mb-8 sm:px-8 py-4 border-t border-black/[0.04] flex items-center justify-end shrink-0 shadow-2xs mt-4 rounded-b-[36px]">
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="w-full sm:w-auto px-8 py-3 rounded-full bg-[#f47b20] hover:bg-[#c95510] text-white text-xs font-semibold shadow-[0_2px_10px_rgba(244,123,32,0.3)] disabled:opacity-50 cursor-pointer transition-all active:scale-95"
-                >
-                  {isSaving ? 'Saving to Database...' : editingProduct ? 'Save Changes' : 'Publish Product'}
-                </button>
-              </div>
-            </form>
+            {/* Docked Footer (Strictly outside scroll container — zero bleed-through) */}
+            <div className="shrink-0 bg-white/95 border-t border-black/[0.06] px-6 sm:px-7 py-4 flex items-center justify-end gap-2.5">
+              <button
+                type="button"
+                disabled={isSaving}
+                onClick={() => setIsFormOpen(false)}
+                className="px-5 py-2.5 rounded-full border border-black/[0.08] bg-white hover:bg-gray-50 text-[#1d1d1f] text-xs font-semibold cursor-pointer transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                form="admin-product-form"
+                disabled={isSaving}
+                className="px-8 py-2.5 rounded-full bg-[#f47b20] hover:bg-[#c95510] text-white text-xs font-semibold shadow-[0_2px_10px_rgba(244,123,32,0.3)] disabled:opacity-50 cursor-pointer transition-all active:scale-95"
+              >
+                {isSaving ? 'Saving to Database...' : editingProduct ? 'Save Changes' : 'Publish Product'}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
       )}
 
       {/* ========================================================
@@ -2937,43 +2937,42 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
           ======================================================== */}
       {productToDelete && (
         <div 
-          className="fixed inset-0 z-[200] bg-black/40 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-150"
+          className="fixed inset-0 z-[200] bg-black/40 backdrop-blur-md flex items-center justify-center p-4 animate-fluid-page"
           onClick={() => !isDeleting && setProductToDelete(null)}
         >
           <div 
-            className="relative bg-white rounded-[32px] w-full max-w-sm p-6 shadow-2xl border border-gray-100 animate-in zoom-in-95 duration-150 text-center"
+            className="relative apple-liquid-glass rounded-[32px] w-full max-w-sm p-6 sm:p-7 shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_24px_64px_rgba(0,0,0,0.18)] border border-white/95 animate-fluid-sheet text-center overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Floating Cancel Button */}
+            <div className="specular-highlight opacity-55" />
             <button
               type="button"
               disabled={isDeleting}
               onClick={() => setProductToDelete(null)}
-              className="absolute top-3.5 right-3.5 z-20 inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs transition-all cursor-pointer active:scale-95 shadow-2xs border border-gray-200/60 disabled:opacity-50"
-              aria-label="Cancel deletion"
+              className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-black/[0.05] hover:bg-black/[0.09] text-gray-600 flex items-center justify-center transition-all cursor-pointer active:scale-95 disabled:opacity-50"
+              aria-label="Close"
             >
-              <X className="w-3.5 h-3.5" />
-              <span>Cancel</span>
+              <X className="w-4 h-4" />
             </button>
 
-            <div className="w-12 h-12 rounded-full bg-red-50 text-red-600 flex items-center justify-center mx-auto mb-3.5 border border-red-100">
-              <Trash2 className="w-6 h-6" />
+            <div className="w-12 h-12 rounded-[16px] bg-red-50/90 text-red-600 flex items-center justify-center mx-auto mb-3.5 border border-red-200/70 relative z-10">
+              <Trash2 className="w-5 h-5" />
             </div>
 
-            <h3 className="font-display text-lg font-bold text-gray-900 mb-1">
+            <h3 className="font-display text-lg font-bold text-[#1d1d1f] mb-1 relative z-10">
               Delete Product?
             </h3>
 
-            <p className="text-xs text-gray-500 mb-5 leading-relaxed">
-              Are you sure you want to delete <strong className="text-gray-900 font-semibold block mt-0.5 truncate max-w-xs mx-auto">"{productToDelete.title}"</strong>? It will be removed live from the store immediately.
+            <p className="text-xs text-[#6e6e73] mb-5 leading-relaxed relative z-10">
+              Are you sure you want to delete <strong className="text-[#1d1d1f] font-semibold block mt-0.5 truncate max-w-xs mx-auto">"{productToDelete.title}"</strong>? It will be removed live from the store immediately.
             </p>
 
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2.5 relative z-10">
               <button
                 type="button"
                 disabled={isDeleting}
                 onClick={() => setProductToDelete(null)}
-                className="flex-1 py-2.5 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50 text-xs font-semibold cursor-pointer disabled:opacity-50 transition-colors"
+                className="flex-1 py-2.5 rounded-full border border-black/[0.08] bg-white/85 hover:bg-white text-[#1d1d1f] text-xs font-semibold cursor-pointer disabled:opacity-50 transition-colors"
               >
                 Cancel
               </button>
@@ -3001,60 +3000,61 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
       {/* Quick Set Position Modal */}
       {quickPosModalProduct && (
         <div 
-          className="fixed inset-0 z-[200] bg-black/40 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-150"
+          className="fixed inset-0 z-[200] bg-black/40 backdrop-blur-xl flex items-center justify-center p-4 animate-fluid-page"
           onClick={() => setQuickPosModalProduct(null)}
         >
           <div 
-            className="relative bg-white/90 backdrop-blur-2xl rounded-[32px] w-full max-w-sm p-6 shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_24px_64px_rgba(0,0,0,0.18)] border border-white/90 animate-in zoom-in-95 duration-150 overflow-hidden"
+            className="relative bg-white/95 backdrop-blur-2xl rounded-[32px] w-full max-w-sm shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_24px_64px_rgba(0,0,0,0.2)] border border-white/95 animate-fluid-sheet overflow-hidden flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* iOS Sheet Grabber */}
-            <div className="w-9 h-1 rounded-full bg-gray-300/80 mx-auto -mt-1 mb-3" />
-
-            <div className="flex items-center justify-between pb-3 border-b border-black/[0.04] mb-4 pr-1">
-              <div className="flex items-center gap-2 min-w-0 pr-2">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500/15 via-orange-500/10 to-orange-500/5 border border-orange-200/60 shadow-2xs flex items-center justify-center text-[#f47b20] shrink-0">
-                  <SlidersHorizontal className="w-4 h-4" />
+            {/* Docked Header */}
+            <div className="shrink-0 bg-white/95 border-b border-black/[0.06] px-6 pt-3 pb-4">
+              <div className="w-9 h-1 rounded-full bg-gray-300/80 mx-auto mb-3" />
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-8 h-8 rounded-[12px] bg-gradient-to-br from-orange-500/15 via-orange-500/10 to-orange-500/5 border border-orange-200/70 flex items-center justify-center text-[#f47b20] shrink-0">
+                    <SlidersHorizontal className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="font-display text-base font-bold text-[#1d1d1f] leading-tight truncate">
+                      Set Product Rank
+                    </h3>
+                    <p className="text-[11px] text-[#6e6e73] truncate">
+                      Storefront position order
+                    </p>
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <h3 className="font-display text-base font-bold text-gray-900 leading-tight truncate">
-                    Set Product Rank
-                  </h3>
-                  <p className="text-[11px] text-gray-500 truncate">
-                    Storefront position order
-                  </p>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setQuickPosModalProduct(null)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/[0.05] hover:bg-black/[0.09] text-[#1d1d1f] font-semibold text-xs transition-all cursor-pointer active:scale-95 shrink-0"
+                  aria-label="Cancel rank dialog"
+                >
+                  <X className="w-3.5 h-3.5" />
+                  <span>Cancel</span>
+                </button>
               </div>
-              {/* Floating Cancel Button: Always fixed and accessible */}
-              <button
-                type="button"
-                onClick={() => setQuickPosModalProduct(null)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/70 hover:bg-white/90 backdrop-blur-md text-gray-700 font-semibold text-xs transition-all cursor-pointer active:scale-95 shadow-2xs border border-white/80 shrink-0"
-                aria-label="Cancel rank dialog"
-              >
-                <X className="w-3.5 h-3.5" />
-                <span>Cancel</span>
-              </button>
             </div>
 
-            <div className="mb-4">
-              <div className="flex items-center gap-2.5 p-3 bg-white/70 backdrop-blur-md rounded-[20px] mb-3 border border-black/[0.04] shadow-2xs">
+            {/* Body */}
+            <div className="p-6 bg-black/[0.015]">
+              <div className="flex items-center gap-2.5 p-3 bg-white rounded-[18px] mb-4 border border-black/[0.07] shadow-2xs">
                 <img
                   src={quickPosModalProduct.imageUrl}
                   alt={quickPosModalProduct.title}
-                  className="w-10 h-10 rounded-[12px] object-cover border border-gray-200 shrink-0"
+                  className="w-10 h-10 rounded-[10px] object-cover border border-black/[0.06] shrink-0"
                 />
                 <div className="min-w-0 flex-1">
-                  <p className="font-semibold text-xs text-gray-900 truncate">
+                  <p className="font-semibold text-xs text-[#1d1d1f] truncate">
                     {quickPosModalProduct.title}
                   </p>
-                  <p className="text-[11px] text-gray-500">
+                  <p className="text-[11px] text-[#6e6e73] tabular-nums">
                     Currently: #{quickPosModalProduct.position ?? (products.findIndex(p => p.id === quickPosModalProduct.id) + 1)}
                   </p>
                 </div>
               </div>
 
-              <label className="block text-xs font-semibold text-gray-800 mb-1.5">
+              <label className="block text-xs font-semibold text-[#1d1d1f] mb-1.5">
                 New Position Number (1 to {products.length})
               </label>
               <div className="flex items-center gap-2">
@@ -3071,22 +3071,23 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                       handleSetExactPosition(quickPosModalProduct.id, Number(targetQuickPos) || 1);
                     }
                   }}
-                  className="flex-1 px-4 py-2.5 rounded-full border border-gray-200 bg-white/70 focus:bg-white focus:border-[#f47b20] outline-none text-sm font-bold text-gray-900 transition-colors"
+                  className="flex-1 px-4 py-2.5 rounded-full border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-sm font-bold text-[#1d1d1f] tabular-nums transition-colors shadow-2xs"
                 />
                 <button
                   type="button"
                   onClick={() => setTargetQuickPos(1)}
-                  className="px-4 py-2 rounded-full border border-white/80 bg-white/70 hover:bg-white backdrop-blur-md text-[11px] font-semibold text-gray-700 whitespace-nowrap cursor-pointer shadow-2xs active:scale-95"
+                  className="px-4 py-2.5 rounded-full border border-black/[0.08] bg-white hover:bg-gray-50 text-[11px] font-semibold text-[#1d1d1f] whitespace-nowrap cursor-pointer shadow-2xs active:scale-95"
                 >
                   Make #1
                 </button>
               </div>
-              <p className="text-[11px] text-gray-500 mt-1.5">
+              <p className="text-[11px] text-[#6e6e73] mt-2">
                 Entering 1 moves this product to the very top of the store catalog.
               </p>
             </div>
 
-            <div className="pt-2 border-t border-black/[0.04]">
+            {/* Docked Footer */}
+            <div className="shrink-0 bg-white/95 border-t border-black/[0.06] px-6 py-4">
               <button
                 type="button"
                 onClick={() => handleSetExactPosition(quickPosModalProduct.id, Number(targetQuickPos) || 1)}
@@ -3102,51 +3103,50 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
       {/* Full Organize Store Positions Modal with Apple Liquid Glass */}
       {isOrganizeModalOpen && (
         <div 
-          className="fixed inset-0 z-[180] bg-black/40 backdrop-blur-xl flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-150"
+          className="fixed inset-0 z-[180] bg-black/40 backdrop-blur-xl flex items-center justify-center p-2.5 sm:p-4 overscroll-none touch-none animate-fluid-page"
           onClick={() => setIsOrganizeModalOpen(false)}
         >
           <div 
-            className="relative bg-white/90 backdrop-blur-2xl rounded-[36px] w-full max-w-2xl shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_24px_64px_rgba(0,0,0,0.18)] border border-white/90 max-h-[92vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150"
+            className="relative bg-white/95 backdrop-blur-2xl rounded-[32px] w-full max-w-2xl shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_24px_64px_rgba(0,0,0,0.2)] border border-white/95 max-h-[92vh] flex flex-col overflow-hidden animate-fluid-sheet touch-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* iOS Sheet Grabber */}
-            <div className="w-9 h-1 rounded-full bg-gray-300/80 mx-auto mt-2.5 mb-1" />
-
-            {/* Header: Sticky Floating Bar with Fixed Cancel Button */}
-            <div className="sticky top-0 z-30 px-6 sm:px-8 py-3.5 border-b border-black/[0.04] flex items-center justify-between shrink-0 bg-white/80 backdrop-blur-xl shadow-2xs rounded-t-[36px]">
-              <div className="min-w-0 pr-2">
-                <h2 className="font-display text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2 truncate">
-                  <SlidersHorizontal className="w-5 h-5 text-[#f47b20] shrink-0" />
-                  <span className="truncate">Organize Store Positions</span>
-                </h2>
-                <p className="text-[11px] text-gray-500 mt-0.5 truncate">
-                  Change the display sequence of products across the catalog and storefront.
-                </p>
+            {/* Docked Header */}
+            <div className="shrink-0 bg-white/95 border-b border-black/[0.06] px-6 sm:px-7 pt-3 pb-4">
+              <div className="w-9 h-1 rounded-full bg-gray-300/80 mx-auto mb-3" />
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <h2 className="font-display text-lg sm:text-xl font-bold text-[#1d1d1f] flex items-center gap-2 truncate">
+                    <SlidersHorizontal className="w-5 h-5 text-[#f47b20] shrink-0" />
+                    <span className="truncate">Organize Store Positions</span>
+                  </h2>
+                  <p className="text-[11px] text-[#6e6e73] mt-0.5 truncate">
+                    Change the display sequence of products across the catalog and storefront.
+                  </p>
+                </div>
+                
+                <button 
+                  type="button"
+                  onClick={() => setIsOrganizeModalOpen(false)}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/[0.05] hover:bg-black/[0.09] text-[#1d1d1f] font-semibold text-xs transition-all cursor-pointer active:scale-95 shrink-0"
+                  aria-label="Cancel and close"
+                >
+                  <X className="w-3.5 h-3.5" />
+                  <span>Cancel</span>
+                </button>
               </div>
-              
-              {/* Floating Cancel Button: Always fixed and accessible while scrolling */}
-              <button 
-                type="button"
-                onClick={() => setIsOrganizeModalOpen(false)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/70 hover:bg-white/90 backdrop-blur-md text-gray-700 font-semibold text-xs transition-all cursor-pointer active:scale-95 shadow-2xs border border-white/80 shrink-0"
-                aria-label="Cancel and close"
-              >
-                <X className="w-3.5 h-3.5" />
-                <span>Cancel</span>
-              </button>
             </div>
 
-            {/* Content Area */}
-            <div className="p-6 sm:p-8 flex-1 overflow-y-auto flex flex-col">
+            {/* Scrollable Content Area */}
+            <div className="flex-1 overflow-y-auto touch-momentum px-6 sm:px-7 py-5 bg-black/[0.015] flex flex-col">
               {/* Quick Actions Bar */}
-              <div className="flex items-center justify-between gap-2 p-3 bg-orange-50/70 border border-orange-200/80 rounded-full mb-4 shrink-0">
-                <span className="text-xs text-[#c95510] font-medium pl-3">
+              <div className="flex items-center justify-between gap-2 p-2.5 bg-gradient-to-r from-orange-50/90 to-amber-50/60 border border-orange-200/75 rounded-full mb-4 shrink-0">
+                <span className="text-xs text-[#c95510] font-medium pl-3 tabular-nums">
                   Total Products: <strong>{products.length}</strong>
                 </span>
                 <button
                   type="button"
                   onClick={handleAutoNumberPositions}
-                  className="px-4 py-1.5 rounded-full bg-white hover:bg-orange-100 text-[#c95510] border border-orange-200 text-xs font-semibold shadow-2xs transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
+                  className="px-4 py-1.5 rounded-full bg-white hover:bg-orange-50 text-[#c95510] border border-orange-200/80 text-xs font-semibold shadow-2xs transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
                   title="Renumber products clean sequentially 1, 2, 3..."
                 >
                   <Check className="w-3.5 h-3.5" />
@@ -3155,43 +3155,40 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
               </div>
 
               {/* Product Ordering List */}
-              <div className="flex-1 overflow-y-auto space-y-2 pr-1 min-h-[300px]">
+              <div className="space-y-2">
                 {[...products]
                   .sort((a, b) => (a.position ?? 99999) - (b.position ?? 99999))
                   .map((item, index, arr) => (
                     <div
                       key={item.id}
-                      className="p-3 rounded-[20px] border border-gray-200/90 bg-white hover:border-gray-300 flex items-center justify-between gap-2.5 transition-colors shadow-2xs"
+                      className="p-3 rounded-[18px] border border-black/[0.07] bg-white hover:border-black/[0.14] flex items-center justify-between gap-2.5 transition-colors shadow-2xs"
                     >
-                      {/* Position Number */}
-                      <div className="w-8 h-8 rounded-[12px] bg-orange-50 border border-orange-200 flex items-center justify-center font-mono font-bold text-xs text-[#c95510] shrink-0">
+                      <div className="w-8 h-8 rounded-[10px] bg-orange-50 border border-orange-200/75 flex items-center justify-center font-mono font-bold text-xs text-[#c95510] shrink-0 tabular-nums">
                         #{item.position ?? (index + 1)}
                       </div>
 
-                      {/* Thumbnail & Title */}
                       <div className="flex items-center gap-2.5 min-w-0 flex-1">
                         <img
                           src={item.imageUrl}
                           alt={item.title}
-                          className="w-10 h-10 rounded-[12px] object-cover border border-gray-200 bg-gray-50 shrink-0"
+                          className="w-10 h-10 rounded-[10px] object-cover border border-black/[0.06] bg-gray-50 shrink-0"
                         />
                         <div className="min-w-0 flex-1">
-                          <p className="font-semibold text-xs text-gray-900 truncate">
+                          <p className="font-semibold text-xs text-[#1d1d1f] truncate">
                             {item.title}
                           </p>
-                          <p className="text-[10px] text-gray-400">
-                            {item.category} • {formatNaira(item.price)}
+                          <p className="text-[10px] text-[#6e6e73] tabular-nums">
+                            {item.category} · {formatNaira(item.price)}
                           </p>
                         </div>
                       </div>
 
-                      {/* Up / Down Controls */}
                       <div className="flex items-center gap-1.5 shrink-0">
                         <button
                           type="button"
                           onClick={() => handleMoveProductPosition(item.id, 'up')}
                           disabled={index === 0}
-                          className="p-2 rounded-full border border-gray-200 hover:bg-orange-50 hover:text-[#f47b20] text-gray-600 disabled:opacity-25 disabled:pointer-events-none transition-colors cursor-pointer active:scale-95"
+                          className="p-2 rounded-full border border-black/[0.08] bg-white hover:bg-orange-50 hover:text-[#f47b20] text-gray-600 disabled:opacity-25 disabled:pointer-events-none transition-colors cursor-pointer active:scale-95"
                           title="Move Up"
                         >
                           <ArrowUp className="w-3.5 h-3.5" />
@@ -3200,20 +3197,19 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                           type="button"
                           onClick={() => handleMoveProductPosition(item.id, 'down')}
                           disabled={index === arr.length - 1}
-                          className="p-2 rounded-full border border-gray-200 hover:bg-orange-50 hover:text-[#f47b20] text-gray-600 disabled:opacity-25 disabled:pointer-events-none transition-colors cursor-pointer active:scale-95"
+                          className="p-2 rounded-full border border-black/[0.08] bg-white hover:bg-orange-50 hover:text-[#f47b20] text-gray-600 disabled:opacity-25 disabled:pointer-events-none transition-colors cursor-pointer active:scale-95"
                           title="Move Down"
                         >
                           <ArrowDown className="w-3.5 h-3.5" />
                         </button>
 
-                        {/* Set Position Quick Button */}
                         <button
                           type="button"
                           onClick={() => {
                             setQuickPosModalProduct(item);
                             setTargetQuickPos(item.position ?? (index + 1));
                           }}
-                          className="px-3 py-1.5 rounded-full border border-gray-200 hover:bg-gray-100 text-[11px] font-semibold text-gray-700 cursor-pointer transition-colors active:scale-95 shadow-2xs"
+                          className="px-3 py-1.5 rounded-full border border-black/[0.08] bg-white hover:bg-gray-50 text-[11px] font-semibold text-[#1d1d1f] cursor-pointer transition-colors active:scale-95 shadow-2xs"
                         >
                           Set Rank
                         </button>
@@ -3223,20 +3219,18 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
               </div>
             </div>
 
-            {/* Footer with Apple Liquid Glass */}
-            <div className="p-4 sm:px-8 sm:py-4 border-t border-black/[0.04] flex items-center justify-between shrink-0 bg-white/85 backdrop-blur-xl shadow-2xs rounded-b-[36px]">
-              <span className="text-[11px] text-gray-500">
+            {/* Docked Footer */}
+            <div className="shrink-0 bg-white/95 border-t border-black/[0.06] px-6 sm:px-7 py-4 flex items-center justify-between gap-3">
+              <span className="text-[11px] text-[#6e6e73]">
                 Positions update live on the customer shop.
               </span>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsOrganizeModalOpen(false)}
-                  className="px-7 py-2.5 rounded-full bg-[#1d1d1f] hover:bg-black text-white text-xs font-semibold shadow-[0_2px_10px_rgba(0,0,0,0.15)] cursor-pointer transition-all active:scale-95"
-                >
-                  Done
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => setIsOrganizeModalOpen(false)}
+                className="px-7 py-2.5 rounded-full bg-[#1d1d1f] hover:bg-black text-white text-xs font-semibold shadow-[0_2px_10px_rgba(0,0,0,0.15)] cursor-pointer transition-all active:scale-95"
+              >
+                Done
+              </button>
             </div>
           </div>
         </div>
@@ -3245,46 +3239,45 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
       {/* Delete Order Confirmation Modal */}
       {orderToDelete && (
         <div 
-          className="fixed inset-0 z-[200] bg-black/40 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-150"
+          className="fixed inset-0 z-[200] bg-black/40 backdrop-blur-md flex items-center justify-center p-4 animate-fluid-page"
           onClick={() => !isDeletingOrder && setOrderToDelete(null)}
         >
           <div 
-            className="relative bg-white rounded-[32px] w-full max-w-sm p-6 shadow-2xl border border-gray-100 animate-in zoom-in-95 duration-150 text-center"
+            className="relative apple-liquid-glass rounded-[32px] w-full max-w-sm p-6 sm:p-7 shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_24px_64px_rgba(0,0,0,0.18)] border border-white/95 animate-fluid-sheet text-center overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Floating Cancel Button */}
+            <div className="specular-highlight opacity-55" />
             <button
               type="button"
               disabled={isDeletingOrder}
               onClick={() => setOrderToDelete(null)}
-              className="absolute top-3.5 right-3.5 z-20 inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs transition-all cursor-pointer active:scale-95 shadow-2xs border border-gray-200/60 disabled:opacity-50"
-              aria-label="Cancel deletion"
+              className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-black/[0.05] hover:bg-black/[0.09] text-gray-600 flex items-center justify-center transition-all cursor-pointer active:scale-95 disabled:opacity-50"
+              aria-label="Close"
             >
-              <X className="w-3.5 h-3.5" />
-              <span>Cancel</span>
+              <X className="w-4 h-4" />
             </button>
 
-            <div className="w-12 h-12 rounded-full bg-red-50 text-red-600 flex items-center justify-center mx-auto mb-3.5 border border-red-100">
-              <Trash2 className="w-6 h-6" />
+            <div className="w-12 h-12 rounded-[16px] bg-red-50/90 text-red-600 flex items-center justify-center mx-auto mb-3.5 border border-red-200/70 relative z-10">
+              <Trash2 className="w-5 h-5" />
             </div>
 
-            <h3 className="font-display text-lg font-bold text-gray-900 mb-1">
+            <h3 className="font-display text-lg font-bold text-[#1d1d1f] mb-1 relative z-10">
               Delete Order?
             </h3>
 
-            <p className="text-xs text-gray-500 mb-4 leading-relaxed">
-              Are you sure you want to delete order <strong className="text-gray-900">#{orderToDelete.id ? orderToDelete.id.slice(0, 8) : 'ORD'}</strong> for <strong className="text-gray-900">{orderToDelete.customerName}</strong> ({formatNaira(orderToDelete.totalAmount)})?
+            <p className="text-xs text-[#6e6e73] mb-4 leading-relaxed relative z-10">
+              Are you sure you want to delete order <strong className="text-[#1d1d1f]">#{orderToDelete.id ? orderToDelete.id.slice(0, 8) : 'ORD'}</strong> for <strong className="text-[#1d1d1f]">{orderToDelete.customerName}</strong> ({formatNaira(orderToDelete.totalAmount)})?
             </p>
-            <p className="text-[11px] text-red-600 bg-red-50 p-2.5 rounded-[16px] border border-red-100 mb-5">
+            <p className="text-[11px] text-red-700 bg-red-50/90 p-2.5 rounded-[14px] border border-red-200/70 mb-5 relative z-10">
               This order and transaction record will be permanently deleted from the database.
             </p>
 
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2.5 relative z-10">
               <button
                 type="button"
                 disabled={isDeletingOrder}
                 onClick={() => setOrderToDelete(null)}
-                className="flex-1 py-2.5 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50 text-xs font-semibold cursor-pointer disabled:opacity-50 transition-colors"
+                className="flex-1 py-2.5 rounded-full border border-black/[0.08] bg-white/85 hover:bg-white text-[#1d1d1f] text-xs font-semibold cursor-pointer disabled:opacity-50 transition-colors"
               >
                 Cancel
               </button>
