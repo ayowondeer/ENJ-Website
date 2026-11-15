@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   CheckCircle2, 
   Phone, 
@@ -35,13 +36,143 @@ import {
 } from './data/testimonials';
 import { applySEOForPage, PageType } from './utils/seo';
 
+interface HomeServiceItem {
+  id: string;
+  title: string;
+  image: string;
+  fallback: string;
+  shortDescription: string;
+  fullDescription: string;
+  deliverables: string[];
+  contactService: string;
+}
+
+const HOME_SERVICES: HomeServiceItem[] = [
+  {
+    id: '01',
+    title: 'Paper & Corporate Printing',
+    image: '/paper.jpeg',
+    fallback: '/assets/aistudio/paper_f6713a43.jpeg',
+    shortDescription: 'Elevate your brand touchpoints with crisp, high-resolution stationery and marketing collateral.',
+    fullDescription: 'Offset and digital press production tailored for organizations, schools, and growing brands — calibrated for sharp typography, accurate brand colors, and premium paper stocks with matte, gloss, or spot-UV finishing.',
+    deliverables: [
+      'Business cards & ID cards',
+      'Company letterheads & envelopes',
+      'Brochures, flyers & catalogues',
+      'Receipt books, invoices & folders'
+    ],
+    contactService: 'Digital Printing'
+  },
+  {
+    id: '02',
+    title: 'Large-format & Outdoor Signage',
+    image: '/banner.jpeg',
+    fallback: '/assets/aistudio/banner_f14a3920.jpeg',
+    shortDescription: 'Turn heads and capture foot traffic with high-impact visuals designed to withstand the elements.',
+    fullDescription: 'Weather-resistant, UV-stable wide-format printing engineered for storefronts, conferences, roadside campaigns, and fleet visibility with clean hemming, eyeleting, and mounting options.',
+    deliverables: [
+      'Flex banners & mesh backdrops',
+      'SAV vinyl stickers & one-way vision',
+      'Roll-up banners & X-stand displays',
+      'Signboards, 3D lettering & vehicle wraps'
+    ],
+    contactService: 'Large-format Signage'
+  },
+  {
+    id: '03',
+    title: 'Custom Apparel & Textile',
+    image: '/shirt.jpeg',
+    fallback: '/assets/aistudio/shirt_f6a3624f.jpeg',
+    shortDescription: 'Outfit your team or launch your merch line with durable, vibrant apparel customization.',
+    fullDescription: 'Precision DTF transfers, sublimation, heat-press vinyl, and screen printing on breathable cotton, corporate polo shirts, hoodies, caps, and promotional fabrics built to hold color through repeated washes.',
+    deliverables: [
+      'Branded round-neck T-shirts & polos',
+      'Corporate & NGO event uniforms',
+      'Tote bags, aprons & reflective vests',
+      'Custom mugs, caps & fabric souvenirs'
+    ],
+    contactService: 'Custom Apparel / Embroidery'
+  },
+  {
+    id: '04',
+    title: 'Stitch & Embroidery',
+    image: '/stitch.jpg',
+    fallback: '/assets/aistudio/stitch_2384090b.jpg',
+    shortDescription: 'Bring your brand to life with premium, textured thread work that adds depth and durability.',
+    fullDescription: 'Computerized multi-head embroidery digitized directly from your crest or logo for crisp stitch density on structured corporate shirts, jackets, caps, and ceremonial wear.',
+    deliverables: [
+      'Digitized logos & monogram crests',
+      'Corporate polo & workwear branding',
+      'Structured caps, hats & patches',
+      'Long-lasting fade-proof thread finishes'
+    ],
+    contactService: 'Custom Apparel / Embroidery'
+  },
+  {
+    id: '05',
+    title: 'Laser Engraving',
+    image: '/engrave.jpg',
+    fallback: '/assets/aistudio/engrave_020d7bfe.jpg',
+    shortDescription: 'Permanent, high-precision marking and dimensional cutting that delivers a refined touch.',
+    fullDescription: 'High-accuracy laser etching and clean contour cutting across wood, acrylic, leather, coated metals, and glass — ideal for executive awards, corporate gifting, and official rubber stamps.',
+    deliverables: [
+      'Crystal, acrylic & wooden awards',
+      'Engraved pens, flasks & gift sets',
+      'Self-inking & custom rubber stamps',
+      'Custom keyholders, tags & nameplates'
+    ],
+    contactService: 'Laser Engraving'
+  },
+  {
+    id: '06',
+    title: 'Graphic Design & Creative',
+    image: '/graphic.jpg',
+    fallback: '/assets/aistudio/graphic_363550c6.jpg',
+    shortDescription: 'Professional design solutions built to optimize production and engage your target audience.',
+    fullDescription: 'End-to-end visual communication crafted in print-ready CMYK and high-resolution digital formats — ensuring every layout translates cleanly from concept screen to physical press.',
+    deliverables: [
+      'Logo systems & brand guidelines',
+      'Product packaging & label layouts',
+      'Annual reports, magazines & books',
+      'Campaign posters & social graphics'
+    ],
+    contactService: 'General Enquiry'
+  }
+];
+
 export default function App() {
   const [currentPage, setCurrentPage] = useState<'home' | 'portfolio' | 'shop' | 'company' | 'contact' | 'admin'>('home');
   const [targetPage, setTargetPage] = useState<'home' | 'portfolio' | 'shop' | 'company' | 'contact' | 'admin' | null>(null);
   const [isPageLoading, setIsPageLoading] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
+  const [expandedServiceId, setExpandedServiceId] = useState<string | null>(null);
   const navTimerRef = useRef<number | null>(null);
+  const serviceModalScrollRef = useRef<HTMLDivElement | null>(null);
+
+  const selectedService = expandedServiceId
+    ? HOME_SERVICES.find((s) => s.id === expandedServiceId) ?? null
+    : null;
+
+  useEffect(() => {
+    if (!selectedService) return;
+    serviceModalScrollRef.current?.scrollTo({ top: 0 });
+
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setExpandedServiceId(null);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedService]);
 
   // Testimonials State (authentic Nigerian names, horizontally scrollable)
   const [testimonials, setTestimonials] = useState<TestimonialItem[]>(() => getLocalTestimonials());
@@ -754,155 +885,46 @@ export default function App() {
 
               {/* 6 Visual Services Cards with Apple Liquid Glass & Concentric Curves */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-5">
-                {/* 01 */}
-                <div 
-                  onClick={() => navigateTo('shop')} 
-                  className="group rounded-[22px] sm:rounded-[28px] p-3 sm:p-3.5 apple-liquid-glass-interactive hover:shadow-xl transition-all duration-300 cursor-pointer touch-action-card relative overflow-hidden flex flex-col"
-                >
-                  <div className="specular-highlight opacity-75" />
-                  <div className="relative h-44 sm:h-48 rounded-[14px] overflow-hidden bg-gray-100 mb-3 shadow-2xs z-10">
-                    <img 
-                      src="/paper.jpeg" 
-                      alt="Paper & Corporate Printing" 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      onError={(e) => { (e.target as HTMLImageElement).src = '/assets/aistudio/paper_f6713a43.jpeg'; }}
-                    />
-                    <span className="absolute top-2.5 left-2.5 w-7 h-7 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center font-display font-bold text-[10px] text-[#1d1d1f] shadow-xs border border-white/80">
-                      01
-                    </span>
+                {HOME_SERVICES.map((service) => (
+                  <div
+                    key={service.id}
+                    role="button"
+                    tabIndex={0}
+                    aria-haspopup="dialog"
+                    aria-expanded={expandedServiceId === service.id}
+                    onClick={() => setExpandedServiceId(service.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setExpandedServiceId(service.id);
+                      }
+                    }}
+                    className="group rounded-[22px] sm:rounded-[28px] p-3 sm:p-3.5 apple-liquid-glass-interactive hover:shadow-xl transition-all duration-300 cursor-pointer touch-action-card relative overflow-hidden flex flex-col text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#f47b20]/60"
+                  >
+                    <div className="specular-highlight opacity-75" />
+                    <div className="relative h-44 sm:h-48 rounded-[14px] overflow-hidden bg-gray-100 mb-3 shadow-2xs z-10">
+                      <img
+                        src={service.image}
+                        alt={service.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = service.fallback;
+                        }}
+                      />
+                      <span className="absolute top-2.5 left-2.5 w-7 h-7 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center font-display font-bold text-[10px] text-[#1d1d1f] shadow-xs border border-white/80">
+                        {service.id}
+                      </span>
+                    </div>
+                    <div className="mb-1 relative z-10">
+                      <h3 className="font-display text-sm font-semibold text-[#1d1d1f] group-hover:text-[#c95510] transition-colors">
+                        {service.title}
+                      </h3>
+                    </div>
+                    <p className="text-[#6e6e73] text-xs leading-relaxed line-clamp-2 relative z-10">
+                      {service.shortDescription}
+                    </p>
                   </div>
-                  <div className="mb-1 relative z-10">
-                    <h3 className="font-display text-sm font-semibold text-[#1d1d1f] group-hover:text-[#c95510] transition-colors">Paper & Corporate Printing</h3>
-                  </div>
-                  <p className="text-[#6e6e73] text-xs leading-relaxed line-clamp-2 relative z-10">
-                    Elevate your brand touchpoints with crisp, high-resolution stationery and marketing collateral.
-                  </p>
-                </div>
-
-                {/* 02 */}
-                <div 
-                  onClick={() => navigateTo('shop')}
-                  className="group rounded-[22px] sm:rounded-[28px] p-3 sm:p-3.5 apple-liquid-glass-interactive hover:shadow-xl transition-all duration-300 cursor-pointer touch-action-card relative overflow-hidden flex flex-col"
-                >
-                  <div className="specular-highlight opacity-75" />
-                  <div className="relative h-44 sm:h-48 rounded-[14px] overflow-hidden bg-gray-100 mb-3 shadow-2xs z-10">
-                    <img 
-                      src="/banner.jpeg" 
-                      alt="Large-format & Outdoor Signage" 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      onError={(e) => { (e.target as HTMLImageElement).src = '/assets/aistudio/banner_f14a3920.jpeg'; }}
-                    />
-                    <span className="absolute top-2.5 left-2.5 w-7 h-7 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center font-display font-bold text-[10px] text-[#1d1d1f] shadow-xs border border-white/80">
-                      02
-                    </span>
-                  </div>
-                  <div className="mb-1 relative z-10">
-                    <h3 className="font-display text-sm font-semibold text-[#1d1d1f] group-hover:text-[#c95510] transition-colors">Large-format & Outdoor Signage</h3>
-                  </div>
-                  <p className="text-[#6e6e73] text-xs leading-relaxed line-clamp-2 relative z-10">
-                    Turn heads and capture foot traffic with high-impact visuals designed to withstand the elements.
-                  </p>
-                </div>
-
-                {/* 03 */}
-                <div 
-                  onClick={() => navigateTo('shop')}
-                  className="group rounded-[22px] sm:rounded-[28px] p-3 sm:p-3.5 apple-liquid-glass-interactive hover:shadow-xl transition-all duration-300 cursor-pointer touch-action-card relative overflow-hidden flex flex-col"
-                >
-                  <div className="specular-highlight opacity-75" />
-                  <div className="relative h-44 sm:h-48 rounded-[14px] overflow-hidden bg-gray-100 mb-3 shadow-2xs z-10">
-                    <img 
-                      src="/shirt.jpeg" 
-                      alt="Custom Apparel & Textile Printing" 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      onError={(e) => { (e.target as HTMLImageElement).src = '/assets/aistudio/shirt_f6a3624f.jpeg'; }}
-                    />
-                    <span className="absolute top-2.5 left-2.5 w-7 h-7 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center font-display font-bold text-[10px] text-[#1d1d1f] shadow-xs border border-white/80">
-                      03
-                    </span>
-                  </div>
-                  <div className="mb-1 relative z-10">
-                    <h3 className="font-display text-sm font-semibold text-[#1d1d1f] group-hover:text-[#c95510] transition-colors">Custom Apparel & Textile</h3>
-                  </div>
-                  <p className="text-[#6e6e73] text-xs leading-relaxed line-clamp-2 relative z-10">
-                    Outfit your team or launch your merch line with durable, vibrant apparel customization.
-                  </p>
-                </div>
-
-                {/* 04 */}
-                <div 
-                  onClick={() => navigateTo('shop')}
-                  className="group rounded-[22px] sm:rounded-[28px] p-3 sm:p-3.5 apple-liquid-glass-interactive hover:shadow-xl transition-all duration-300 cursor-pointer touch-action-card relative overflow-hidden flex flex-col"
-                >
-                  <div className="specular-highlight opacity-75" />
-                  <div className="relative h-44 sm:h-48 rounded-[14px] overflow-hidden bg-gray-100 mb-3 shadow-2xs z-10">
-                    <img 
-                      src="/stitch.jpg" 
-                      alt="Stitch & Embroidery" 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      onError={(e) => { (e.target as HTMLImageElement).src = '/assets/aistudio/stitch_2384090b.jpg'; }}
-                    />
-                    <span className="absolute top-2.5 left-2.5 w-7 h-7 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center font-display font-bold text-[10px] text-[#1d1d1f] shadow-xs border border-white/80">
-                      04
-                    </span>
-                  </div>
-                  <div className="mb-1 relative z-10">
-                    <h3 className="font-display text-sm font-semibold text-[#1d1d1f] group-hover:text-[#c95510] transition-colors">Stitch & Embroidery</h3>
-                  </div>
-                  <p className="text-[#6e6e73] text-xs leading-relaxed line-clamp-2 relative z-10">
-                    Bring your brand to life with premium, textured thread work that adds depth and durability.
-                  </p>
-                </div>
-
-                {/* 05 */}
-                <div 
-                  onClick={() => navigateTo('shop')}
-                  className="group rounded-[22px] sm:rounded-[28px] p-3 sm:p-3.5 apple-liquid-glass-interactive hover:shadow-xl transition-all duration-300 cursor-pointer touch-action-card relative overflow-hidden flex flex-col"
-                >
-                  <div className="specular-highlight opacity-75" />
-                  <div className="relative h-44 sm:h-48 rounded-[14px] overflow-hidden bg-gray-100 mb-3 shadow-2xs z-10">
-                    <img 
-                      src="/engrave.jpg" 
-                      alt="Laser Engraving" 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      onError={(e) => { (e.target as HTMLImageElement).src = '/assets/aistudio/engrave_020d7bfe.jpg'; }}
-                    />
-                    <span className="absolute top-2.5 left-2.5 w-7 h-7 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center font-display font-bold text-[10px] text-[#1d1d1f] shadow-xs border border-white/80">
-                      05
-                    </span>
-                  </div>
-                  <div className="mb-1 relative z-10">
-                    <h3 className="font-display text-sm font-semibold text-[#1d1d1f] group-hover:text-[#c95510] transition-colors">Laser Engraving</h3>
-                  </div>
-                  <p className="text-[#6e6e73] text-xs leading-relaxed line-clamp-2 relative z-10">
-                    Permanent, high-precision marking and dimensional cutting that delivers a refined touch.
-                  </p>
-                </div>
-
-                {/* 06 */}
-                <div 
-                  onClick={() => navigateTo('shop')}
-                  className="group rounded-[22px] sm:rounded-[28px] p-3 sm:p-3.5 apple-liquid-glass-interactive hover:shadow-xl transition-all duration-300 cursor-pointer touch-action-card relative overflow-hidden flex flex-col"
-                >
-                  <div className="specular-highlight opacity-75" />
-                  <div className="relative h-44 sm:h-48 rounded-[14px] overflow-hidden bg-gray-100 mb-3 shadow-2xs z-10">
-                    <img 
-                      src="/graphic.jpg" 
-                      alt="Graphic Design & Creative Services" 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      onError={(e) => { (e.target as HTMLImageElement).src = '/assets/aistudio/graphic_363550c6.jpg'; }}
-                    />
-                    <span className="absolute top-2.5 left-2.5 w-7 h-7 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center font-display font-bold text-[10px] text-[#1d1d1f] shadow-xs border border-white/80">
-                      06
-                    </span>
-                  </div>
-                  <div className="mb-1 relative z-10">
-                    <h3 className="font-display text-sm font-semibold text-[#1d1d1f] group-hover:text-[#c95510] transition-colors">Graphic Design & Creative</h3>
-                  </div>
-                  <p className="text-[#6e6e73] text-xs leading-relaxed line-clamp-2 relative z-10">
-                    Professional design solutions built to optimize production and engage your target audience.
-                  </p>
-                </div>
+                ))}
               </div>
 
               {/* Explore Store Banner */}
@@ -1414,6 +1436,124 @@ export default function App() {
       </div>
 
       {navLoadingOverlay}
+
+      {/* Liquid Glass Expanded Service Card Overlay */}
+      {selectedService &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[9990] flex items-center justify-center p-3.5 sm:p-6 apple-lightbox-backdrop animate-liquid-backdrop"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="expanded-service-title"
+            onClick={() => setExpandedServiceId(null)}
+          >
+            <div
+              key={selectedService.id}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-lg max-h-[90dvh] rounded-[28px] sm:rounded-[34px] apple-modal-glass animate-liquid-expand overflow-hidden flex flex-col"
+            >
+              <div className="specular-highlight opacity-80 z-20" />
+
+              {/* Pinned Floating Close Button while scrolling */}
+              <button
+                type="button"
+                onClick={() => setExpandedServiceId(null)}
+                className="absolute top-3 right-3 sm:top-3.5 sm:right-3.5 z-30 w-9 h-9 rounded-full apple-floating-glass flex items-center justify-center text-[#1d1d1f] cursor-pointer touch-action-btn"
+                aria-label="Close service details"
+                title="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              {/* Scrollable Modal Body underneath floating actions */}
+              <div
+                ref={serviceModalScrollRef}
+                className="overflow-y-auto touch-momentum p-3.5 sm:p-5 flex-1 min-h-0 relative z-10"
+              >
+                {/* Hero Preview Image */}
+                <div className="relative h-52 sm:h-64 rounded-[20px] sm:rounded-[24px] overflow-hidden bg-gray-100 mb-4 shadow-sm">
+                  <img
+                    src={selectedService.image}
+                    alt={selectedService.title}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = selectedService.fallback;
+                    }}
+                  />
+                </div>
+
+                {/* Service Details */}
+                <div className="px-1 sm:px-1.5 pb-1 space-y-4">
+                  <div>
+                    <p className="text-[10px] font-bold tracking-widest uppercase text-[#c95510] mb-1">
+                      Service {selectedService.id} of {String(HOME_SERVICES.length).padStart(2, '0')}
+                    </p>
+                    <h3
+                      id="expanded-service-title"
+                      className="font-display text-xl sm:text-2xl font-semibold tracking-tight text-[#1d1d1f]"
+                    >
+                      {selectedService.title}
+                    </h3>
+                  </div>
+
+                  <div className="space-y-2 text-xs sm:text-sm text-[#3a3a3c] leading-relaxed">
+                    <p className="font-medium text-[#1d1d1f]">{selectedService.shortDescription}</p>
+                    <p className="text-[#515154]">{selectedService.fullDescription}</p>
+                  </div>
+
+                  <div className="pt-3 border-t border-black/10">
+                    <p className="text-[10px] font-bold tracking-widest uppercase text-[#6e6e73] mb-2">
+                      What we produce
+                    </p>
+                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
+                      {selectedService.deliverables.map((item) => (
+                        <li
+                          key={item}
+                          className="flex items-start gap-2 text-xs text-[#1d1d1f] leading-snug"
+                        >
+                          <CheckCircle2 className="w-4 h-4 text-[#f47b20] shrink-0 mt-0.5" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setExpandedServiceId(null);
+                        navigateTo('shop');
+                      }}
+                      className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 sm:py-2.5 rounded-full bg-[#1d1d1f] hover:bg-[#3a3a3c] text-white text-xs font-semibold transition-colors cursor-pointer touch-action-btn shadow-sm"
+                    >
+                      <Store className="w-3.5 h-3.5" />
+                      <span>Browse Store</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const targetService = selectedService.contactService;
+                        setExpandedServiceId(null);
+                        setFormData((prev) => ({
+                          ...prev,
+                          service: targetService
+                        }));
+                        navigateTo('contact');
+                      }}
+                      className="flex-1 inline-flex items-center justify-center gap-1.5 px-5 py-3 sm:py-2.5 rounded-full bg-[#f47b20] hover:bg-[#c95510] text-white text-xs font-semibold transition-colors cursor-pointer touch-action-btn shadow-sm"
+                    >
+                      <span>Request Quote</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
       </div>
     </>
   );
