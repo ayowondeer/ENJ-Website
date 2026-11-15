@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   CheckCircle2, 
   Phone, 
@@ -41,6 +41,7 @@ export default function App() {
   const [isPageLoading, setIsPageLoading] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
+  const navTimerRef = useRef<number | null>(null);
 
   // Testimonials State (authentic Nigerian names, horizontally scrollable)
   const [testimonials, setTestimonials] = useState<TestimonialItem[]>(() => getLocalTestimonials());
@@ -202,6 +203,13 @@ export default function App() {
     };
 
     const handleHashChange = () => {
+      if (navTimerRef.current !== null) {
+        window.clearTimeout(navTimerRef.current);
+        navTimerRef.current = null;
+      }
+      setIsPageLoading(false);
+      setTargetPage(null);
+
       const target = getCleanHash();
       setCurrentPage((prev) => {
         if (prev !== target) {
@@ -222,21 +230,80 @@ export default function App() {
     }
 
     window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+      if (navTimerRef.current !== null) {
+        window.clearTimeout(navTimerRef.current);
+        navTimerRef.current = null;
+      }
+    };
   }, []);
 
   const navigateTo = (page: PageType) => {
+    if (navTimerRef.current !== null) {
+      window.clearTimeout(navTimerRef.current);
+      navTimerRef.current = null;
+    }
+
     if (page === currentPage) {
+      setMobileMenuOpen(false);
+      setIsPageLoading(false);
+      setTargetPage(null);
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
     setMobileMenuOpen(false);
-    setCurrentPage(page);
-    window.location.hash = page === 'home' ? '' : page;
-    window.scrollTo({ top: 0, behavior: 'instant' });
-    applySEOForPage(page);
+    setTargetPage(page);
+    setIsPageLoading(true);
+
+    navTimerRef.current = window.setTimeout(() => {
+      setCurrentPage(page);
+      window.location.hash = page === 'home' ? '' : page;
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      applySEOForPage(page);
+      setIsPageLoading(false);
+      setTargetPage(null);
+      navTimerRef.current = null;
+    }, 280);
   };
+
+  const activeNavPage = isPageLoading && targetPage ? targetPage : currentPage;
+
+  const pageLabels: Record<PageType, string> = {
+    home: 'Home',
+    portfolio: 'Portfolio',
+    company: 'Company',
+    contact: 'Contact',
+    shop: 'Store',
+    admin: 'Portal'
+  };
+
+  const navLoadingOverlay = isPageLoading && (
+    <>
+      {/* Ultra-thin top viewport progress bar */}
+      <div className="fixed top-0 inset-x-0 z-[120] h-[2.5px] bg-black/5 pointer-events-none overflow-hidden">
+        <div
+          key={targetPage || 'loading'}
+          className="h-full bg-gradient-to-r from-[#f47b20] via-amber-400 to-[#c95510] animate-nav-progress shadow-[0_0_8px_rgba(244,123,32,0.55)]"
+        />
+      </div>
+
+      {/* Minimal frosted transition pill */}
+      <div
+        className="fixed inset-0 z-[115] flex items-center justify-center p-4 bg-white/25 backdrop-blur-[2px] pointer-events-none animate-fluid-page"
+        aria-live="polite"
+      >
+        <div className="flex items-center gap-2.5 px-4 py-2 rounded-full apple-floating-glass relative overflow-hidden">
+          <div className="specular-highlight opacity-70" />
+          <div className="w-3.5 h-3.5 border-2 border-black/15 border-t-[#f47b20] rounded-full animate-spin shrink-0 relative z-10" />
+          <span className="text-[11px] font-semibold tracking-wide text-[#1d1d1f] relative z-10">
+            {targetPage ? `Opening ${pageLabels[targetPage]}…` : 'Loading…'}
+          </span>
+        </div>
+      </div>
+    </>
+  );
 
   const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -329,7 +396,8 @@ export default function App() {
     return (
       <>
         {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
-        <div className="w-full max-w-full overflow-x-clip min-h-screen selection:bg-[#f47b20] selection:text-white">
+        {navLoadingOverlay}
+        <div className={`w-full max-w-full overflow-x-clip min-h-screen selection:bg-[#f47b20] selection:text-white transition-opacity duration-200 ${isPageLoading ? 'opacity-70' : 'opacity-100'}`}>
           <ShopView
             cart={cart}
             addToCart={addToCart}
@@ -355,7 +423,8 @@ export default function App() {
     return (
       <>
         {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
-        <div className="w-full max-w-full overflow-x-clip min-h-screen selection:bg-[#f47b20] selection:text-white">
+        {navLoadingOverlay}
+        <div className={`w-full max-w-full overflow-x-clip min-h-screen selection:bg-[#f47b20] selection:text-white transition-opacity duration-200 ${isPageLoading ? 'opacity-70' : 'opacity-100'}`}>
           <AdminPortal
             onNavigateHome={() => navigateTo('home')}
             onNavigateShop={() => navigateTo('shop')}
@@ -390,8 +459,8 @@ export default function App() {
       </svg>
 
       {/* Persistent Floating Pill Navigation Header: Consistent across all pages */}
-      <header className="fixed top-3 sm:top-5 inset-x-0 mx-auto z-50 w-[min(780px,calc(100%-24px))] sm:w-[min(780px,calc(100%-32px))] pointer-events-auto">
-        <nav className="glass-pill backdrop-blur-2xl backdrop-saturate-200 rounded-full px-3 sm:px-4 py-2 sm:py-1.5 flex items-center justify-between shadow-[0_16px_36px_-6px_rgba(0,0,0,0.14),0_3px_12px_rgba(0,0,0,0.06)] border border-white/90">
+      <header className="fixed top-3 sm:top-5 inset-x-0 mx-auto z-50 w-[min(780px,calc(100%-24px))] sm:w-[min(780px,calc(100%-32px))] pointer-events-none">
+        <nav className="pointer-events-auto glass-pill rounded-full px-3 sm:px-4 py-2 sm:py-1.5 flex items-center justify-between">
           {/* Logo Icon Only */}
           <button 
             onClick={() => navigateTo('home')} 
@@ -413,7 +482,7 @@ export default function App() {
             <button
               onClick={() => navigateTo('home')}
               className={`px-3 py-1 text-[11px] font-semibold rounded-full cursor-pointer nav-pill-btn ${
-                currentPage === 'home'
+                activeNavPage === 'home'
                   ? 'bg-white text-[#1d1d1f] shadow-xs font-bold scale-[1.02]'
                   : 'text-[#515154] hover:text-[#c95510]'
               }`}
@@ -423,7 +492,7 @@ export default function App() {
             <button
               onClick={() => navigateTo('portfolio')}
               className={`px-3 py-1 text-[11px] font-semibold rounded-full cursor-pointer nav-pill-btn ${
-                currentPage === 'portfolio'
+                activeNavPage === 'portfolio'
                   ? 'bg-white text-[#1d1d1f] shadow-xs font-bold scale-[1.02]'
                   : 'text-[#515154] hover:text-[#c95510]'
               }`}
@@ -433,7 +502,7 @@ export default function App() {
             <button
               onClick={() => navigateTo('company')}
               className={`px-3 py-1 text-[11px] font-semibold rounded-full cursor-pointer nav-pill-btn ${
-                currentPage === 'company'
+                activeNavPage === 'company'
                   ? 'bg-white text-[#1d1d1f] shadow-xs font-bold scale-[1.02]'
                   : 'text-[#515154] hover:text-[#c95510]'
               }`}
@@ -443,7 +512,7 @@ export default function App() {
             <button
               onClick={() => navigateTo('contact')}
               className={`px-3 py-1 text-[11px] font-semibold rounded-full cursor-pointer nav-pill-btn ${
-                currentPage === 'contact'
+                activeNavPage === 'contact'
                   ? 'bg-white text-[#1d1d1f] shadow-xs font-bold scale-[1.02]'
                   : 'text-[#515154] hover:text-[#c95510]'
               }`}
@@ -473,68 +542,94 @@ export default function App() {
           </div>
         </nav>
 
-        {/* Floating Mobile Dropdown Panel with Apple Liquid Glass and fully rounded touch targets */}
-        {mobileMenuOpen && (
-          <div className="md:hidden mt-2 p-3 apple-liquid-glass border border-white/90 rounded-[28px] shadow-2xl flex flex-col gap-1.5 animate-fluid-sheet relative overflow-hidden">
-            <div className="specular-highlight opacity-75" />
+        {/* Floating Mobile Dropdown Panel with iPhone Liquid Glass Spring Expansion */}
+        <div
+          aria-hidden={!mobileMenuOpen}
+          className={`md:hidden absolute top-full inset-x-0 mt-2 p-3 apple-liquid-glass rounded-[28px] shadow-2xl flex flex-col gap-1.5 overflow-hidden origin-top-right transition-all duration-350 ease-liquid-spring ${
+            mobileMenuOpen
+              ? 'opacity-100 scale-100 translate-y-0 blur-0 pointer-events-auto'
+              : 'opacity-0 scale-[0.72] -translate-y-3 blur-[6px] pointer-events-none'
+          }`}
+        >
+          <div className="specular-highlight opacity-75" />
+          <button
+            tabIndex={mobileMenuOpen ? 0 : -1}
+            onClick={() => navigateTo('home')}
+            className={`w-full text-left px-5 py-3 rounded-full text-sm font-semibold cursor-pointer touch-action-btn relative z-10 transition-all duration-300 ease-liquid-spring ${
+              mobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1'
+            } ${
+              activeNavPage === 'home' ? 'bg-[#1d1d1f] text-white font-bold shadow-xs' : 'hover:bg-black/5 text-[#424245]'
+            }`}
+          >
+            Home
+          </button>
+          <button
+            tabIndex={mobileMenuOpen ? 0 : -1}
+            onClick={() => navigateTo('portfolio')}
+            style={{ transitionDelay: mobileMenuOpen ? '25ms' : '0ms' }}
+            className={`w-full text-left px-5 py-3 rounded-full text-sm font-semibold cursor-pointer touch-action-btn relative z-10 transition-all duration-300 ease-liquid-spring ${
+              mobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1'
+            } ${
+              activeNavPage === 'portfolio' ? 'bg-[#1d1d1f] text-white font-bold shadow-xs' : 'hover:bg-black/5 text-[#424245]'
+            }`}
+          >
+            Portfolio
+          </button>
+          <button
+            tabIndex={mobileMenuOpen ? 0 : -1}
+            onClick={() => navigateTo('company')}
+            style={{ transitionDelay: mobileMenuOpen ? '50ms' : '0ms' }}
+            className={`w-full text-left px-5 py-3 rounded-full text-sm font-semibold cursor-pointer touch-action-btn relative z-10 transition-all duration-300 ease-liquid-spring ${
+              mobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1'
+            } ${
+              activeNavPage === 'company' ? 'bg-[#1d1d1f] text-white font-bold shadow-xs' : 'hover:bg-black/5 text-[#424245]'
+            }`}
+          >
+            Company
+          </button>
+          <button
+            tabIndex={mobileMenuOpen ? 0 : -1}
+            onClick={() => navigateTo('contact')}
+            style={{ transitionDelay: mobileMenuOpen ? '75ms' : '0ms' }}
+            className={`w-full text-left px-5 py-3 rounded-full text-sm font-semibold cursor-pointer touch-action-btn relative z-10 transition-all duration-300 ease-liquid-spring ${
+              mobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1'
+            } ${
+              activeNavPage === 'contact' ? 'bg-[#1d1d1f] text-white font-bold shadow-xs' : 'hover:bg-black/5 text-[#424245]'
+            }`}
+          >
+            Contact
+          </button>
+          <div
+            style={{ transitionDelay: mobileMenuOpen ? '100ms' : '0ms' }}
+            className={`pt-2 border-t border-black/5 flex flex-col gap-1 relative z-10 transition-all duration-300 ease-liquid-spring ${
+              mobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1'
+            }`}
+          >
             <button
-              onClick={() => navigateTo('home')}
-              className={`w-full text-left px-5 py-3 rounded-full text-sm font-semibold cursor-pointer touch-action-btn relative z-10 transition-colors ${
-                currentPage === 'home' ? 'bg-[#1d1d1f] text-white font-bold shadow-xs' : 'hover:bg-black/5 text-[#424245]'
-              }`}
+              tabIndex={mobileMenuOpen ? 0 : -1}
+              onClick={() => navigateTo('shop')}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-full bg-[#f47b20] hover:bg-[#c95510] active:scale-[0.98] text-white text-sm font-semibold shadow-xs cursor-pointer touch-action-btn"
             >
-              Home
+              <Store className="w-4 h-4" />
+              <span>Visit Online Store</span>
             </button>
-            <button
-              onClick={() => navigateTo('portfolio')}
-              className={`w-full text-left px-5 py-3 rounded-full text-sm font-semibold cursor-pointer touch-action-btn relative z-10 transition-colors ${
-                currentPage === 'portfolio' ? 'bg-[#1d1d1f] text-white font-bold shadow-xs' : 'hover:bg-black/5 text-[#424245]'
-              }`}
-            >
-              Portfolio
-            </button>
-            <button
-              onClick={() => navigateTo('company')}
-              className={`w-full text-left px-5 py-3 rounded-full text-sm font-semibold cursor-pointer touch-action-btn relative z-10 transition-colors ${
-                currentPage === 'company' ? 'bg-[#1d1d1f] text-white font-bold shadow-xs' : 'hover:bg-black/5 text-[#424245]'
-              }`}
-            >
-              Company
-            </button>
-            <button
-              onClick={() => navigateTo('contact')}
-              className={`w-full text-left px-5 py-3 rounded-full text-sm font-semibold cursor-pointer touch-action-btn relative z-10 transition-colors ${
-                currentPage === 'contact' ? 'bg-[#1d1d1f] text-white font-bold shadow-xs' : 'hover:bg-black/5 text-[#424245]'
-              }`}
-            >
-              Contact
-            </button>
-            <div className="pt-2 border-t border-black/5 flex flex-col gap-1 relative z-10">
-              <button
-                onClick={() => navigateTo('shop')}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-full bg-[#f47b20] hover:bg-[#c95510] active:scale-[0.98] text-white text-sm font-semibold shadow-xs cursor-pointer touch-action-btn"
-              >
-                <Store className="w-4 h-4" />
-                <span>Visit Online Store</span>
-              </button>
-            </div>
           </div>
-        )}
+        </div>
       </header>
 
       {/* Backdrop for mobile menu to close on outside touch */}
-      {mobileMenuOpen && (
-        <div 
-          className="fixed inset-0 z-40 bg-black/25 backdrop-blur-2xs md:hidden" 
-          onClick={() => setMobileMenuOpen(false)} 
-          aria-hidden="true"
-        />
-      )}
+      <div 
+        className={`fixed inset-0 z-40 bg-black/25 backdrop-blur-2xs md:hidden transition-opacity duration-300 ${
+          mobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={() => setMobileMenuOpen(false)} 
+        aria-hidden="true"
+      />
 
       {/* Entire Page Content: fast, snappy transition per view */}
       <div 
         key={currentPage}
-        className="flex-1 flex flex-col min-h-screen w-full max-w-full overflow-x-clip"
+        className={`flex-1 flex flex-col min-h-screen w-full max-w-full overflow-x-clip transition-opacity duration-200 ${isPageLoading ? 'opacity-70' : 'opacity-100'}`}
       >
         <main className={`flex-1 ${currentPage === 'home' ? 'pt-0' : 'pt-20 sm:pt-24'} pb-16`}>
 
@@ -658,11 +753,11 @@ export default function App() {
               </div>
 
               {/* 6 Visual Services Cards with Apple Liquid Glass & Concentric Curves */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-5">
                 {/* 01 */}
                 <div 
                   onClick={() => navigateTo('shop')} 
-                  className="group rounded-[28px] p-3.5 apple-liquid-glass-interactive border border-white/90 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.95),0_10px_28px_-4px_rgba(0,0,0,0.05)] hover:shadow-xl transition-all duration-300 cursor-pointer touch-action-card relative overflow-hidden flex flex-col"
+                  className="group rounded-[22px] sm:rounded-[28px] p-3 sm:p-3.5 apple-liquid-glass-interactive hover:shadow-xl transition-all duration-300 cursor-pointer touch-action-card relative overflow-hidden flex flex-col"
                 >
                   <div className="specular-highlight opacity-75" />
                   <div className="relative h-44 sm:h-48 rounded-[14px] overflow-hidden bg-gray-100 mb-3 shadow-2xs z-10">
@@ -687,7 +782,7 @@ export default function App() {
                 {/* 02 */}
                 <div 
                   onClick={() => navigateTo('shop')}
-                  className="group rounded-[28px] p-3.5 apple-liquid-glass-interactive border border-white/90 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.95),0_10px_28px_-4px_rgba(0,0,0,0.05)] hover:shadow-xl transition-all duration-300 cursor-pointer touch-action-card relative overflow-hidden flex flex-col"
+                  className="group rounded-[22px] sm:rounded-[28px] p-3 sm:p-3.5 apple-liquid-glass-interactive hover:shadow-xl transition-all duration-300 cursor-pointer touch-action-card relative overflow-hidden flex flex-col"
                 >
                   <div className="specular-highlight opacity-75" />
                   <div className="relative h-44 sm:h-48 rounded-[14px] overflow-hidden bg-gray-100 mb-3 shadow-2xs z-10">
@@ -712,7 +807,7 @@ export default function App() {
                 {/* 03 */}
                 <div 
                   onClick={() => navigateTo('shop')}
-                  className="group rounded-[28px] p-3.5 apple-liquid-glass-interactive border border-white/90 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.95),0_10px_28px_-4px_rgba(0,0,0,0.05)] hover:shadow-xl transition-all duration-300 cursor-pointer touch-action-card relative overflow-hidden flex flex-col"
+                  className="group rounded-[22px] sm:rounded-[28px] p-3 sm:p-3.5 apple-liquid-glass-interactive hover:shadow-xl transition-all duration-300 cursor-pointer touch-action-card relative overflow-hidden flex flex-col"
                 >
                   <div className="specular-highlight opacity-75" />
                   <div className="relative h-44 sm:h-48 rounded-[14px] overflow-hidden bg-gray-100 mb-3 shadow-2xs z-10">
@@ -737,7 +832,7 @@ export default function App() {
                 {/* 04 */}
                 <div 
                   onClick={() => navigateTo('shop')}
-                  className="group rounded-[28px] p-3.5 apple-liquid-glass-interactive border border-white/90 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.95),0_10px_28px_-4px_rgba(0,0,0,0.05)] hover:shadow-xl transition-all duration-300 cursor-pointer touch-action-card relative overflow-hidden flex flex-col"
+                  className="group rounded-[22px] sm:rounded-[28px] p-3 sm:p-3.5 apple-liquid-glass-interactive hover:shadow-xl transition-all duration-300 cursor-pointer touch-action-card relative overflow-hidden flex flex-col"
                 >
                   <div className="specular-highlight opacity-75" />
                   <div className="relative h-44 sm:h-48 rounded-[14px] overflow-hidden bg-gray-100 mb-3 shadow-2xs z-10">
@@ -762,7 +857,7 @@ export default function App() {
                 {/* 05 */}
                 <div 
                   onClick={() => navigateTo('shop')}
-                  className="group rounded-[28px] p-3.5 apple-liquid-glass-interactive border border-white/90 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.95),0_10px_28px_-4px_rgba(0,0,0,0.05)] hover:shadow-xl transition-all duration-300 cursor-pointer touch-action-card relative overflow-hidden flex flex-col"
+                  className="group rounded-[22px] sm:rounded-[28px] p-3 sm:p-3.5 apple-liquid-glass-interactive hover:shadow-xl transition-all duration-300 cursor-pointer touch-action-card relative overflow-hidden flex flex-col"
                 >
                   <div className="specular-highlight opacity-75" />
                   <div className="relative h-44 sm:h-48 rounded-[14px] overflow-hidden bg-gray-100 mb-3 shadow-2xs z-10">
@@ -787,7 +882,7 @@ export default function App() {
                 {/* 06 */}
                 <div 
                   onClick={() => navigateTo('shop')}
-                  className="group rounded-[28px] p-3.5 apple-liquid-glass-interactive border border-white/90 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.95),0_10px_28px_-4px_rgba(0,0,0,0.05)] hover:shadow-xl transition-all duration-300 cursor-pointer touch-action-card relative overflow-hidden flex flex-col"
+                  className="group rounded-[22px] sm:rounded-[28px] p-3 sm:p-3.5 apple-liquid-glass-interactive hover:shadow-xl transition-all duration-300 cursor-pointer touch-action-card relative overflow-hidden flex flex-col"
                 >
                   <div className="specular-highlight opacity-75" />
                   <div className="relative h-44 sm:h-48 rounded-[14px] overflow-hidden bg-gray-100 mb-3 shadow-2xs z-10">
@@ -811,7 +906,7 @@ export default function App() {
               </div>
 
               {/* Explore Store Banner */}
-              <div className="mt-10 p-6 rounded-[28px] apple-liquid-glass border border-white/90 shadow-sm relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="mt-8 sm:mt-10 p-5 sm:p-6 rounded-[22px] sm:rounded-[28px] apple-liquid-glass relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="specular-highlight opacity-60" />
                 <div className="text-center sm:text-left relative z-10">
                   <h3 className="font-display text-lg font-medium text-[#1d1d1f]">Visit our Online Store</h3>
@@ -827,10 +922,10 @@ export default function App() {
             </div>
 
             {/* Section: Impact in Numbers - Apple Liquid Glass */}
-            <div className="max-w-5xl mx-auto px-4 sm:px-6 mt-16 sm:mt-20 scroll-reveal">
-              <div className="rounded-[32px] p-6 sm:p-10 md:p-12 apple-liquid-glass border border-white/90 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.95),0_12px_32px_-4px_rgba(0,0,0,0.04)] relative overflow-hidden">
+            <div className="max-w-5xl mx-auto px-4 sm:px-6 mt-12 sm:mt-20 scroll-reveal">
+              <div className="rounded-[24px] sm:rounded-[32px] p-5 sm:p-10 md:p-12 apple-liquid-glass relative overflow-hidden">
                 <div className="specular-highlight opacity-60" />
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 relative z-10">
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 sm:gap-4 mb-6 sm:mb-8 relative z-10">
                   <div>
                     <p className="text-[10px] font-bold tracking-widest text-[#6e6e73] uppercase mb-1.5">Our impact</p>
                     <h2 className="font-display text-2xl sm:text-3xl font-medium tracking-tight text-[#1d1d1f]">In numbers.</h2>
@@ -840,7 +935,7 @@ export default function App() {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-black/10 relative z-10">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 pt-5 sm:pt-6 border-t border-black/10 relative z-10">
                   <div className="space-y-1 pb-4 border-b border-black/10 md:border-b-0 md:pb-0">
                     <span className="block font-display text-3xl sm:text-4xl font-light tracking-tight text-[#1d1d1f]">20k+</span>
                     <span className="text-xs font-medium text-[#6e6e73]">Prints & Orders Delivered</span>
@@ -873,29 +968,29 @@ export default function App() {
 
               {/* Horizontal Scrollable Testimonial Cards Track */}
               <div 
-                className="flex items-stretch gap-4 sm:gap-5 overflow-x-auto overflow-y-hidden overscroll-x-contain overscroll-y-auto pt-2 pb-4 scrollbar-none snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0"
+                className="flex items-stretch gap-3.5 sm:gap-5 overflow-x-auto overflow-y-hidden overscroll-x-contain overscroll-y-auto pt-2 pb-4 scrollbar-none snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0"
                 style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-x pan-y' }}
               >
                 {testimonials.map((item) => (
                   <figure 
                     key={item.id}
-                    className="w-[290px] sm:w-[360px] md:w-[390px] shrink-0 snap-start p-6 sm:p-7 rounded-[28px] apple-liquid-glass-interactive border border-white/90 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.95),0_10px_28px_-4px_rgba(0,0,0,0.05)] flex flex-col justify-between transition-all duration-300 hover:shadow-xl touch-action-card relative overflow-hidden group min-h-[200px]"
+                    className="w-[min(82vw,310px)] sm:w-[360px] md:w-[390px] shrink-0 snap-start p-5 sm:p-7 rounded-[22px] sm:rounded-[28px] apple-liquid-glass-interactive flex flex-col justify-between transition-all duration-300 hover:shadow-xl touch-action-card relative overflow-hidden group min-h-[180px] sm:min-h-[200px]"
                   >
                     <div className="specular-highlight opacity-70" />
                     <div className="absolute top-2.5 right-4 font-serif text-5xl sm:text-6xl leading-none text-black/5 select-none pointer-events-none group-hover:text-[#f47b20]/15 transition-colors">
                       “
                     </div>
 
-                    <blockquote className="font-display text-base sm:text-lg text-[#1d1d1f] font-normal leading-snug mb-6 relative z-10">
+                    <blockquote className="font-display text-[15px] sm:text-lg text-[#1d1d1f] font-normal leading-snug mb-5 sm:mb-6 relative z-10">
                       “{item.quote.replace(/^“|”$/g, '')}”
                     </blockquote>
 
-                    <figcaption className="text-xs font-semibold text-[#1d1d1f] relative z-10 flex items-center justify-between border-t border-black/5 pt-3 mt-auto">
-                      <div>
-                        <span className="block font-bold text-sm text-gray-900">{item.author}</span>
-                        <span className="block text-[11px] font-normal text-[#6e6e73] mt-0.5">{item.role}</span>
+                    <figcaption className="text-xs font-semibold text-[#1d1d1f] relative z-10 flex flex-wrap items-center justify-between gap-2 border-t border-black/5 pt-3 mt-auto">
+                      <div className="min-w-0 flex-1">
+                        <span className="block font-bold text-sm text-gray-900 truncate">{item.author}</span>
+                        <span className="block text-[11px] font-normal text-[#6e6e73] mt-0.5 truncate">{item.role}</span>
                       </div>
-                      <span className="px-3 py-1 rounded-full bg-black/5 text-[10px] font-semibold text-gray-700 shrink-0 border border-black/5">
+                      <span className="px-2.5 sm:px-3 py-1 rounded-full bg-black/5 text-[10px] font-semibold text-gray-700 shrink-0 border border-black/5">
                         Verified Client
                       </span>
                     </figcaption>
@@ -954,7 +1049,7 @@ export default function App() {
                 From everyday office essentials to specialized equipment and renewable solar hardware.
               </p>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3.5">
                 {[
                   { title: 'Home appliances', desc: 'Televisions, refrigerators, air conditioners, fans and small kitchen appliances.', icon: 'icon-appliance' },
                   { title: 'Office consumables', desc: 'Paper, toner and ink cartridges, folders, pens, envelopes and desktop supplies.', icon: 'icon-office' },
@@ -968,14 +1063,16 @@ export default function App() {
                   { title: 'Cleaning detergents', desc: 'Disinfectants, mops, industrial cleaners, trash cans and paper towels.', icon: 'icon-cleaning' },
                   { title: 'Computers & ICT accessories', desc: 'Laptops, desktops, keyboards, mice, storage drives and networking parts.', icon: 'icon-computer' }
                 ].map((item, idx) => (
-                  <div key={idx} className="p-4 rounded-[26px] apple-liquid-glass-interactive border border-white/90 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.95),0_8px_20px_-3px_rgba(0,0,0,0.04)] hover:shadow-md transition-all touch-action-card relative overflow-hidden group flex flex-col justify-between">
+                  <div key={idx} className="p-3.5 sm:p-4 rounded-[20px] sm:rounded-[26px] apple-liquid-glass-interactive hover:shadow-md transition-all touch-action-card relative overflow-hidden group flex flex-col justify-between">
                     <div className="specular-highlight opacity-60" />
-                    <div className="relative z-10">
-                      <span className="w-9 h-9 rounded-full bg-black/5 flex items-center justify-center text-[#1d1d1f] mb-3 group-hover:scale-105 transition-transform">
+                    <div className="relative z-10 flex items-start gap-3 sm:block">
+                      <span className="w-9 h-9 rounded-full bg-black/5 flex items-center justify-center text-[#1d1d1f] shrink-0 mb-0 sm:mb-3 group-hover:scale-105 transition-transform">
                         <svg className="w-4 h-4"><use href={`#${item.icon}`}></use></svg>
                       </span>
-                      <h3 className="font-display text-sm font-semibold text-[#1d1d1f] mb-1 group-hover:text-[#c95510] transition-colors">{item.title}</h3>
-                      <p className="text-[11px] text-[#6e6e73] leading-relaxed line-clamp-2">{item.desc}</p>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-display text-sm font-semibold text-[#1d1d1f] mb-0.5 sm:mb-1 group-hover:text-[#c95510] transition-colors leading-snug">{item.title}</h3>
+                        <p className="text-[11px] text-[#6e6e73] leading-relaxed line-clamp-2">{item.desc}</p>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -983,7 +1080,7 @@ export default function App() {
             </div>
 
             {/* Renewable Energy Solutions */}
-            <div className="mb-12 p-6 sm:p-8 rounded-[32px] apple-liquid-glass-dark text-white relative overflow-hidden shadow-2xl">
+            <div className="mb-8 sm:mb-12 p-5 sm:p-8 rounded-[24px] sm:rounded-[32px] apple-liquid-glass-dark text-white relative overflow-hidden shadow-2xl">
               <div className="specular-highlight opacity-25" />
               <div className="max-w-xl relative z-10">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-white/90 text-[11px] font-medium mb-3 border border-white/15">
@@ -1006,9 +1103,9 @@ export default function App() {
             </div>
 
             {/* Callout */}
-            <div className="p-6 sm:p-8 rounded-[32px] apple-liquid-glass-dark text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl mb-12 relative overflow-hidden">
+            <div className="p-5 sm:p-8 rounded-[24px] sm:rounded-[32px] apple-liquid-glass-dark text-white flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6 shadow-2xl mb-10 sm:mb-12 relative overflow-hidden">
               <div className="specular-highlight opacity-25" />
-              <div className="relative z-10">
+              <div className="relative z-10 text-center md:text-left">
                 <h2 className="font-display text-xl sm:text-2xl font-medium max-w-md">
                   Tell us what you need. We’ll help with the rest.
                 </h2>
@@ -1040,8 +1137,8 @@ export default function App() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-[0.85fr_1.15fr] gap-6 items-stretch mb-10">
-              <aside className="p-6 sm:p-7 rounded-[28px] apple-liquid-glass border border-white/90 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.95),0_10px_28px_-4px_rgba(0,0,0,0.05)] flex flex-col gap-6 relative overflow-hidden">
+            <div className="grid grid-cols-1 lg:grid-cols-[0.85fr_1.15fr] gap-4 sm:gap-6 items-stretch mb-10">
+              <aside className="p-5 sm:p-7 rounded-[22px] sm:rounded-[28px] apple-liquid-glass flex flex-col gap-5 sm:gap-6 relative overflow-hidden">
                 <div className="specular-highlight opacity-60" />
                 <div className="relative z-10">
                   <p className="text-[10px] font-bold tracking-widest text-[#6e6e73] uppercase mb-1">Get in touch</p>
@@ -1051,24 +1148,24 @@ export default function App() {
                   </p>
                 </div>
 
-                <div className="space-y-2 pt-1 relative z-10">
+                <div className="space-y-1.5 sm:space-y-2 pt-1 relative z-10">
                   <a 
                     href="tel:+2348133535756" 
-                    className="text-xs font-medium text-[#1d1d1f] hover:text-[#c95510] transition-colors flex items-center gap-2.5 px-4 py-2.5 rounded-full hover:bg-black/5 active:bg-black/10 touch-action-btn border border-transparent hover:border-black/5"
+                    className="text-xs font-medium text-[#1d1d1f] hover:text-[#c95510] transition-colors flex items-center gap-2.5 px-3.5 sm:px-4 py-2.5 rounded-full hover:bg-black/5 active:bg-black/10 touch-action-btn border border-transparent hover:border-black/5 min-w-0"
                   >
                     <Phone className="w-4 h-4 text-[#f47b20] shrink-0" />
-                    <span>+234 (0) 813 353 5756</span>
+                    <span className="truncate">+234 (0) 813 353 5756</span>
                   </a>
 
                   <a 
                     href="mailto:enjdigitalconcept@gmail.com" 
-                    className="text-xs font-medium text-[#1d1d1f] hover:text-[#c95510] transition-colors flex items-center gap-2.5 px-4 py-2.5 rounded-full hover:bg-black/5 active:bg-black/10 touch-action-btn border border-transparent hover:border-black/5"
+                    className="text-xs font-medium text-[#1d1d1f] hover:text-[#c95510] transition-colors flex items-center gap-2.5 px-3.5 sm:px-4 py-2.5 rounded-full hover:bg-black/5 active:bg-black/10 touch-action-btn border border-transparent hover:border-black/5 min-w-0"
                   >
                     <Mail className="w-4 h-4 text-[#f47b20] shrink-0" />
-                    <span>enjdigitalconcept@gmail.com</span>
+                    <span className="break-all">enjdigitalconcept@gmail.com</span>
                   </a>
 
-                  <div className="text-xs font-medium text-[#1d1d1f] flex items-start gap-2.5 px-4 py-2.5 leading-relaxed">
+                  <div className="text-xs font-medium text-[#1d1d1f] flex items-start gap-2.5 px-3.5 sm:px-4 py-2.5 leading-relaxed">
                     <MapPin className="w-4 h-4 text-[#f47b20] shrink-0 mt-0.5" />
                     <span>No. 1 Thatcher Building, Jiddari Junction, Maiduguri, Borno State</span>
                   </div>
@@ -1076,7 +1173,7 @@ export default function App() {
               </aside>
 
               {/* Working Contact Form */}
-              <section className="p-6 sm:p-7 rounded-[28px] apple-liquid-glass border border-white/90 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.95),0_10px_28px_-4px_rgba(0,0,0,0.05)] flex flex-col justify-between relative overflow-hidden">
+              <section className="p-5 sm:p-7 rounded-[22px] sm:rounded-[28px] apple-liquid-glass flex flex-col justify-between relative overflow-hidden">
                 <div className="specular-highlight opacity-60" />
                 {submittedData ? (
                   <div className="py-4 flex flex-col items-start gap-4 animate-fluid-sheet relative z-10">
@@ -1316,18 +1413,7 @@ export default function App() {
       </footer>
       </div>
 
-      {/* Elegant Page Loader with Full-Page Blur */}
-      {isPageLoading && (
-        <div 
-          className="fixed inset-0 z-[110] flex items-center justify-center p-4 pointer-events-none animate-fluid-page"
-          aria-live="polite"
-        >
-          <div className="flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/90 backdrop-blur-2xl border border-white/90 shadow-md">
-            <div className="w-3.5 h-3.5 border-2 border-black/15 border-t-[#f47b20] rounded-full animate-spin shrink-0" />
-            <span className="text-[11px] font-medium tracking-wide text-[#1d1d1f]">Loading…</span>
-          </div>
-        </div>
-      )}
+      {navLoadingOverlay}
       </div>
     </>
   );

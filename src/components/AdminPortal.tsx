@@ -1055,7 +1055,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
         <div className="w-full max-w-sm mb-3">
           <button
             onClick={onNavigateHome}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-600 hover:text-gray-950 transition-colors group cursor-pointer py-2 px-4 rounded-full bg-white/70 hover:bg-white/90 backdrop-blur-xl border border-white/80 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,0,0,0.03)] active:scale-95"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-600 hover:text-gray-950 transition-colors group cursor-pointer py-2 px-4 rounded-full apple-liquid-glass-pill active:scale-95"
           >
             <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5 text-gray-400 group-hover:text-gray-900" />
             <span>Main Website</span>
@@ -1063,14 +1063,14 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
         </div>
 
         {/* Apple Liquid Glass Concentric Lock Card */}
-        <div className="w-full max-w-sm apple-liquid-glass rounded-[32px] p-8 shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_20px_50px_rgba(0,0,0,0.06),0_2px_6px_rgba(0,0,0,0.03)] border border-white/95 relative overflow-hidden animate-fluid-sheet">
+        <div className="w-full max-w-sm apple-liquid-glass rounded-[26px] sm:rounded-[32px] p-6 sm:p-8 relative overflow-hidden animate-fluid-sheet">
           <div className="specular-highlight opacity-65" />
 
-          <div className="text-center mb-6 relative z-10">
-            <div className="w-14 h-14 rounded-[18px] bg-gradient-to-br from-orange-500/15 via-orange-500/10 to-orange-500/5 border border-orange-200/70 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_16px_rgba(244,123,32,0.14)] flex items-center justify-center text-[#f47b20] mx-auto mb-3.5">
-              <Lock className="w-6 h-6" />
+          <div className="text-center mb-5 sm:mb-6 relative z-10">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-[16px] sm:rounded-[18px] bg-gradient-to-br from-orange-500/15 via-orange-500/10 to-orange-500/5 border border-orange-200/70 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_16px_rgba(244,123,32,0.14)] flex items-center justify-center text-[#f47b20] mx-auto mb-3 sm:mb-3.5">
+              <Lock className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
-            <h1 className="font-display text-xl font-bold text-[#1d1d1f] tracking-tight">
+            <h1 className="font-display text-lg sm:text-xl font-bold text-[#1d1d1f] tracking-tight">
               Admin Access
             </h1>
             <p className="text-xs text-[#6e6e73] mt-1">
@@ -1078,9 +1078,9 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
             </p>
           </div>
 
-          <form onSubmit={handleUnlock} className="space-y-4 relative z-10">
+          <form onSubmit={handleUnlock} className="space-y-3.5 sm:space-y-4 relative z-10">
             {authError && (
-              <div className="p-3.5 rounded-[18px] apple-liquid-glass-error text-xs text-rose-950 flex items-center gap-2.5 shadow-sm animate-fluid-sheet">
+              <div className="p-3 sm:p-3.5 rounded-[16px] sm:rounded-[18px] apple-liquid-glass-error text-xs text-rose-950 flex items-center gap-2.5 shadow-sm animate-fluid-sheet">
                 <div className="specular-highlight opacity-40" />
                 <div className="w-6 h-6 rounded-full bg-rose-500/15 border border-rose-500/25 flex items-center justify-center shrink-0">
                   <AlertCircle className="w-3.5 h-3.5 text-rose-600" />
@@ -1098,12 +1098,12 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                   placeholder="Enter passcode"
                   value={passcodeInput}
                   onChange={(e) => setPasscodeInput(e.target.value)}
-                  className="w-full pl-5 pr-12 py-3 rounded-full border border-black/[0.08] bg-white/85 focus:bg-white focus:border-[#f47b20] focus:ring-1 focus:ring-[#f47b20] outline-none text-xs font-medium transition-all shadow-2xs"
+                  className="w-full pl-5 pr-12 py-3 rounded-full border border-black/[0.08] bg-white/85 focus:bg-white focus:border-[#f47b20] focus:ring-1 focus:ring-[#f47b20] outline-none text-sm sm:text-xs font-medium transition-all shadow-2xs"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPasscode(!showPasscode)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#1d1d1f] cursor-pointer p-1 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#1d1d1f] cursor-pointer p-2 transition-colors"
                   title={showPasscode ? "Hide passcode" : "Show passcode"}
                 >
                   {showPasscode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -1113,7 +1113,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
 
             <button
               type="submit"
-              className="w-full py-3 rounded-full bg-[#1d1d1f] hover:bg-black text-white text-xs font-semibold shadow-[0_4px_14px_rgba(0,0,0,0.16)] transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-95"
+              className="w-full py-3 rounded-full bg-[#1d1d1f] hover:bg-black text-white text-xs font-semibold shadow-[0_4px_14px_rgba(0,0,0,0.16)] transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-95 min-h-[44px]"
             >
               <span>Unlock</span>
             </button>
@@ -1132,9 +1132,10 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
       {/* Status Alert Notification */}
       {statusMessage && (
         <div className="w-[min(1240px,calc(100%-24px))] sm:w-[min(1240px,calc(100%-32px))] mx-auto mb-5">
-          <div className="p-3.5 rounded-full bg-emerald-50/80 backdrop-blur-xl border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2 px-5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_4px_16px_rgba(16,185,129,0.1)] animate-fluid-sheet">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span>{statusMessage}</span>
+          <div className="p-3.5 rounded-full apple-liquid-glass-success text-emerald-900 text-xs font-semibold flex items-center gap-2 px-5 animate-fluid-sheet overflow-hidden">
+            <div className="specular-highlight opacity-40" />
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 relative z-10" />
+            <span className="relative z-10">{statusMessage}</span>
           </div>
         </div>
       )}
@@ -1148,7 +1149,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
             <button
               type="button"
               onClick={onNavigateShop}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-600 hover:text-gray-950 transition-colors group cursor-pointer py-2 px-4 rounded-full bg-white/70 hover:bg-white/90 backdrop-blur-xl border border-white/80 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,0,0,0.03)] active:scale-95"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-600 hover:text-gray-950 transition-colors group cursor-pointer py-2 px-4 rounded-full apple-liquid-glass-pill active:scale-95"
             >
               <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5 text-gray-400 group-hover:text-gray-900" />
               <span>Back to Store</span>
@@ -1160,7 +1161,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                 setIsAuthenticated(false);
                 setPasscodeInput('');
               }}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-red-600 transition-colors cursor-pointer py-2 px-4 rounded-full bg-white/70 hover:bg-white/90 backdrop-blur-xl border border-white/80 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,0,0,0.03)] hover:border-red-200 active:scale-95"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-red-600 transition-colors cursor-pointer py-2 px-4 rounded-full apple-liquid-glass-pill hover:border-red-200/70 active:scale-95"
               title="Lock portal and sign out"
             >
               <Lock className="w-3.5 h-3.5" />
@@ -1179,25 +1180,25 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
           </div>
 
           {/* THE 4 CONCENTRIC APPLE LIQUID GLASS CARDS */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-6">
             
             {/* 1. PRODUCT */}
             <button 
               type="button"
               onClick={() => setActiveTab('products')}
-              className="group apple-liquid-glass-interactive rounded-[32px] p-6 border border-white/90 text-left flex flex-col justify-between min-h-[215px] cursor-pointer relative overflow-hidden"
+              className="group apple-liquid-glass-interactive rounded-[24px] sm:rounded-[32px] p-4.5 sm:p-6 text-left flex flex-col justify-between min-h-[164px] sm:min-h-[215px] cursor-pointer relative overflow-hidden"
             >
               <div className="specular-highlight opacity-65" />
               <div className="relative z-10">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 rounded-[16px] bg-gradient-to-br from-orange-500/15 to-orange-500/5 text-[#f47b20] border border-orange-200/60 flex items-center justify-center group-hover:scale-105 group-hover:bg-[#f47b20] group-hover:text-white transition-all shadow-2xs">
-                    <Package className="w-5 h-5" />
+                <div className="flex items-center justify-between mb-3 sm:mb-4 gap-2">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-[14px] sm:rounded-[16px] bg-gradient-to-br from-orange-500/15 to-orange-500/5 text-[#f47b20] border border-orange-200/60 flex items-center justify-center group-hover:scale-105 group-hover:bg-[#f47b20] group-hover:text-white transition-all shadow-2xs shrink-0">
+                    <Package className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
                   </div>
-                  <span className="text-[11px] font-bold text-[#c95510] font-mono bg-orange-50/85 px-3 py-1 rounded-full border border-orange-200/60">
+                  <span className="text-[11px] font-bold text-[#c95510] font-mono bg-orange-50/85 px-3 py-1 rounded-full border border-orange-200/60 tabular-nums whitespace-nowrap">
                     {products.length} Products
                   </span>
                 </div>
-                <h3 className="font-display text-lg font-bold text-[#1d1d1f] group-hover:text-[#f47b20] transition-colors mb-1.5">
+                <h3 className="font-display text-base sm:text-lg font-bold text-[#1d1d1f] group-hover:text-[#f47b20] transition-colors mb-1 sm:mb-1.5">
                   Products
                 </h3>
                 <p className="text-xs text-[#6e6e73] leading-relaxed">
@@ -1205,7 +1206,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                 </p>
               </div>
 
-              <div className="relative z-10 flex items-center justify-between pt-4 border-t border-black/[0.05] mt-4 text-xs font-semibold text-gray-500 group-hover:text-[#f47b20] transition-colors">
+              <div className="relative z-10 flex items-center justify-between pt-3 sm:pt-4 border-t border-black/[0.05] mt-3 sm:mt-4 text-xs font-semibold text-gray-500 group-hover:text-[#f47b20] transition-colors">
                 <span className="px-3 py-1 rounded-full bg-black/[0.04] group-hover:bg-[#f47b20]/10 transition-colors">View catalog</span>
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </div>
@@ -1215,19 +1216,19 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
             <button 
               type="button"
               onClick={() => setActiveTab('orders')}
-              className="group apple-liquid-glass-interactive rounded-[32px] p-6 border border-white/90 text-left flex flex-col justify-between min-h-[215px] cursor-pointer relative overflow-hidden"
+              className="group apple-liquid-glass-interactive rounded-[24px] sm:rounded-[32px] p-4.5 sm:p-6 text-left flex flex-col justify-between min-h-[164px] sm:min-h-[215px] cursor-pointer relative overflow-hidden"
             >
               <div className="specular-highlight opacity-65" />
               <div className="relative z-10">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 rounded-[16px] bg-gradient-to-br from-emerald-500/15 to-emerald-500/5 text-emerald-600 border border-emerald-200/60 flex items-center justify-center group-hover:scale-105 group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-2xs">
-                    <CreditCard className="w-5 h-5" />
+                <div className="flex items-center justify-between mb-3 sm:mb-4 gap-2">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-[14px] sm:rounded-[16px] bg-gradient-to-br from-emerald-500/15 to-emerald-500/5 text-emerald-600 border border-emerald-200/60 flex items-center justify-center group-hover:scale-105 group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-2xs shrink-0">
+                    <CreditCard className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
                   </div>
-                  <span className="text-[11px] font-bold text-emerald-700 font-mono bg-emerald-50/85 px-3 py-1 rounded-full border border-emerald-200/60">
+                  <span className="text-[11px] font-bold text-emerald-700 font-mono bg-emerald-50/85 px-3 py-1 rounded-full border border-emerald-200/60 tabular-nums whitespace-nowrap">
                     {orders.length} Orders
                   </span>
                 </div>
-                <h3 className="font-display text-lg font-bold text-[#1d1d1f] group-hover:text-emerald-700 transition-colors mb-1.5">
+                <h3 className="font-display text-base sm:text-lg font-bold text-[#1d1d1f] group-hover:text-emerald-700 transition-colors mb-1 sm:mb-1.5">
                   Orders
                 </h3>
                 <p className="text-xs text-[#6e6e73] leading-relaxed">
@@ -1235,7 +1236,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                 </p>
               </div>
 
-              <div className="relative z-10 flex items-center justify-between pt-4 border-t border-black/[0.05] mt-4 text-xs font-semibold text-gray-500 group-hover:text-emerald-700 transition-colors">
+              <div className="relative z-10 flex items-center justify-between pt-3 sm:pt-4 border-t border-black/[0.05] mt-3 sm:mt-4 text-xs font-semibold text-gray-500 group-hover:text-emerald-700 transition-colors">
                 <span className="px-3 py-1 rounded-full bg-black/[0.04] group-hover:bg-emerald-600/10 transition-colors">View orders</span>
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </div>
@@ -1245,19 +1246,19 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
             <button 
               type="button"
               onClick={() => setActiveTab('testimonials')}
-              className="group apple-liquid-glass-interactive rounded-[32px] p-6 border border-white/90 text-left flex flex-col justify-between min-h-[215px] cursor-pointer relative overflow-hidden"
+              className="group apple-liquid-glass-interactive rounded-[24px] sm:rounded-[32px] p-4.5 sm:p-6 text-left flex flex-col justify-between min-h-[164px] sm:min-h-[215px] cursor-pointer relative overflow-hidden"
             >
               <div className="specular-highlight opacity-65" />
               <div className="relative z-10">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 rounded-[16px] bg-gradient-to-br from-amber-500/15 to-amber-500/5 text-amber-600 border border-amber-200/60 flex items-center justify-center group-hover:scale-105 group-hover:bg-amber-600 group-hover:text-white transition-all shadow-2xs">
-                    <MessageSquare className="w-5 h-5" />
+                <div className="flex items-center justify-between mb-3 sm:mb-4 gap-2">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-[14px] sm:rounded-[16px] bg-gradient-to-br from-amber-500/15 to-amber-500/5 text-amber-600 border border-amber-200/60 flex items-center justify-center group-hover:scale-105 group-hover:bg-amber-600 group-hover:text-white transition-all shadow-2xs shrink-0">
+                    <MessageSquare className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
                   </div>
-                  <span className="text-[11px] font-bold text-amber-700 font-mono bg-amber-50/85 px-3 py-1 rounded-full border border-amber-200/60">
+                  <span className="text-[11px] font-bold text-amber-700 font-mono bg-amber-50/85 px-3 py-1 rounded-full border border-amber-200/60 tabular-nums whitespace-nowrap">
                     {testimonials.length} Reviews
                   </span>
                 </div>
-                <h3 className="font-display text-lg font-bold text-[#1d1d1f] group-hover:text-amber-700 transition-colors mb-1.5">
+                <h3 className="font-display text-base sm:text-lg font-bold text-[#1d1d1f] group-hover:text-amber-700 transition-colors mb-1 sm:mb-1.5">
                   Reviews
                 </h3>
                 <p className="text-xs text-[#6e6e73] leading-relaxed">
@@ -1265,7 +1266,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                 </p>
               </div>
 
-              <div className="relative z-10 flex items-center justify-between pt-4 border-t border-black/[0.05] mt-4 text-xs font-semibold text-gray-500 group-hover:text-amber-700 transition-colors">
+              <div className="relative z-10 flex items-center justify-between pt-3 sm:pt-4 border-t border-black/[0.05] mt-3 sm:mt-4 text-xs font-semibold text-gray-500 group-hover:text-amber-700 transition-colors">
                 <span className="px-3 py-1 rounded-full bg-black/[0.04] group-hover:bg-amber-600/10 transition-colors">Manage reviews</span>
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </div>
@@ -1275,19 +1276,19 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
             <button 
               type="button"
               onClick={() => setActiveTab('portfolio')}
-              className="group apple-liquid-glass-interactive rounded-[32px] p-6 border border-white/90 text-left flex flex-col justify-between min-h-[215px] cursor-pointer relative overflow-hidden"
+              className="group apple-liquid-glass-interactive rounded-[24px] sm:rounded-[32px] p-4.5 sm:p-6 text-left flex flex-col justify-between min-h-[164px] sm:min-h-[215px] cursor-pointer relative overflow-hidden"
             >
               <div className="specular-highlight opacity-65" />
               <div className="relative z-10">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 rounded-[16px] bg-gradient-to-br from-indigo-500/15 to-indigo-500/5 text-indigo-600 border border-indigo-200/60 flex items-center justify-center group-hover:scale-105 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-2xs">
-                    <Briefcase className="w-5 h-5" />
+                <div className="flex items-center justify-between mb-3 sm:mb-4 gap-2">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-[14px] sm:rounded-[16px] bg-gradient-to-br from-indigo-500/15 to-indigo-500/5 text-indigo-600 border border-indigo-200/60 flex items-center justify-center group-hover:scale-105 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-2xs shrink-0">
+                    <Briefcase className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
                   </div>
-                  <span className="text-[11px] font-bold text-indigo-700 font-mono bg-indigo-50/85 px-3 py-1 rounded-full border border-indigo-200/60">
+                  <span className="text-[11px] font-bold text-indigo-700 font-mono bg-indigo-50/85 px-3 py-1 rounded-full border border-indigo-200/60 tabular-nums whitespace-nowrap">
                     {portfolioItems.length} Projects
                   </span>
                 </div>
-                <h3 className="font-display text-lg font-bold text-[#1d1d1f] group-hover:text-indigo-700 transition-colors mb-1.5">
+                <h3 className="font-display text-base sm:text-lg font-bold text-[#1d1d1f] group-hover:text-indigo-700 transition-colors mb-1 sm:mb-1.5">
                   Portfolio
                 </h3>
                 <p className="text-xs text-[#6e6e73] leading-relaxed">
@@ -1295,7 +1296,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                 </p>
               </div>
 
-              <div className="relative z-10 flex items-center justify-between pt-4 border-t border-black/[0.05] mt-4 text-xs font-semibold text-gray-500 group-hover:text-indigo-700 transition-colors">
+              <div className="relative z-10 flex items-center justify-between pt-3 sm:pt-4 border-t border-black/[0.05] mt-3 sm:mt-4 text-xs font-semibold text-gray-500 group-hover:text-indigo-700 transition-colors">
                 <span className="px-3 py-1 rounded-full bg-black/[0.04] group-hover:bg-indigo-600/10 transition-colors">Manage portfolio</span>
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </div>
@@ -1314,35 +1315,35 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
             <button
               type="button"
               onClick={() => setActiveTab('overview')}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-600 hover:text-gray-950 transition-colors group cursor-pointer py-1.5 px-3 rounded-full bg-white/70 hover:bg-white/90 backdrop-blur-xl border border-white/80 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,0,0,0.03)] active:scale-95 w-fit"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-600 hover:text-gray-950 transition-colors group cursor-pointer py-1.5 px-3 rounded-full apple-liquid-glass-pill active:scale-95 w-fit"
             >
               <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5 text-gray-400 group-hover:text-gray-900" />
               <span>Admin Hub</span>
             </button>
 
-            <div className="flex items-center gap-2">
+            <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 w-full sm:w-auto">
               <button
                 type="button"
                 onClick={() => setIsOrganizeModalOpen(true)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-orange-50/80 hover:bg-orange-100 text-[#c95510] border border-orange-200/80 text-xs font-semibold backdrop-blur-md shadow-2xs transition-all cursor-pointer whitespace-nowrap active:scale-95"
+                className="inline-flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-2 rounded-full bg-orange-50/80 hover:bg-orange-100 text-[#c95510] border border-orange-200/80 text-xs font-semibold backdrop-blur-md shadow-2xs transition-all cursor-pointer whitespace-nowrap active:scale-95 min-h-[40px] sm:min-h-0"
                 title="Organize storefront display order"
               >
-                <SlidersHorizontal className="w-3.5 h-3.5 text-[#f47b20]" />
-                <span>Organize Positions ({products.length})</span>
+                <SlidersHorizontal className="w-3.5 h-3.5 text-[#f47b20] shrink-0" />
+                <span className="truncate">Positions ({products.length})</span>
               </button>
               <button
                 type="button"
                 onClick={openAddModal}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#f47b20] hover:bg-[#c95510] text-white text-xs font-semibold shadow-[0_2px_10px_rgba(244,123,32,0.3)] transition-all cursor-pointer whitespace-nowrap active:scale-95"
+                className="inline-flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2.5 sm:py-2 rounded-full bg-[#f47b20] hover:bg-[#c95510] text-white text-xs font-semibold shadow-[0_2px_10px_rgba(244,123,32,0.3)] transition-all cursor-pointer whitespace-nowrap active:scale-95 min-h-[40px] sm:min-h-0"
               >
-                <Plus className="w-4 h-4 stroke-[2.5]" />
+                <Plus className="w-4 h-4 stroke-[2.5] shrink-0" />
                 <span>Add Product</span>
               </button>
             </div>
           </div>
 
           {/* Search & Categories Bar with Apple Liquid Glass */}
-          <div className="apple-liquid-glass p-5 rounded-[28px] border border-white/90 flex flex-col gap-3.5 mb-5 relative overflow-hidden">
+          <div className="apple-liquid-glass p-3.5 sm:p-5 rounded-[22px] sm:rounded-[28px] flex flex-col gap-3 sm:gap-3.5 mb-4 sm:mb-5 relative overflow-hidden">
             <div className="specular-highlight opacity-55" />
             <div className="relative w-full z-10">
               <Search className="w-3.5 h-3.5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -1351,16 +1352,16 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                 placeholder="Search products by title or category..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-white/85 border border-black/[0.07] rounded-full text-xs outline-none focus:border-[#f47b20] focus:bg-white transition-all shadow-2xs"
+                className="w-full pl-10 pr-4 py-2.5 bg-white/85 border border-black/[0.07] rounded-full text-sm sm:text-xs outline-none focus:border-[#f47b20] focus:bg-white transition-all shadow-2xs"
               />
             </div>
 
-            <div className="flex flex-wrap items-center gap-1.5 pt-2.5 border-t border-black/[0.05] relative z-10">
+            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none sm:flex-wrap pt-2.5 border-t border-black/[0.05] relative z-10 -mx-0.5 px-0.5 pb-0.5">
               {CATEGORIES.map(cat => (
                 <button
                   key={cat}
                   onClick={() => setCategoryFilter(cat)}
-                  className={`px-3.5 py-1.5 rounded-full text-[11px] font-medium cursor-pointer transition-all touch-action-btn ${
+                  className={`px-3.5 py-1.5 rounded-full text-[11px] font-medium cursor-pointer transition-all touch-action-btn whitespace-nowrap shrink-0 min-h-[34px] sm:min-h-0 ${
                     categoryFilter === cat
                       ? 'bg-[#f47b20] text-white font-semibold shadow-xs'
                       : 'bg-white/85 hover:bg-white text-gray-700 border border-black/[0.05] shadow-2xs'
@@ -1375,7 +1376,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
           {/* Fully Responsive Products List with Concentric Apple Liquid Glass Cards */}
           <div className="space-y-3 w-full">
             {filteredProducts.length === 0 ? (
-              <div className="apple-liquid-glass rounded-[28px] p-10 border border-white/90 text-center text-gray-500 text-xs relative overflow-hidden">
+              <div className="apple-liquid-glass rounded-[22px] sm:rounded-[28px] p-8 sm:p-10 text-center text-gray-500 text-xs relative overflow-hidden">
                 <div className="specular-highlight opacity-50" />
                 <span className="relative z-10">No products match the selected filters.</span>
               </div>
@@ -1386,12 +1387,12 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                 return (
                   <div 
                     key={p.id}
-                    className="apple-liquid-glass-interactive rounded-[24px] p-4 border border-white/90 flex flex-col md:flex-row md:items-center justify-between gap-3.5 w-full overflow-hidden relative"
+                    className="apple-liquid-glass-interactive rounded-[22px] sm:rounded-[24px] p-3.5 sm:p-4 flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-3.5 w-full overflow-hidden relative"
                   >
                     <div className="specular-highlight opacity-50" />
                     {/* Left: Position Rank, Concentric Thumbnail & Details */}
-                    <div className="flex items-start gap-3.5 min-w-0 flex-1 relative z-10">
-                      {/* Position Rank Badge with 44px ergonomic tap hitbox */}
+                    <div className="flex items-start gap-2.5 sm:gap-3.5 min-w-0 flex-1 relative z-10">
+                      {/* Position Rank Badge with ergonomic tap hitbox */}
                       <button
                         type="button"
                         onClick={() => {
@@ -1399,7 +1400,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                           setTargetQuickPos(displayRank);
                         }}
                         title="Click to set custom position"
-                        className="flex flex-col items-center justify-center shrink-0 min-w-[44px] min-h-[44px] px-2 py-1.5 rounded-[14px] bg-orange-50 hover:bg-orange-100 active:scale-95 border border-orange-200 text-[#c95510] cursor-pointer transition-all group"
+                        className="flex flex-col items-center justify-center shrink-0 min-w-[40px] sm:min-w-[44px] min-h-[44px] px-1.5 sm:px-2 py-1.5 rounded-[12px] sm:rounded-[14px] bg-orange-50 hover:bg-orange-100 active:scale-95 border border-orange-200 text-[#c95510] cursor-pointer transition-all group"
                       >
                         <span className="font-mono font-bold text-xs text-[#c95510] tabular-nums group-hover:underline">
                           #{displayRank}
@@ -1412,26 +1413,26 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                       <img
                         src={p.imageUrl}
                         alt={p.title}
-                        className="w-16 h-16 sm:w-16 sm:h-16 rounded-[14px] object-cover border border-gray-200 bg-gray-50 shrink-0"
+                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-[12px] sm:rounded-[14px] object-cover border border-gray-200 bg-gray-50 shrink-0"
                       />
                       <div className="min-w-0 flex-1">
                         {/* HIG Zero-Pill Metadata with subtle typographic separators */}
-                        <div className="flex items-center gap-1.5 text-[11px] text-gray-500 mb-1 flex-wrap font-medium">
-                          <span className="text-gray-900 font-semibold">{p.category}</span>
+                        <div className="flex items-center gap-x-1.5 gap-y-0.5 text-[10.5px] sm:text-[11px] text-gray-500 mb-1 flex-wrap font-medium">
+                          <span className="text-gray-900 font-semibold truncate max-w-[160px] sm:max-w-none">{p.category}</span>
                           <span className="text-gray-300 select-none">·</span>
-                          <span className="inline-flex items-center gap-1">
+                          <span className="inline-flex items-center gap-1 whitespace-nowrap">
                             <span className={`w-1.5 h-1.5 rounded-full ${p.inStock ? 'bg-emerald-500' : 'bg-amber-500'}`} />
                             <span className={p.inStock ? 'text-emerald-700 font-medium' : 'text-amber-700 font-medium'}>
                               {p.inStock ? 'In Stock' : 'Custom'}
                             </span>
                           </span>
                           <span className="text-gray-300 select-none">·</span>
-                          <span className="text-gray-400 tabular-nums">
+                          <span className="text-gray-400 tabular-nums whitespace-nowrap">
                             {photoCount} {photoCount === 1 ? 'photo' : 'photos'}
                           </span>
                         </div>
                         
-                        <h4 className="font-semibold text-xs sm:text-sm text-gray-900 leading-snug">
+                        <h4 className="font-semibold text-[13px] sm:text-sm text-gray-900 leading-snug line-clamp-2 sm:line-clamp-none">
                           {p.title}
                         </h4>
                         
@@ -1441,20 +1442,48 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                       </div>
                     </div>
 
-                    {/* Right: Position Reordering, Price & Fully Rounded Actions */}
-                    <div className="flex items-center justify-between md:justify-end gap-3.5 shrink-0 pt-2.5 md:pt-0 border-t md:border-t-0 border-black/[0.05] relative z-10">
-                      <div className="text-left md:text-right">
-                        <span className="font-bold text-sm sm:text-base text-[#1d1d1f] block leading-tight tabular-nums">
-                          {formatNaira(p.price)}
-                        </span>
-                        <span className="text-[10px] sm:text-[11px] text-[#6e6e73] block tabular-nums">
-                          Min: {p.minOrderQty} {p.unit}
-                        </span>
+                    {/* Right / Mobile Footer: Price, Reordering & Actions (Zero Clipping on 320px+) */}
+                    <div className="flex flex-col sm:flex-row md:items-center justify-between md:justify-end gap-2.5 sm:gap-3.5 shrink-0 pt-2.5 md:pt-0 border-t md:border-t-0 border-black/[0.05] relative z-10 w-full md:w-auto">
+                      {/* Mobile Row 1: Price on left, Order arrows on right (on sm+ sits inline cleanly) */}
+                      <div className="flex items-center justify-between gap-3 w-full sm:w-auto">
+                        <div className="text-left md:text-right">
+                          <span className="font-bold text-sm sm:text-base text-[#1d1d1f] block leading-tight tabular-nums">
+                            {formatNaira(p.price)}
+                          </span>
+                          <span className="text-[10.5px] sm:text-[11px] text-[#6e6e73] block tabular-nums">
+                            Min: {p.minOrderQty} {p.unit}
+                          </span>
+                        </div>
+
+                        {/* Mobile Reorder Pill */}
+                        <div className="flex sm:hidden items-center border border-black/[0.07] rounded-full overflow-hidden bg-white/85 shadow-2xs shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => handleMoveProductPosition(p.id, 'up')}
+                            disabled={pIdx === 0}
+                            className="min-w-[40px] min-h-[38px] flex items-center justify-center hover:bg-orange-50 hover:text-[#f47b20] active:scale-90 text-gray-600 disabled:opacity-20 disabled:pointer-events-none transition-all cursor-pointer"
+                            title="Move Up in Storefront Order"
+                            aria-label="Move Up"
+                          >
+                            <ArrowUp className="w-3.5 h-3.5" />
+                          </button>
+                          <div className="w-[1px] h-4 bg-black/[0.07]" />
+                          <button
+                            type="button"
+                            onClick={() => handleMoveProductPosition(p.id, 'down')}
+                            disabled={pIdx === filteredProducts.length - 1}
+                            className="min-w-[40px] min-h-[38px] flex items-center justify-center hover:bg-orange-50 hover:text-[#f47b20] active:scale-90 text-gray-600 disabled:opacity-20 disabled:pointer-events-none transition-all cursor-pointer"
+                            title="Move Down in Storefront Order"
+                            aria-label="Move Down"
+                          >
+                            <ArrowDown className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </div>
 
-                      {/* Direct Position Ordering Buttons - Capsule Pill */}
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <div className="flex items-center border border-black/[0.07] rounded-full overflow-hidden bg-white/85 shadow-2xs">
+                      {/* Desktop Inline Reorder + Edit/Delete Bar; Mobile Clean 2-col Edit/Delete Bar */}
+                      <div className="grid grid-cols-2 sm:flex items-center gap-2 sm:gap-1.5 shrink-0 w-full sm:w-auto">
+                        <div className="hidden sm:flex items-center border border-black/[0.07] rounded-full overflow-hidden bg-white/85 shadow-2xs">
                           <button
                             type="button"
                             onClick={() => handleMoveProductPosition(p.id, 'up')}
@@ -1479,7 +1508,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                         <button
                           type="button"
                           onClick={() => openEditModal(p)}
-                          className="min-h-[38px] inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-black/[0.07] bg-white/85 hover:bg-white active:scale-95 text-[#1d1d1f] text-xs font-semibold cursor-pointer transition-all shadow-2xs"
+                          className="min-h-[40px] sm:min-h-[38px] inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-full border border-black/[0.07] bg-white/85 hover:bg-white active:scale-95 text-[#1d1d1f] text-xs font-semibold cursor-pointer transition-all shadow-2xs"
                           title="Edit Product"
                         >
                           <Edit3 className="w-3.5 h-3.5 text-gray-600" />
@@ -1489,7 +1518,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                         <button
                           type="button"
                           onClick={() => setProductToDelete(p)}
-                          className="min-h-[38px] inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-red-200/80 bg-red-50/85 hover:bg-red-100 active:scale-95 text-red-600 text-xs font-semibold cursor-pointer transition-all shadow-2xs"
+                          className="min-h-[40px] sm:min-h-[38px] inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-full border border-red-200/80 bg-red-50/85 hover:bg-red-100 active:scale-95 text-red-600 text-xs font-semibold cursor-pointer transition-all shadow-2xs"
                           title="Delete Product"
                         >
                           <Trash2 className="w-3.5 h-3.5 text-red-600" />
@@ -1514,23 +1543,23 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
             <button
               type="button"
               onClick={() => setActiveTab('overview')}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-600 hover:text-gray-950 transition-colors group cursor-pointer py-1.5 px-3 rounded-full bg-white/70 hover:bg-white/90 backdrop-blur-xl border border-white/80 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,0,0,0.03)] active:scale-95"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-600 hover:text-gray-950 transition-colors group cursor-pointer py-1.5 px-3 rounded-full apple-liquid-glass-pill active:scale-95"
             >
               <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5 text-gray-400 group-hover:text-gray-900" />
               <span>Admin Hub</span>
             </button>
 
-            <span className="px-3 py-1.5 rounded-full bg-white/70 backdrop-blur-xl border border-white/80 text-gray-800 text-xs font-semibold shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,0,0,0.03)]">
+            <span className="px-3 py-1.5 rounded-full apple-liquid-glass-pill text-gray-800 text-xs font-semibold">
               {filteredOrders.length} of {orders.length} Orders
             </span>
           </div>
 
-          <div className="apple-liquid-glass rounded-[32px] border border-white/90 p-6 sm:p-7 relative overflow-hidden">
+          <div className="apple-liquid-glass rounded-[24px] sm:rounded-[32px] p-3.5 sm:p-7 relative overflow-hidden">
             <div className="specular-highlight opacity-55" />
             
             {/* Header & Title */}
-            <div className="pb-4 border-b border-black/[0.05] mb-4 relative z-10">
-              <h3 className="font-display text-lg sm:text-xl font-bold text-[#1d1d1f]">
+            <div className="pb-3.5 sm:pb-4 border-b border-black/[0.05] mb-3.5 sm:mb-4 relative z-10 px-0.5">
+              <h3 className="font-display text-base sm:text-xl font-bold text-[#1d1d1f]">
                 Customer Orders & Transactions
               </h3>
               <p className="text-xs text-[#6e6e73] mt-0.5">
@@ -1539,7 +1568,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
             </div>
 
             {/* Filter & Sort Controls Toolbar */}
-            <div className="bg-black/[0.025] p-3.5 sm:p-4 rounded-[22px] border border-black/[0.05] mb-5 flex flex-col md:flex-row items-center justify-between gap-3 relative z-10">
+            <div className="bg-black/[0.025] p-3 sm:p-4 rounded-[18px] sm:rounded-[22px] border border-black/[0.05] mb-4 sm:mb-5 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2.5 sm:gap-3 relative z-10">
               {/* Search Orders */}
               <div className="relative w-full md:w-72">
                 <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -1548,13 +1577,13 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                   placeholder="Search order ID, customer, phone..."
                   value={orderSearchQuery}
                   onChange={(e) => setOrderSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-white/90 border border-black/[0.07] rounded-full text-xs outline-none focus:border-[#f47b20] focus:bg-white transition-colors shadow-2xs"
+                  className="w-full pl-10 pr-4 py-2 bg-white/90 border border-black/[0.07] rounded-full text-sm sm:text-xs outline-none focus:border-[#f47b20] focus:bg-white transition-colors shadow-2xs"
                 />
               </div>
 
               {/* Status Filter Chips & Sort Order Dropdown */}
-              <div className="flex flex-wrap items-center gap-2 w-full md:w-auto justify-between md:justify-end">
-                <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full md:w-auto justify-between md:justify-end">
+                <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-0.5 w-full sm:w-auto">
                   {[
                     { id: 'all', label: 'All' },
                     { id: 'pending', label: 'Pending' },
@@ -1568,7 +1597,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                       key={f.id}
                       type="button"
                       onClick={() => setOrderStatusFilter(f.id)}
-                      className={`px-3 py-1.5 rounded-full text-[11px] font-semibold cursor-pointer transition-all whitespace-nowrap active:scale-95 ${
+                      className={`px-3 py-1.5 rounded-full text-[11px] font-semibold cursor-pointer transition-all whitespace-nowrap shrink-0 active:scale-95 ${
                         orderStatusFilter === f.id
                           ? 'bg-[#1d1d1f] text-white shadow-2xs'
                           : 'bg-white/90 text-gray-700 hover:bg-white border border-black/[0.06]'
@@ -1580,12 +1609,12 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                 </div>
 
                 {/* Sort Order Selector */}
-                <div className="flex items-center gap-1.5 shrink-0 bg-white/90 border border-black/[0.07] px-3.5 py-1.5 rounded-full shadow-2xs">
+                <div className="flex items-center gap-1.5 shrink-0 bg-white/90 border border-black/[0.07] px-3.5 py-2 sm:py-1.5 rounded-full shadow-2xs w-full sm:w-auto">
                   <ArrowUpDown className="w-3.5 h-3.5 text-gray-400 shrink-0" />
                   <select
                     value={orderSortBy}
                     onChange={(e) => setOrderSortBy(e.target.value as any)}
-                    className="text-xs font-semibold text-gray-800 bg-transparent outline-none cursor-pointer"
+                    className="text-xs font-semibold text-gray-800 bg-transparent outline-none cursor-pointer flex-1 sm:flex-initial"
                   >
                     <option value="newest">Newest First</option>
                     <option value="oldest">Oldest First</option>
@@ -1600,7 +1629,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
 
             {/* Orders List */}
             {filteredOrders.length === 0 ? (
-              <div className="text-center py-12 border border-dashed border-black/[0.08] rounded-[24px] relative z-10">
+              <div className="text-center py-10 sm:py-12 border border-dashed border-black/[0.08] rounded-[20px] sm:rounded-[24px] relative z-10">
                 <CreditCard className="w-8 h-8 text-gray-300 mx-auto mb-2" />
                 <p className="text-xs font-semibold text-gray-700">No orders match criteria</p>
                 <p className="text-[11px] text-gray-400 mt-0.5">Try adjusting your filters or search terms.</p>
@@ -1614,12 +1643,12 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                   return (
                     <div 
                       key={order.id || Math.random()} 
-                      className="p-4.5 rounded-[24px] apple-liquid-glass-interactive border border-white/90 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs relative overflow-hidden"
+                      className="p-3.5 sm:p-4.5 rounded-[20px] sm:rounded-[24px] apple-liquid-glass-interactive flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs relative overflow-hidden"
                     >
                       <div className="specular-highlight opacity-40" />
                       <div className="space-y-1.5 flex-1 min-w-0 relative z-10">
                         {/* Order ID & Payment Status - HIG Zero-Pill Typography */}
-                        <div className="flex items-center gap-2 flex-wrap text-[11px]">
+                        <div className="flex items-center gap-x-2 gap-y-0.5 flex-wrap text-[11px]">
                           <span className="font-mono font-bold text-gray-900 tabular-nums">
                             #{order.id ? order.id.slice(0, 8) : 'ORD'}
                           </span>
@@ -1657,36 +1686,36 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                         </div>
                         
                         {/* Customer Info */}
-                        <div className="pt-0.5">
-                          <span className="font-bold text-gray-900 text-xs sm:text-sm">{order.customerName}</span>
-                          <span className="text-gray-500 text-[11px] block">{order.customerEmail}</span>
+                        <div className="pt-0.5 min-w-0">
+                          <span className="font-bold text-gray-900 text-xs sm:text-sm block truncate">{order.customerName}</span>
+                          <span className="text-gray-500 text-[11px] block truncate">{order.customerEmail}</span>
                           <a 
                             href={`https://wa.me/${order.customerPhone.replace(/[^0-9]/g, '')}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-[#f47b20] hover:underline inline-flex items-center gap-1 mt-0.5 text-[11px] font-medium min-h-[32px] sm:min-h-0 items-center"
+                            className="text-[#f47b20] hover:underline inline-flex items-center gap-1 mt-0.5 text-[11px] font-medium min-h-[32px] sm:min-h-0"
                           >
-                            <Phone className="w-3 h-3" />
-                            {order.customerPhone}
+                            <Phone className="w-3 h-3 shrink-0" />
+                            <span>{order.customerPhone}</span>
                           </a>
                         </div>
 
                         {/* Customer Delivery Address if provided */}
                         {order.customerAddress && (
-                          <p className="text-[11px] text-gray-500 flex items-center gap-1">
-                            <MapPin className="w-3 h-3 text-gray-400 shrink-0" />
-                            <span className="truncate">{order.customerAddress}</span>
+                          <p className="text-[11px] text-gray-500 flex items-start gap-1">
+                            <MapPin className="w-3 h-3 text-gray-400 shrink-0 mt-0.5" />
+                            <span className="line-clamp-2 sm:truncate">{order.customerAddress}</span>
                           </p>
                         )}
 
                         {/* Items Purchased */}
-                        <p className="text-[11px] text-gray-600 pt-0.5 bg-black/[0.025] p-2.5 rounded-[14px] border border-black/[0.05]">
+                        <p className="text-[11px] text-gray-600 pt-0.5 bg-black/[0.025] p-2.5 rounded-[12px] sm:rounded-[14px] border border-black/[0.05] leading-relaxed">
                           <strong className="text-gray-800">Items:</strong> {order.itemsSummary}
                         </p>
                       </div>
 
                       {/* Right: Total Amount, Status Selector & Delete Button */}
-                      <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2.5 pt-2.5 sm:pt-0 border-t sm:border-t-0 border-black/[0.05] shrink-0 relative z-10">
+                      <div className="flex flex-wrap sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2.5 pt-2.5 sm:pt-0 border-t sm:border-t-0 border-black/[0.05] shrink-0 relative z-10 w-full sm:w-auto">
                         <span className="font-bold text-base sm:text-lg text-gray-900 leading-tight tabular-nums">
                           {formatNaira(order.totalAmount)}
                         </span>
@@ -1742,7 +1771,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
             <button
               type="button"
               onClick={() => setActiveTab('overview')}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-600 hover:text-gray-950 transition-colors group cursor-pointer py-1.5 px-3 rounded-full bg-white/70 hover:bg-white/90 backdrop-blur-xl border border-white/80 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,0,0,0.03)] active:scale-95"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-600 hover:text-gray-950 transition-colors group cursor-pointer py-1.5 px-3 rounded-full apple-liquid-glass-pill active:scale-95"
             >
               <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5 text-gray-400 group-hover:text-gray-900" />
               <span>Admin Hub</span>
@@ -1760,10 +1789,10 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
             </div>
           </div>
 
-          <div className="apple-liquid-glass rounded-[32px] border border-white/90 p-6 sm:p-7 mb-5 relative overflow-hidden">
+          <div className="apple-liquid-glass rounded-[24px] sm:rounded-[32px] p-3.5 sm:p-7 mb-5 relative overflow-hidden">
             <div className="specular-highlight opacity-55" />
-            <div className="pb-4 border-b border-black/[0.05] relative z-10">
-              <h3 className="font-display text-lg sm:text-xl font-bold text-[#1d1d1f]">
+            <div className="pb-3.5 sm:pb-4 border-b border-black/[0.05] relative z-10 px-0.5">
+              <h3 className="font-display text-base sm:text-xl font-bold text-[#1d1d1f]">
                 Customer Reviews
               </h3>
               <p className="text-xs text-[#6e6e73] mt-0.5">
@@ -1772,14 +1801,14 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
             </div>
 
             {/* Testimonials Grid with Apple Liquid Glass Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5 relative z-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mt-4 sm:mt-5 relative z-10">
               {testimonials.map((t) => (
                 <div
                   key={t.id}
-                  className={`p-5 rounded-[24px] flex flex-col justify-between relative overflow-hidden ${
+                  className={`p-4 sm:p-5 rounded-[20px] sm:rounded-[24px] flex flex-col justify-between relative overflow-hidden ${
                     t.highlight 
-                      ? 'bg-amber-50/75 hover:bg-amber-50/95 backdrop-blur-2xl border border-amber-200/70 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.95),0_10px_28px_-4px_rgba(245,158,11,0.08)] transition-all' 
-                      : 'apple-liquid-glass-interactive border border-white/90'
+                      ? 'bg-gradient-to-br from-amber-50/75 to-orange-50/50 hover:from-amber-50/90 hover:to-orange-50/65 backdrop-blur-2xl backdrop-saturate-200 border-[0.5px] border-amber-300/60 shadow-[inset_0_0.5px_0.5px_rgba(255,255,255,0.85),0_12px_30px_-6px_rgba(245,158,11,0.12)] transition-all' 
+                      : 'apple-liquid-glass-interactive'
                   }`}
                 >
                   <div className="specular-highlight opacity-50" />
@@ -1795,26 +1824,26 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                       )}
                     </div>
 
-                    <p className="font-display text-sm text-[#1d1d1f] font-normal leading-snug mb-3">
+                    <p className="font-display text-[13px] sm:text-sm text-[#1d1d1f] font-normal leading-snug mb-3">
                       “{t.quote.replace(/^“|”$/g, '')}”
                     </p>
                   </div>
 
-                  <div className="pt-3 border-t border-black/[0.05] flex items-center justify-between gap-2 relative z-10">
-                    <div>
-                      <strong className="text-xs font-semibold text-[#1d1d1f] block">
+                  <div className="pt-3 border-t border-black/[0.05] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 relative z-10">
+                    <div className="min-w-0">
+                      <strong className="text-xs font-semibold text-[#1d1d1f] block truncate">
                         {t.author}
                       </strong>
-                      <span className="text-[11px] text-[#6e6e73] block">
+                      <span className="text-[11px] text-[#6e6e73] block truncate">
                         {t.role}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-1.5 shrink-0">
+                    <div className="grid grid-cols-2 sm:flex items-center gap-2 sm:gap-1.5 shrink-0 w-full sm:w-auto">
                       <button
                         type="button"
                         onClick={() => openEditTestimonial(t)}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-black/[0.07] bg-white/85 hover:bg-white text-[#1d1d1f] text-[11px] font-semibold cursor-pointer transition-colors shadow-2xs active:scale-95"
+                        className="min-h-[38px] sm:min-h-0 inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-full border border-black/[0.07] bg-white/85 hover:bg-white text-[#1d1d1f] text-xs sm:text-[11px] font-semibold cursor-pointer transition-colors shadow-2xs active:scale-95"
                       >
                         <Edit3 className="w-3 h-3" />
                         <span>Edit</span>
@@ -1822,7 +1851,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                       <button
                         type="button"
                         onClick={() => setTestimonialToDelete(t)}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-red-200/80 bg-red-50/85 hover:bg-red-100 text-red-600 text-[11px] font-semibold cursor-pointer transition-colors shadow-2xs active:scale-95"
+                        className="min-h-[38px] sm:min-h-0 inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-full border border-red-200/80 bg-red-50/85 hover:bg-red-100 text-red-600 text-xs sm:text-[11px] font-semibold cursor-pointer transition-colors shadow-2xs active:scale-95"
                       >
                         <Trash2 className="w-3 h-3" />
                         <span>Delete</span>
@@ -1845,7 +1874,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
             <button
               type="button"
               onClick={() => setActiveTab('overview')}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-600 hover:text-gray-950 transition-colors group cursor-pointer py-1.5 px-3 rounded-full bg-white/70 hover:bg-white/90 backdrop-blur-xl border border-white/80 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,0,0,0.03)] active:scale-95 w-fit"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-600 hover:text-gray-950 transition-colors group cursor-pointer py-1.5 px-3 rounded-full apple-liquid-glass-pill active:scale-95 w-fit"
             >
               <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5 text-gray-400 group-hover:text-gray-900" />
               <span>Admin Hub</span>
@@ -1864,12 +1893,12 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
           </div>
 
           {/* Main Card with Search and Filters */}
-          <div className="apple-liquid-glass rounded-[32px] border border-white/90 p-6 sm:p-7 mb-5 relative overflow-hidden">
+          <div className="apple-liquid-glass rounded-[24px] sm:rounded-[32px] p-3.5 sm:p-7 mb-5 relative overflow-hidden">
             <div className="specular-highlight opacity-55" />
             
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-black/[0.05] relative z-10">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 pb-4 sm:pb-5 border-b border-black/[0.05] relative z-10 px-0.5">
               <div>
-                <h3 className="font-display text-lg sm:text-xl font-bold text-[#1d1d1f]">
+                <h3 className="font-display text-base sm:text-xl font-bold text-[#1d1d1f]">
                   Portfolio Showcase
                 </h3>
                 <p className="text-xs text-[#6e6e73] mt-0.5">
@@ -1885,13 +1914,13 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                   placeholder="Search projects or clients…"
                   value={portfolioSearchQuery}
                   onChange={(e) => setPortfolioSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-8 py-2 rounded-full border border-black/[0.07] bg-white/85 focus:bg-white focus:border-[#f47b20] outline-none text-xs transition-colors shadow-2xs"
+                  className="w-full pl-9 pr-8 py-2 rounded-full border border-black/[0.07] bg-white/85 focus:bg-white focus:border-[#f47b20] outline-none text-sm sm:text-xs transition-colors shadow-2xs"
                 />
                 {portfolioSearchQuery && (
                   <button
                     type="button"
                     onClick={() => setPortfolioSearchQuery('')}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 p-0.5"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 p-1"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
@@ -1900,7 +1929,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
             </div>
 
             {/* Category Filter Pills (fully rounded) */}
-            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-3 relative z-10">
+            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-3 relative z-10 -mx-0.5 px-0.5">
               {PORTFOLIO_CATEGORIES.map((cat) => {
                 const isSelected = portfolioCategoryFilter === cat;
                 const count = cat === 'All Projects'
@@ -1912,7 +1941,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                     key={cat}
                     type="button"
                     onClick={() => setPortfolioCategoryFilter(cat)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                    className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap shrink-0 transition-all cursor-pointer ${
                       isSelected
                         ? 'bg-[#1d1d1f] text-white shadow-2xs'
                         : 'bg-black/[0.04] hover:bg-black/[0.08] text-gray-700'
@@ -1929,7 +1958,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
 
             {/* Portfolio Grid */}
             {filteredPortfolio.length === 0 ? (
-              <div className="text-center py-12 relative z-10">
+              <div className="text-center py-10 sm:py-12 relative z-10">
                 <Briefcase className="w-8 h-8 mx-auto text-gray-300 mb-2" />
                 <p className="text-xs text-gray-500 font-medium">No projects found matching your query.</p>
                 <button
@@ -1944,7 +1973,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-5 relative z-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-5 mt-3 sm:mt-5 relative z-10">
                 {filteredPortfolio.map((item) => {
                   const gallery = (item.gallery && item.gallery.length > 0)
                     ? item.gallery
@@ -1953,12 +1982,12 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                   return (
                     <div
                       key={item.id}
-                      className="group apple-liquid-glass-interactive rounded-[24px] p-4 border border-white/90 flex flex-col justify-between relative overflow-hidden"
+                      className="group apple-liquid-glass-interactive rounded-[20px] sm:rounded-[24px] p-3.5 sm:p-4 flex flex-col justify-between relative overflow-hidden"
                     >
                       <div className="specular-highlight opacity-50" />
                       <div className="relative z-10">
-                        {/* 1. Primary Photo Container (Concentric: 24px - 16px = 14px-16px) */}
-                        <div className="relative rounded-[16px] overflow-hidden aspect-16/10 bg-gray-100 shadow-2xs mb-2.5">
+                        {/* 1. Primary Photo Container (Concentric: 20px-24px - 14px-16px = 14px-16px) */}
+                        <div className="relative rounded-[14px] sm:rounded-[16px] overflow-hidden aspect-16/10 bg-gray-100 shadow-2xs mb-2.5">
                           <img 
                             src={item.imageUrl} 
                             alt={item.title} 
@@ -1989,7 +2018,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                         )}
 
                         {/* 2. Project Title */}
-                        <h4 className="font-display text-sm font-bold text-[#1d1d1f] leading-snug mb-1.5">
+                        <h4 className="font-display text-sm font-bold text-[#1d1d1f] leading-snug mb-1">
                           {item.title}
                         </h4>
 
@@ -2000,8 +2029,8 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                       </div>
 
                       {/* Actions Bar */}
-                      <div className="pt-3 border-t border-black/[0.05] flex items-center justify-between relative z-10">
-                        <span className="text-[10px] text-gray-400 font-mono">
+                      <div className="pt-3 border-t border-black/[0.05] flex items-center justify-between gap-2 relative z-10">
+                        <span className="text-[10.5px] text-gray-400 font-mono tabular-nums">
                           {gallery.length} {gallery.length === 1 ? 'photo' : 'photos'}
                         </span>
 
@@ -2009,7 +2038,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                           <button
                             type="button"
                             onClick={() => openEditPortfolio(item)}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-black/[0.07] bg-white/85 hover:bg-white text-[#1d1d1f] text-[11px] font-semibold cursor-pointer transition-colors shadow-2xs active:scale-95"
+                            className="min-h-[38px] sm:min-h-0 inline-flex items-center gap-1 px-3.5 sm:px-3 py-1.5 rounded-full border border-black/[0.07] bg-white/85 hover:bg-white text-[#1d1d1f] text-xs sm:text-[11px] font-semibold cursor-pointer transition-colors shadow-2xs active:scale-95"
                           >
                             <Edit3 className="w-3 h-3" />
                             <span>Edit</span>
@@ -2017,7 +2046,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                           <button
                             type="button"
                             onClick={() => setPortfolioToDelete(item)}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-red-200/80 bg-red-50/85 hover:bg-red-100 text-red-600 text-[11px] font-semibold cursor-pointer transition-colors shadow-2xs active:scale-95"
+                            className="min-h-[38px] sm:min-h-0 inline-flex items-center gap-1 px-3.5 sm:px-3 py-1.5 rounded-full border border-red-200/80 bg-red-50/85 hover:bg-red-100 text-red-600 text-xs sm:text-[11px] font-semibold cursor-pointer transition-colors shadow-2xs active:scale-95"
                           >
                             <Trash2 className="w-3 h-3" />
                             <span>Delete</span>
@@ -2043,15 +2072,15 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
           onClick={() => !tSaving && setIsTestimonialModalOpen(false)}
         >
           <div 
-            className="relative bg-white/95 backdrop-blur-2xl rounded-[32px] w-full max-w-lg shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_24px_64px_rgba(0,0,0,0.2)] border border-white/95 animate-fluid-sheet overflow-hidden max-h-[calc(100dvh-24px)] sm:max-h-[calc(100dvh-40px)] flex flex-col touch-auto"
+            className="relative bg-white/82 backdrop-blur-2xl backdrop-saturate-200 rounded-[24px] sm:rounded-[32px] w-full max-w-lg shadow-[inset_0_0.5px_0.5px_rgba(255,255,255,0.85),0_24px_64px_rgba(0,0,0,0.22)] border-[0.5px] border-white/60 animate-fluid-sheet overflow-hidden max-h-[calc(100dvh-20px)] sm:max-h-[calc(100dvh-40px)] flex flex-col touch-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Docked Header */}
-            <div className="shrink-0 bg-white/95 border-b border-black/[0.06] px-6 sm:px-7 pt-3 pb-4">
-              <div className="w-9 h-1 rounded-full bg-gray-300/80 mx-auto mb-3" />
+            <div className="shrink-0 bg-white/70 border-b border-black/[0.06] px-4 sm:px-7 pt-3 pb-3.5 sm:pb-4">
+              <div className="w-9 h-1 rounded-full bg-gray-300/80 mx-auto mb-2.5 sm:mb-3" />
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <h2 className="font-display text-lg sm:text-xl font-bold text-[#1d1d1f] truncate">
+                  <h2 className="font-display text-base sm:text-xl font-bold text-[#1d1d1f] truncate">
                     {editingTestimonial ? 'Edit Review' : 'Add Client Review'}
                   </h2>
                   <p className="text-[11px] text-[#6e6e73] mt-0.5 truncate">
@@ -2062,7 +2091,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                   type="button"
                   disabled={tSaving}
                   onClick={() => setIsTestimonialModalOpen(false)}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/[0.05] hover:bg-black/[0.09] text-[#1d1d1f] font-semibold text-xs transition-all cursor-pointer active:scale-95 shrink-0 disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-full bg-black/[0.05] hover:bg-black/[0.09] text-[#1d1d1f] font-semibold text-xs transition-all cursor-pointer active:scale-95 shrink-0 disabled:opacity-50"
                   aria-label="Cancel and close"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -2072,7 +2101,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
             </div>
 
             {/* Scrollable Body */}
-            <div className="flex-1 overflow-y-auto touch-momentum px-6 sm:px-7 py-5 bg-black/[0.015]">
+            <div className="flex-1 overflow-y-auto touch-momentum px-4 sm:px-7 py-4 sm:py-5 bg-black/[0.015]">
               {tError && (
                 <div className="p-3.5 mb-4 rounded-[18px] apple-liquid-glass-error text-xs text-rose-950 flex items-center gap-2.5 shadow-sm animate-fluid-sheet">
                   <div className="specular-highlight opacity-40" />
@@ -2094,7 +2123,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                     placeholder="e.g. The quality of our large-format banners completely exceeded expectations."
                     value={tQuote}
                     onChange={(e) => setTQuote(e.target.value)}
-                    className="w-full px-4 py-3 rounded-[20px] border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-xs transition-colors shadow-2xs"
+                    className="w-full px-4 py-3 rounded-[18px] sm:rounded-[20px] border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-sm sm:text-xs transition-colors shadow-2xs"
                   />
                 </div>
 
@@ -2108,7 +2137,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                     placeholder="e.g. Client name or title"
                     value={tAuthor}
                     onChange={(e) => setTAuthor(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-full border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-xs transition-colors shadow-2xs"
+                    className="w-full px-4 py-2.5 rounded-full border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-sm sm:text-xs transition-colors shadow-2xs"
                   />
                 </div>
 
@@ -2121,7 +2150,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                     placeholder="e.g. Marketing Lead, Apex Logistics"
                     value={tRole}
                     onChange={(e) => setTRole(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-full border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-xs transition-colors shadow-2xs"
+                    className="w-full px-4 py-2.5 rounded-full border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-sm sm:text-xs transition-colors shadow-2xs"
                   />
                 </div>
 
@@ -2131,7 +2160,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                     id="tHighlight"
                     checked={tHighlight}
                     onChange={(e) => setTHighlight(e.target.checked)}
-                    className="w-4 h-4 text-[#f47b20] rounded border-gray-300 focus:ring-[#f47b20] cursor-pointer"
+                    className="w-4 h-4 text-[#f47b20] rounded border-gray-300 focus:ring-[#f47b20] cursor-pointer shrink-0"
                   />
                   <span className="font-medium text-[#1d1d1f]">
                     Highlight this review with warm amber card styling
@@ -2141,12 +2170,12 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
             </div>
 
             {/* Docked Footer */}
-            <div className="shrink-0 bg-white/95 border-t border-black/[0.06] px-6 sm:px-7 py-4 flex items-center justify-end gap-2.5">
+            <div className="shrink-0 bg-white/70 border-t border-black/[0.06] px-4 sm:px-7 py-3.5 sm:py-4 flex items-center justify-end gap-2 sm:gap-2.5">
               <button
                 type="button"
                 disabled={tSaving}
                 onClick={() => setIsTestimonialModalOpen(false)}
-                className="px-5 py-2.5 rounded-full border border-black/[0.08] bg-white hover:bg-gray-50 text-[#1d1d1f] text-xs font-semibold cursor-pointer transition-colors disabled:opacity-50"
+                className="flex-1 sm:flex-none px-5 py-2.5 rounded-full border border-black/[0.08] bg-white hover:bg-gray-50 text-[#1d1d1f] text-xs font-semibold cursor-pointer transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -2154,7 +2183,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                 type="submit"
                 form="admin-testimonial-form"
                 disabled={tSaving}
-                className="px-7 py-2.5 rounded-full bg-[#f47b20] hover:bg-[#c95510] text-white text-xs font-semibold shadow-[0_2px_10px_rgba(244,123,32,0.3)] disabled:opacity-50 cursor-pointer transition-all active:scale-95"
+                className="flex-1 sm:flex-none px-7 py-2.5 rounded-full bg-[#f47b20] hover:bg-[#c95510] text-white text-xs font-semibold shadow-[0_2px_10px_rgba(244,123,32,0.3)] disabled:opacity-50 cursor-pointer transition-all active:scale-95"
               >
                 {tSaving ? 'Saving…' : editingTestimonial ? 'Save Changes' : 'Publish Review'}
               </button>
@@ -2170,7 +2199,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
           onClick={() => setTestimonialToDelete(null)}
         >
           <div 
-            className="relative apple-liquid-glass rounded-[32px] w-full max-w-sm p-6 sm:p-7 shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_24px_64px_rgba(0,0,0,0.18)] border border-white/95 animate-fluid-sheet text-center overflow-hidden"
+            className="relative apple-liquid-glass rounded-[32px] w-full max-w-sm p-6 sm:p-7 shadow-[0_24px_64px_rgba(0,0,0,0.22)] animate-fluid-sheet text-center overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="specular-highlight opacity-55" />
@@ -2224,15 +2253,15 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
           onClick={() => !portSaving && setIsPortfolioModalOpen(false)}
         >
           <div 
-            className="relative bg-white/95 backdrop-blur-2xl rounded-[32px] w-full max-w-2xl shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_24px_64px_rgba(0,0,0,0.2)] border border-white/95 animate-fluid-sheet max-h-[calc(100dvh-24px)] sm:max-h-[calc(100dvh-40px)] flex flex-col overflow-hidden touch-auto"
+            className="relative bg-white/82 backdrop-blur-2xl backdrop-saturate-200 rounded-[24px] sm:rounded-[32px] w-full max-w-2xl shadow-[inset_0_0.5px_0.5px_rgba(255,255,255,0.85),0_24px_64px_rgba(0,0,0,0.22)] border-[0.5px] border-white/60 animate-fluid-sheet max-h-[calc(100dvh-20px)] sm:max-h-[calc(100dvh-40px)] flex flex-col overflow-hidden touch-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Docked Header */}
-            <div className="shrink-0 bg-white/95 border-b border-black/[0.06] px-6 sm:px-7 pt-3 pb-4">
-              <div className="w-9 h-1 rounded-full bg-gray-300/80 mx-auto mb-3" />
+            <div className="shrink-0 bg-white/70 border-b border-black/[0.06] px-4 sm:px-7 pt-3 pb-3.5 sm:pb-4">
+              <div className="w-9 h-1 rounded-full bg-gray-300/80 mx-auto mb-2.5 sm:mb-3" />
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <h2 className="font-display text-lg sm:text-xl font-bold text-[#1d1d1f] truncate">
+                  <h2 className="font-display text-base sm:text-xl font-bold text-[#1d1d1f] truncate">
                     {editingPortfolioItem ? 'Edit Project' : 'Add Project'}
                   </h2>
                   <p className="text-[11px] text-[#6e6e73] mt-0.5 truncate">
@@ -2243,7 +2272,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                   type="button"
                   disabled={portSaving}
                   onClick={() => setIsPortfolioModalOpen(false)}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/[0.05] hover:bg-black/[0.09] text-[#1d1d1f] font-semibold text-xs transition-all cursor-pointer active:scale-95 shrink-0 disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-full bg-black/[0.05] hover:bg-black/[0.09] text-[#1d1d1f] font-semibold text-xs transition-all cursor-pointer active:scale-95 shrink-0 disabled:opacity-50"
                   aria-label="Cancel and close"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -2253,7 +2282,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
             </div>
 
             {/* Scrollable Body */}
-            <div className="flex-1 overflow-y-auto touch-momentum px-6 sm:px-7 py-5 bg-black/[0.015]">
+            <div className="flex-1 overflow-y-auto touch-momentum px-4 sm:px-7 py-4 sm:py-5 bg-black/[0.015]">
               {portError && (
                 <div className="mb-4 p-3.5 rounded-[18px] apple-liquid-glass-error text-xs text-rose-950 flex items-center gap-2.5 shadow-sm animate-fluid-sheet">
                   <div className="specular-highlight opacity-40" />
@@ -2275,7 +2304,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                     placeholder="e.g. Fleet Vehicle Wrapping & Branding"
                     value={portTitle}
                     onChange={(e) => setPortTitle(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-full border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-xs transition-colors shadow-2xs"
+                    className="w-full px-4 py-2.5 rounded-full border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-sm sm:text-xs transition-colors shadow-2xs"
                   />
                 </div>
 
@@ -2309,7 +2338,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                       <span>Upload Pictures</span>
                     </button>
 
-                    <div className="flex-1 flex gap-1.5">
+                    <div className="flex-1 flex gap-1.5 min-w-0">
                       <input
                         type="url"
                         placeholder="Or paste image URL (https://...)"
@@ -2321,7 +2350,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                             handleAddImageUrl();
                           }
                         }}
-                        className="flex-1 px-4 py-2 rounded-full border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-xs transition-colors shadow-2xs"
+                        className="min-w-0 flex-1 px-4 py-2 rounded-full border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-sm sm:text-xs transition-colors shadow-2xs"
                       />
                       <button
                         type="button"
@@ -2335,11 +2364,11 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
 
                   {/* Visual Pictures Grid */}
                   {portGallery.length > 0 ? (
-                    <div className="p-3.5 rounded-[20px] bg-white border border-black/[0.07] shadow-2xs">
+                    <div className="p-3 sm:p-3.5 rounded-[18px] sm:rounded-[20px] bg-white border border-black/[0.07] shadow-2xs">
                       <span className="block text-[10px] font-semibold text-[#6e6e73] mb-2.5 uppercase tracking-wider">
                         Tap any photo to set as Cover Photo
                       </span>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5">
                         {portGallery.map((img, idx) => {
                           const isCover = (portImageUrl ? portImageUrl === img : idx === 0);
                           return (
@@ -2357,7 +2386,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                                   Cover
                                 </span>
                               ) : (
-                                <span className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-full bg-black/60 text-white text-[9px] font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                                <span className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-full bg-black/60 text-white text-[9px] font-medium opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                                   Make Cover
                                 </span>
                               )}
@@ -2376,7 +2405,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                                     setPortImageUrl(filtered[0] || '');
                                   }
                                 }}
-                                className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center shadow-xs cursor-pointer active:scale-90 transition-transform"
+                                className="absolute top-1.5 right-1.5 w-7 h-7 sm:w-6 sm:h-6 rounded-full bg-red-600 hover:bg-red-700 text-white flex items-center justify-center shadow-xs cursor-pointer active:scale-90 transition-transform"
                                 title="Delete photo"
                                 aria-label="Delete photo"
                               >
@@ -2390,7 +2419,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                   ) : (
                     <div 
                       onClick={() => portfolioFileInputRef.current?.click()}
-                      className="p-6 rounded-[20px] border-2 border-dashed border-black/[0.10] hover:border-[#f47b20] bg-white hover:bg-orange-50/20 text-center cursor-pointer transition-colors"
+                      className="p-5 sm:p-6 rounded-[18px] sm:rounded-[20px] border-2 border-dashed border-black/[0.10] hover:border-[#f47b20] bg-white hover:bg-orange-50/20 text-center cursor-pointer transition-colors"
                     >
                       <ImagePlus className="w-8 h-8 text-gray-300 mx-auto mb-1.5" />
                       <p className="text-xs font-semibold text-[#1d1d1f]">No pictures added yet</p>
@@ -2410,19 +2439,19 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                     placeholder="Describe the project, materials used, turnaround time, installation details, or client outcome..."
                     value={portDescription}
                     onChange={(e) => setPortDescription(e.target.value)}
-                    className="w-full p-3.5 rounded-[20px] border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-xs leading-relaxed transition-colors resize-none placeholder:text-gray-400 shadow-2xs"
+                    className="w-full p-3.5 rounded-[18px] sm:rounded-[20px] border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-sm sm:text-xs leading-relaxed transition-colors resize-none placeholder:text-gray-400 shadow-2xs"
                   />
                 </div>
               </form>
             </div>
 
             {/* Docked Footer */}
-            <div className="shrink-0 bg-white/95 border-t border-black/[0.06] px-6 sm:px-7 py-4 flex items-center justify-end gap-2.5">
+            <div className="shrink-0 bg-white/70 border-t border-black/[0.06] px-4 sm:px-7 py-3.5 sm:py-4 flex items-center justify-end gap-2 sm:gap-2.5">
               <button
                 type="button"
                 disabled={portSaving}
                 onClick={() => setIsPortfolioModalOpen(false)}
-                className="px-5 py-2.5 rounded-full border border-black/[0.08] bg-white hover:bg-gray-50 text-[#1d1d1f] text-xs font-semibold cursor-pointer transition-colors disabled:opacity-50"
+                className="flex-1 sm:flex-none px-5 py-2.5 rounded-full border border-black/[0.08] bg-white hover:bg-gray-50 text-[#1d1d1f] text-xs font-semibold cursor-pointer transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -2430,7 +2459,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                 type="submit"
                 form="admin-portfolio-form"
                 disabled={portSaving}
-                className="px-7 py-2.5 rounded-full bg-[#1d1d1f] hover:bg-black text-white text-xs font-semibold shadow-[0_2px_10px_rgba(0,0,0,0.2)] disabled:opacity-50 cursor-pointer transition-all active:scale-95"
+                className="flex-1 sm:flex-none px-7 py-2.5 rounded-full bg-[#1d1d1f] hover:bg-black text-white text-xs font-semibold shadow-[0_2px_10px_rgba(0,0,0,0.2)] disabled:opacity-50 cursor-pointer transition-all active:scale-95"
               >
                 {portSaving ? 'Saving…' : editingPortfolioItem ? 'Save Changes' : 'Save Project'}
               </button>
@@ -2446,7 +2475,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
           onClick={() => !isDeletingPortfolio && setPortfolioToDelete(null)}
         >
           <div 
-            className="relative apple-liquid-glass rounded-[32px] w-full max-w-sm p-6 sm:p-7 shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_24px_64px_rgba(0,0,0,0.18)] border border-white/95 animate-fluid-sheet text-center overflow-hidden"
+            className="relative apple-liquid-glass rounded-[32px] w-full max-w-sm p-6 sm:p-7 shadow-[0_24px_64px_rgba(0,0,0,0.22)] animate-fluid-sheet text-center overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="specular-highlight opacity-55" />
@@ -2503,15 +2532,15 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
           onClick={() => setIsFormOpen(false)}
         >
           <div 
-            className="relative bg-white/95 backdrop-blur-2xl rounded-[32px] w-full max-w-2xl shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_24px_64px_rgba(0,0,0,0.2)] border border-white/95 max-h-[calc(100dvh-20px)] sm:max-h-[calc(100dvh-40px)] flex flex-col overflow-hidden animate-fluid-sheet touch-auto"
+            className="relative bg-white/82 backdrop-blur-2xl backdrop-saturate-200 rounded-[24px] sm:rounded-[32px] w-full max-w-2xl shadow-[inset_0_0.5px_0.5px_rgba(255,255,255,0.85),0_24px_64px_rgba(0,0,0,0.22)] border-[0.5px] border-white/60 max-h-[calc(100dvh-20px)] sm:max-h-[calc(100dvh-40px)] flex flex-col overflow-hidden animate-fluid-sheet touch-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Docked Header */}
-            <div className="shrink-0 bg-white/95 border-b border-black/[0.06] px-6 sm:px-7 pt-3 pb-4">
-              <div className="w-9 h-1 rounded-full bg-gray-300/80 mx-auto mb-3" />
+            <div className="shrink-0 bg-white/70 border-b border-black/[0.06] px-4 sm:px-7 pt-3 pb-3.5 sm:pb-4">
+              <div className="w-9 h-1 rounded-full bg-gray-300/80 mx-auto mb-2.5 sm:mb-3" />
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <h2 className="font-display text-lg sm:text-xl font-bold text-[#1d1d1f] truncate">
+                  <h2 className="font-display text-base sm:text-xl font-bold text-[#1d1d1f] truncate">
                     {editingProduct ? 'Edit Product' : 'Add New Product'}
                   </h2>
                   <p className="text-[11px] text-[#6e6e73] mt-0.5 truncate">
@@ -2522,7 +2551,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                 <button 
                   type="button"
                   onClick={() => setIsFormOpen(false)}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/[0.05] hover:bg-black/[0.09] text-[#1d1d1f] font-semibold text-xs transition-all cursor-pointer active:scale-95 shrink-0"
+                  className="inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-full bg-black/[0.05] hover:bg-black/[0.09] text-[#1d1d1f] font-semibold text-xs transition-all cursor-pointer active:scale-95 shrink-0"
                   aria-label="Cancel and close form"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -2532,7 +2561,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
             </div>
 
             {/* Scrollable Body */}
-            <div className="flex-1 overflow-y-auto touch-momentum px-6 sm:px-7 py-5 bg-black/[0.015]">
+            <div className="flex-1 overflow-y-auto touch-momentum px-4 sm:px-7 py-4 sm:py-5 bg-black/[0.015]">
               {formError && (
                 <div className="p-3.5 mb-4 rounded-[18px] apple-liquid-glass-error text-xs text-rose-950 flex items-center gap-2.5 shadow-sm animate-fluid-sheet">
                   <div className="specular-highlight opacity-40" />
@@ -2555,12 +2584,12 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                     placeholder="e.g. 3D Acrylic Frontage Channel Letters"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-full border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-xs transition-colors shadow-2xs"
+                    className="w-full px-4 py-2.5 rounded-full border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-sm sm:text-xs transition-colors shadow-2xs"
                   />
                 </div>
 
                 {/* 2. Category & Unit Specification */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-3.5">
                   <div>
                     <label className="block font-semibold text-[#1d1d1f] mb-1.5">
                       Category *
@@ -2568,7 +2597,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                     <select
                       value={category}
                       onChange={(e) => setCategory(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-full border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-xs cursor-pointer shadow-2xs"
+                      className="w-full px-4 py-2.5 rounded-full border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-sm sm:text-xs cursor-pointer shadow-2xs"
                     >
                       {CATEGORIES.filter(c => c !== 'All Products').map(c => (
                         <option key={c} value={c}>{c}</option>
@@ -2585,13 +2614,13 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                       placeholder="e.g. piece, pack (100 pcs), set, yard"
                       value={unit}
                       onChange={(e) => setUnit(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-full border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-xs transition-colors shadow-2xs"
+                      className="w-full px-4 py-2.5 rounded-full border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-sm sm:text-xs transition-colors shadow-2xs"
                     />
                   </div>
                 </div>
 
                 {/* 3. Price & Min Order Qty */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div className="grid grid-cols-2 gap-3 sm:gap-3.5">
                   <div>
                     <label className="block font-semibold text-[#1d1d1f] mb-1.5">
                       Price (₦) *
@@ -2605,7 +2634,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                         placeholder="25000"
                         value={price}
                         onChange={(e) => setPrice(e.target.value === '' ? '' : Number(e.target.value))}
-                        className="w-full pl-8 pr-4 py-2.5 rounded-full border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-xs font-semibold tabular-nums transition-colors shadow-2xs"
+                        className="w-full pl-8 pr-3 sm:pr-4 py-2.5 rounded-full border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-sm sm:text-xs font-semibold tabular-nums transition-colors shadow-2xs"
                       />
                     </div>
                   </div>
@@ -2619,30 +2648,30 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                       min="1"
                       value={minOrderQty}
                       onChange={(e) => setMinOrderQty(Math.max(1, Number(e.target.value)))}
-                      className="w-full px-4 py-2.5 rounded-full border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-xs tabular-nums transition-colors shadow-2xs"
+                      className="w-full px-4 py-2.5 rounded-full border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-sm sm:text-xs tabular-nums transition-colors shadow-2xs"
                     />
                   </div>
                 </div>
 
                 {/* Storefront Display Position (Rank) */}
-                <div className="bg-gradient-to-br from-orange-50/90 to-amber-50/60 p-4 rounded-[20px] border border-orange-200/75 shadow-2xs">
-                  <div className="flex items-center justify-between mb-2">
+                <div className="bg-gradient-to-br from-orange-50/90 to-amber-50/60 p-3.5 sm:p-4 rounded-[18px] sm:rounded-[20px] border border-orange-200/75 shadow-2xs">
+                  <div className="flex items-center justify-between gap-2 mb-2">
                     <label className="font-semibold text-[#1d1d1f] flex items-center gap-1.5 text-xs">
-                      <SlidersHorizontal className="w-3.5 h-3.5 text-[#f47b20]" />
-                      <span>Storefront Display Position (Rank)</span>
+                      <SlidersHorizontal className="w-3.5 h-3.5 text-[#f47b20] shrink-0" />
+                      <span>Storefront Position</span>
                     </label>
-                    <span className="text-[10px] font-bold text-[#c95510] bg-white px-2.5 py-0.5 rounded-full border border-orange-200/80 tabular-nums">
+                    <span className="text-[10px] font-bold text-[#c95510] bg-white px-2.5 py-0.5 rounded-full border border-orange-200/80 tabular-nums shrink-0">
                       Position #{position || 1}
                     </span>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-3">
                     <input
                       type="number"
                       min="1"
                       placeholder="1"
                       value={position}
                       onChange={(e) => setPosition(e.target.value === '' ? '' : Math.max(1, parseInt(e.target.value) || 1))}
-                      className="w-24 px-3.5 py-2 rounded-full border border-black/[0.10] focus:border-[#f47b20] outline-none text-xs font-bold bg-white text-[#1d1d1f] text-center tabular-nums shadow-2xs"
+                      className="w-full sm:w-24 px-3.5 py-2 rounded-full border border-black/[0.10] focus:border-[#f47b20] outline-none text-sm sm:text-xs font-bold bg-white text-[#1d1d1f] text-center tabular-nums shadow-2xs"
                     />
                     <p className="text-[11px] text-[#6e6e73] leading-relaxed">
                       Lower numbers appear first on the storefront shop page (e.g. 1 = first item shown to customers).
@@ -2652,11 +2681,11 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
 
                 {/* 4. Product Image Attach Field */}
                 <div className="pt-1">
-                  <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center justify-between gap-2 mb-1.5">
                     <label className="font-semibold text-[#1d1d1f]">
-                      Product Pictures * <span className="font-normal text-[#6e6e73]">(Attach local photo up to 10)</span>
+                      Product Pictures * <span className="font-normal text-[#6e6e73] hidden sm:inline">(Attach local photo up to 10)</span>
                     </label>
-                    <span className="text-[11px] text-[#6e6e73] font-medium tabular-nums">
+                    <span className="text-[11px] text-[#6e6e73] font-medium tabular-nums shrink-0">
                       {uploadedImages.length} / 10 attached
                     </span>
                   </div>
@@ -2673,7 +2702,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                   {uploadedImages.length < 10 && (
                     <div 
                       onClick={() => fileInputRef.current?.click()}
-                      className="border-2 border-dashed border-black/[0.10] hover:border-[#f47b20] rounded-[20px] p-4 text-center cursor-pointer transition-colors bg-white hover:bg-orange-50/20 mb-3 shadow-2xs"
+                      className="border-2 border-dashed border-black/[0.10] hover:border-[#f47b20] rounded-[18px] sm:rounded-[20px] p-4 text-center cursor-pointer transition-colors bg-white hover:bg-orange-50/20 mb-3 shadow-2xs"
                     >
                       <UploadCloud className="w-6 h-6 text-[#f47b20] mx-auto mb-1.5" />
                       <p className="text-xs font-semibold text-[#1d1d1f]">
@@ -2686,7 +2715,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                   )}
 
                   {uploadedImages.length > 0 && (
-                    <div className="grid grid-cols-3 sm:grid-cols-5 gap-2.5">
+                    <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-2.5">
                       {uploadedImages.map((img, idx) => (
                         <div 
                           key={idx} 
@@ -2700,18 +2729,18 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                             className="w-full h-full object-cover"
                           />
                           {idx === 0 && (
-                            <span className="absolute top-1 left-1 bg-[#f47b20] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-xs">
+                            <span className="absolute top-1 left-1 bg-[#f47b20] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-xs z-10">
                               Cover
                             </span>
                           )}
 
-                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5">
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent sm:bg-black/40 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex items-end sm:items-center justify-center gap-1.5 p-1.5 sm:p-0">
                             {idx !== 0 && (
                               <button
                                 type="button"
                                 onClick={() => setPrimaryImage(idx)}
                                 title="Make Cover Photo"
-                                className="p-1.5 rounded-full bg-white text-gray-800 hover:bg-amber-100 cursor-pointer"
+                                className="p-1.5 rounded-full bg-white text-gray-800 hover:bg-amber-100 cursor-pointer shadow-xs"
                               >
                                 <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
                               </button>
@@ -2720,7 +2749,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                               type="button"
                               onClick={() => removeImage(idx)}
                               title="Remove Photo"
-                              className="p-1.5 rounded-full bg-red-600 text-white hover:bg-red-700 cursor-pointer"
+                              className="p-1.5 rounded-full bg-red-600 text-white hover:bg-red-700 cursor-pointer shadow-xs"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
@@ -2737,7 +2766,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                     Color Selection <span className="font-normal text-[#6e6e73]">(Choose from palette or add custom)</span>
                   </label>
 
-                  <div className="flex flex-wrap items-center gap-2 p-3 bg-white rounded-[20px] border border-black/[0.08] mb-2.5 shadow-2xs">
+                  <div className="flex flex-wrap items-center gap-2 p-3 bg-white rounded-[18px] sm:rounded-[20px] border border-black/[0.08] mb-2.5 shadow-2xs">
                     {PALETTE_COLORS.map(c => {
                       const isSelected = selectedColors.includes(c.name);
                       return (
@@ -2746,7 +2775,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                           type="button"
                           onClick={() => togglePaletteColor(c.name)}
                           title={c.name}
-                          className={`relative w-7 h-7 rounded-full transition-transform cursor-pointer flex items-center justify-center ${
+                          className={`relative w-8 h-8 sm:w-7 sm:h-7 rounded-full transition-transform cursor-pointer flex items-center justify-center ${
                             c.border ? 'border border-gray-300' : ''
                           } ${isSelected ? 'ring-2 ring-offset-2 ring-[#f47b20] scale-110' : 'hover:scale-105'}`}
                           style={{ backgroundColor: c.hex }}
@@ -2765,26 +2794,26 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                     })}
                   </div>
 
-                  <div className="flex items-center gap-2 mb-2">
+                  <div className="flex items-center gap-2 mb-2 min-w-0">
                     <input
                       type="color"
                       value={customColorHex}
                       onChange={(e) => setCustomColorHex(e.target.value)}
-                      className="w-8 h-8 rounded-full border border-black/[0.08] cursor-pointer p-0.5 bg-white shrink-0 shadow-2xs"
+                      className="w-9 h-9 sm:w-8 sm:h-8 rounded-full border border-black/[0.08] cursor-pointer p-0.5 bg-white shrink-0 shadow-2xs"
                       title="Pick Color"
                     />
                     <input
                       type="text"
-                      placeholder="Enter color name (e.g. Olive Green, Rose Gold)"
+                      placeholder="Custom color name"
                       value={customColorName}
                       onChange={(e) => setCustomColorName(e.target.value)}
                       onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustomColor(); } }}
-                      className="flex-1 px-4 py-2 rounded-full border border-black/[0.08] bg-white text-xs outline-none focus:border-[#f47b20] shadow-2xs"
+                      className="min-w-0 flex-1 px-4 py-2 rounded-full border border-black/[0.08] bg-white text-sm sm:text-xs outline-none focus:border-[#f47b20] shadow-2xs"
                     />
                     <button
                       type="button"
                       onClick={addCustomColor}
-                      className="px-4 py-2 rounded-full border border-black/[0.08] bg-white hover:bg-gray-50 text-[#1d1d1f] text-xs font-semibold cursor-pointer active:scale-95 shadow-2xs"
+                      className="px-4 py-2 rounded-full border border-black/[0.08] bg-white hover:bg-gray-50 text-[#1d1d1f] text-xs font-semibold cursor-pointer active:scale-95 shadow-2xs shrink-0"
                     >
                       + Add
                     </button>
@@ -2843,19 +2872,19 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                     })}
                   </div>
 
-                  <div className="flex items-center gap-2 mb-2">
+                  <div className="flex items-center gap-2 mb-2 min-w-0">
                     <input
                       type="text"
-                      placeholder="Custom size (e.g. 85x200cm, 500ml, 2.5kVA)"
+                      placeholder="Custom size (e.g. 85x200cm, 500ml)"
                       value={customSizeInput}
                       onChange={(e) => setCustomSizeInput(e.target.value)}
                       onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustomSize(); } }}
-                      className="flex-1 px-4 py-2 rounded-full border border-black/[0.08] bg-white text-xs outline-none focus:border-[#f47b20] shadow-2xs"
+                      className="min-w-0 flex-1 px-4 py-2 rounded-full border border-black/[0.08] bg-white text-sm sm:text-xs outline-none focus:border-[#f47b20] shadow-2xs"
                     />
                     <button
                       type="button"
                       onClick={addCustomSize}
-                      className="px-4 py-2 rounded-full border border-black/[0.08] bg-white hover:bg-gray-50 text-[#1d1d1f] text-xs font-semibold cursor-pointer active:scale-95 shadow-2xs"
+                      className="px-4 py-2 rounded-full border border-black/[0.08] bg-white hover:bg-gray-50 text-[#1d1d1f] text-xs font-semibold cursor-pointer active:scale-95 shadow-2xs shrink-0"
                     >
                       + Add
                     </button>
@@ -2892,7 +2921,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                     placeholder="Provide product details, material quality, and usage instructions..."
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    className="w-full px-4 py-3 rounded-[20px] border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-xs transition-colors resize-y leading-relaxed shadow-2xs"
+                    className="w-full px-4 py-3 rounded-[18px] sm:rounded-[20px] border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-sm sm:text-xs transition-colors resize-y leading-relaxed shadow-2xs"
                   />
                 </div>
 
@@ -2910,12 +2939,12 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
             </div>
 
             {/* Docked Footer (Strictly outside scroll container — zero bleed-through) */}
-            <div className="shrink-0 bg-white/95 border-t border-black/[0.06] px-6 sm:px-7 py-4 flex items-center justify-end gap-2.5">
+            <div className="shrink-0 bg-white/70 border-t border-black/[0.06] px-4 sm:px-7 py-3.5 sm:py-4 flex items-center justify-end gap-2 sm:gap-2.5">
               <button
                 type="button"
                 disabled={isSaving}
                 onClick={() => setIsFormOpen(false)}
-                className="px-5 py-2.5 rounded-full border border-black/[0.08] bg-white hover:bg-gray-50 text-[#1d1d1f] text-xs font-semibold cursor-pointer transition-colors disabled:opacity-50"
+                className="flex-1 sm:flex-none px-5 py-2.5 rounded-full border border-black/[0.08] bg-white hover:bg-gray-50 text-[#1d1d1f] text-xs font-semibold cursor-pointer transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -2923,9 +2952,9 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                 type="submit"
                 form="admin-product-form"
                 disabled={isSaving}
-                className="px-8 py-2.5 rounded-full bg-[#f47b20] hover:bg-[#c95510] text-white text-xs font-semibold shadow-[0_2px_10px_rgba(244,123,32,0.3)] disabled:opacity-50 cursor-pointer transition-all active:scale-95"
+                className="flex-1 sm:flex-none px-6 sm:px-8 py-2.5 rounded-full bg-[#f47b20] hover:bg-[#c95510] text-white text-xs font-semibold shadow-[0_2px_10px_rgba(244,123,32,0.3)] disabled:opacity-50 cursor-pointer transition-all active:scale-95 whitespace-nowrap"
               >
-                {isSaving ? 'Saving to Database...' : editingProduct ? 'Save Changes' : 'Publish Product'}
+                {isSaving ? 'Saving…' : editingProduct ? 'Save Changes' : 'Publish Product'}
               </button>
             </div>
           </div>
@@ -2941,7 +2970,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
           onClick={() => !isDeleting && setProductToDelete(null)}
         >
           <div 
-            className="relative apple-liquid-glass rounded-[32px] w-full max-w-sm p-6 sm:p-7 shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_24px_64px_rgba(0,0,0,0.18)] border border-white/95 animate-fluid-sheet text-center overflow-hidden"
+            className="relative apple-liquid-glass rounded-[32px] w-full max-w-sm p-6 sm:p-7 shadow-[0_24px_64px_rgba(0,0,0,0.22)] animate-fluid-sheet text-center overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="specular-highlight opacity-55" />
@@ -3004,12 +3033,12 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
           onClick={() => setQuickPosModalProduct(null)}
         >
           <div 
-            className="relative bg-white/95 backdrop-blur-2xl rounded-[32px] w-full max-w-sm shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_24px_64px_rgba(0,0,0,0.2)] border border-white/95 animate-fluid-sheet overflow-hidden flex flex-col"
+            className="relative bg-white/82 backdrop-blur-2xl backdrop-saturate-200 rounded-[24px] sm:rounded-[32px] w-full max-w-sm shadow-[inset_0_0.5px_0.5px_rgba(255,255,255,0.85),0_24px_64px_rgba(0,0,0,0.22)] border-[0.5px] border-white/60 animate-fluid-sheet overflow-hidden flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Docked Header */}
-            <div className="shrink-0 bg-white/95 border-b border-black/[0.06] px-6 pt-3 pb-4">
-              <div className="w-9 h-1 rounded-full bg-gray-300/80 mx-auto mb-3" />
+            <div className="shrink-0 bg-white/70 border-b border-black/[0.06] px-4 sm:px-6 pt-3 pb-3.5 sm:pb-4">
+              <div className="w-9 h-1 rounded-full bg-gray-300/80 mx-auto mb-2.5 sm:mb-3" />
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2.5 min-w-0">
                   <div className="w-8 h-8 rounded-[12px] bg-gradient-to-br from-orange-500/15 via-orange-500/10 to-orange-500/5 border border-orange-200/70 flex items-center justify-center text-[#f47b20] shrink-0">
@@ -3037,8 +3066,8 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
             </div>
 
             {/* Body */}
-            <div className="p-6 bg-black/[0.015]">
-              <div className="flex items-center gap-2.5 p-3 bg-white rounded-[18px] mb-4 border border-black/[0.07] shadow-2xs">
+            <div className="p-4 sm:p-6 bg-black/[0.015]">
+              <div className="flex items-center gap-2.5 p-3 bg-white rounded-[16px] sm:rounded-[18px] mb-4 border border-black/[0.07] shadow-2xs">
                 <img
                   src={quickPosModalProduct.imageUrl}
                   alt={quickPosModalProduct.title}
@@ -3071,12 +3100,12 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                       handleSetExactPosition(quickPosModalProduct.id, Number(targetQuickPos) || 1);
                     }
                   }}
-                  className="flex-1 px-4 py-2.5 rounded-full border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-sm font-bold text-[#1d1d1f] tabular-nums transition-colors shadow-2xs"
+                  className="min-w-0 flex-1 px-4 py-2.5 rounded-full border border-black/[0.08] bg-white focus:border-[#f47b20] outline-none text-sm font-bold text-[#1d1d1f] tabular-nums transition-colors shadow-2xs"
                 />
                 <button
                   type="button"
                   onClick={() => setTargetQuickPos(1)}
-                  className="px-4 py-2.5 rounded-full border border-black/[0.08] bg-white hover:bg-gray-50 text-[11px] font-semibold text-[#1d1d1f] whitespace-nowrap cursor-pointer shadow-2xs active:scale-95"
+                  className="px-4 py-2.5 rounded-full border border-black/[0.08] bg-white hover:bg-gray-50 text-[11px] font-semibold text-[#1d1d1f] whitespace-nowrap cursor-pointer shadow-2xs active:scale-95 shrink-0"
                 >
                   Make #1
                 </button>
@@ -3087,7 +3116,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
             </div>
 
             {/* Docked Footer */}
-            <div className="shrink-0 bg-white/95 border-t border-black/[0.06] px-6 py-4">
+            <div className="shrink-0 bg-white/70 border-t border-black/[0.06] px-4 sm:px-6 py-3.5 sm:py-4">
               <button
                 type="button"
                 onClick={() => handleSetExactPosition(quickPosModalProduct.id, Number(targetQuickPos) || 1)}
@@ -3107,27 +3136,27 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
           onClick={() => setIsOrganizeModalOpen(false)}
         >
           <div 
-            className="relative bg-white/95 backdrop-blur-2xl rounded-[32px] w-full max-w-2xl shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_24px_64px_rgba(0,0,0,0.2)] border border-white/95 max-h-[92vh] flex flex-col overflow-hidden animate-fluid-sheet touch-auto"
+            className="relative bg-white/82 backdrop-blur-2xl backdrop-saturate-200 rounded-[24px] sm:rounded-[32px] w-full max-w-2xl shadow-[inset_0_0.5px_0.5px_rgba(255,255,255,0.85),0_24px_64px_rgba(0,0,0,0.22)] border-[0.5px] border-white/60 max-h-[calc(100dvh-20px)] sm:max-h-[92vh] flex flex-col overflow-hidden animate-fluid-sheet touch-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Docked Header */}
-            <div className="shrink-0 bg-white/95 border-b border-black/[0.06] px-6 sm:px-7 pt-3 pb-4">
-              <div className="w-9 h-1 rounded-full bg-gray-300/80 mx-auto mb-3" />
+            <div className="shrink-0 bg-white/70 border-b border-black/[0.06] px-4 sm:px-7 pt-3 pb-3.5 sm:pb-4">
+              <div className="w-9 h-1 rounded-full bg-gray-300/80 mx-auto mb-2.5 sm:mb-3" />
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <h2 className="font-display text-lg sm:text-xl font-bold text-[#1d1d1f] flex items-center gap-2 truncate">
-                    <SlidersHorizontal className="w-5 h-5 text-[#f47b20] shrink-0" />
-                    <span className="truncate">Organize Store Positions</span>
+                  <h2 className="font-display text-base sm:text-xl font-bold text-[#1d1d1f] flex items-center gap-2 truncate">
+                    <SlidersHorizontal className="w-4 h-4 sm:w-5 sm:h-5 text-[#f47b20] shrink-0" />
+                    <span className="truncate">Organize Positions</span>
                   </h2>
                   <p className="text-[11px] text-[#6e6e73] mt-0.5 truncate">
-                    Change the display sequence of products across the catalog and storefront.
+                    Change the display sequence of products across the storefront.
                   </p>
                 </div>
                 
                 <button 
                   type="button"
                   onClick={() => setIsOrganizeModalOpen(false)}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/[0.05] hover:bg-black/[0.09] text-[#1d1d1f] font-semibold text-xs transition-all cursor-pointer active:scale-95 shrink-0"
+                  className="inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-full bg-black/[0.05] hover:bg-black/[0.09] text-[#1d1d1f] font-semibold text-xs transition-all cursor-pointer active:scale-95 shrink-0"
                   aria-label="Cancel and close"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -3137,16 +3166,16 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
             </div>
 
             {/* Scrollable Content Area */}
-            <div className="flex-1 overflow-y-auto touch-momentum px-6 sm:px-7 py-5 bg-black/[0.015] flex flex-col">
+            <div className="flex-1 overflow-y-auto touch-momentum px-4 sm:px-7 py-4 sm:py-5 bg-black/[0.015] flex flex-col">
               {/* Quick Actions Bar */}
-              <div className="flex items-center justify-between gap-2 p-2.5 bg-gradient-to-r from-orange-50/90 to-amber-50/60 border border-orange-200/75 rounded-full mb-4 shrink-0">
-                <span className="text-xs text-[#c95510] font-medium pl-3 tabular-nums">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 sm:p-2.5 bg-gradient-to-r from-orange-50/90 to-amber-50/60 border border-orange-200/75 rounded-[18px] sm:rounded-full mb-3.5 sm:mb-4 shrink-0">
+                <span className="text-xs text-[#c95510] font-medium sm:pl-3 tabular-nums text-center sm:text-left">
                   Total Products: <strong>{products.length}</strong>
                 </span>
                 <button
                   type="button"
                   onClick={handleAutoNumberPositions}
-                  className="px-4 py-1.5 rounded-full bg-white hover:bg-orange-50 text-[#c95510] border border-orange-200/80 text-xs font-semibold shadow-2xs transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
+                  className="w-full sm:w-auto px-4 py-2 sm:py-1.5 rounded-full bg-white hover:bg-orange-50 text-[#c95510] border border-orange-200/80 text-xs font-semibold shadow-2xs transition-all cursor-pointer flex items-center justify-center gap-1.5 active:scale-95"
                   title="Renumber products clean sequentially 1, 2, 3..."
                 >
                   <Check className="w-3.5 h-3.5" />
@@ -3155,19 +3184,18 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
               </div>
 
               {/* Product Ordering List */}
-              <div className="space-y-2">
+              <div className="space-y-2.5 sm:space-y-2">
                 {[...products]
                   .sort((a, b) => (a.position ?? 99999) - (b.position ?? 99999))
                   .map((item, index, arr) => (
                     <div
                       key={item.id}
-                      className="p-3 rounded-[18px] border border-black/[0.07] bg-white hover:border-black/[0.14] flex items-center justify-between gap-2.5 transition-colors shadow-2xs"
+                      className="p-3 rounded-[18px] border border-black/[0.07] bg-white hover:border-black/[0.14] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 transition-colors shadow-2xs"
                     >
-                      <div className="w-8 h-8 rounded-[10px] bg-orange-50 border border-orange-200/75 flex items-center justify-center font-mono font-bold text-xs text-[#c95510] shrink-0 tabular-nums">
-                        #{item.position ?? (index + 1)}
-                      </div>
-
                       <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                        <div className="w-8 h-8 rounded-[10px] bg-orange-50 border border-orange-200/75 flex items-center justify-center font-mono font-bold text-xs text-[#c95510] shrink-0 tabular-nums">
+                          #{item.position ?? (index + 1)}
+                        </div>
                         <img
                           src={item.imageUrl}
                           alt={item.title}
@@ -3177,18 +3205,18 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                           <p className="font-semibold text-xs text-[#1d1d1f] truncate">
                             {item.title}
                           </p>
-                          <p className="text-[10px] text-[#6e6e73] tabular-nums">
+                          <p className="text-[10.5px] text-[#6e6e73] tabular-nums truncate">
                             {item.category} · {formatNaira(item.price)}
                           </p>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-1.5 shrink-0">
+                      <div className="flex items-center justify-end gap-1.5 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-black/[0.05] w-full sm:w-auto">
                         <button
                           type="button"
                           onClick={() => handleMoveProductPosition(item.id, 'up')}
                           disabled={index === 0}
-                          className="p-2 rounded-full border border-black/[0.08] bg-white hover:bg-orange-50 hover:text-[#f47b20] text-gray-600 disabled:opacity-25 disabled:pointer-events-none transition-colors cursor-pointer active:scale-95"
+                          className="min-w-[38px] min-h-[38px] sm:min-w-0 sm:min-h-0 flex items-center justify-center p-2 rounded-full border border-black/[0.08] bg-white hover:bg-orange-50 hover:text-[#f47b20] text-gray-600 disabled:opacity-25 disabled:pointer-events-none transition-colors cursor-pointer active:scale-95"
                           title="Move Up"
                         >
                           <ArrowUp className="w-3.5 h-3.5" />
@@ -3197,7 +3225,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                           type="button"
                           onClick={() => handleMoveProductPosition(item.id, 'down')}
                           disabled={index === arr.length - 1}
-                          className="p-2 rounded-full border border-black/[0.08] bg-white hover:bg-orange-50 hover:text-[#f47b20] text-gray-600 disabled:opacity-25 disabled:pointer-events-none transition-colors cursor-pointer active:scale-95"
+                          className="min-w-[38px] min-h-[38px] sm:min-w-0 sm:min-h-0 flex items-center justify-center p-2 rounded-full border border-black/[0.08] bg-white hover:bg-orange-50 hover:text-[#f47b20] text-gray-600 disabled:opacity-25 disabled:pointer-events-none transition-colors cursor-pointer active:scale-95"
                           title="Move Down"
                         >
                           <ArrowDown className="w-3.5 h-3.5" />
@@ -3209,7 +3237,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
                             setQuickPosModalProduct(item);
                             setTargetQuickPos(item.position ?? (index + 1));
                           }}
-                          className="px-3 py-1.5 rounded-full border border-black/[0.08] bg-white hover:bg-gray-50 text-[11px] font-semibold text-[#1d1d1f] cursor-pointer transition-colors active:scale-95 shadow-2xs"
+                          className="min-h-[38px] sm:min-h-0 flex-1 sm:flex-initial px-3.5 sm:px-3 py-1.5 rounded-full border border-black/[0.08] bg-white hover:bg-gray-50 text-xs sm:text-[11px] font-semibold text-[#1d1d1f] cursor-pointer transition-colors active:scale-95 shadow-2xs"
                         >
                           Set Rank
                         </button>
@@ -3220,14 +3248,14 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
             </div>
 
             {/* Docked Footer */}
-            <div className="shrink-0 bg-white/95 border-t border-black/[0.06] px-6 sm:px-7 py-4 flex items-center justify-between gap-3">
-              <span className="text-[11px] text-[#6e6e73]">
+            <div className="shrink-0 bg-white/70 border-t border-black/[0.06] px-4 sm:px-7 py-3.5 sm:py-4 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-3">
+              <span className="text-[11px] text-[#6e6e73] text-center sm:text-left">
                 Positions update live on the customer shop.
               </span>
               <button
                 type="button"
                 onClick={() => setIsOrganizeModalOpen(false)}
-                className="px-7 py-2.5 rounded-full bg-[#1d1d1f] hover:bg-black text-white text-xs font-semibold shadow-[0_2px_10px_rgba(0,0,0,0.15)] cursor-pointer transition-all active:scale-95"
+                className="w-full sm:w-auto px-7 py-2.5 rounded-full bg-[#1d1d1f] hover:bg-black text-white text-xs font-semibold shadow-[0_2px_10px_rgba(0,0,0,0.15)] cursor-pointer transition-all active:scale-95"
               >
                 Done
               </button>
@@ -3243,7 +3271,7 @@ export default function AdminPortal({ onNavigateHome, onNavigateShop }: AdminPor
           onClick={() => !isDeletingOrder && setOrderToDelete(null)}
         >
           <div 
-            className="relative apple-liquid-glass rounded-[32px] w-full max-w-sm p-6 sm:p-7 shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_24px_64px_rgba(0,0,0,0.18)] border border-white/95 animate-fluid-sheet text-center overflow-hidden"
+            className="relative apple-liquid-glass rounded-[32px] w-full max-w-sm p-6 sm:p-7 shadow-[0_24px_64px_rgba(0,0,0,0.22)] animate-fluid-sheet text-center overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="specular-highlight opacity-55" />

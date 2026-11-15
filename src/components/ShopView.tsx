@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { 
   Search, 
@@ -15,7 +15,8 @@ import {
   Phone,
   Eye,
   CheckCircle2,
-  ChevronRight
+  ChevronRight,
+  Maximize2
 } from 'lucide-react';
 import { 
   db, 
@@ -25,6 +26,7 @@ import {
   isProductDeleted
 } from '../firebase';
 import { collection, onSnapshot } from 'firebase/firestore';
+import LiquidGlassLightbox from './LiquidGlassLightbox';
 
 interface ShopViewProps {
   cart: CartItem[];
@@ -126,11 +128,14 @@ export default function ShopView({
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [addedProductId, setAddedProductId] = useState<string | null>(null);
 
   // Product Detail Modal State
   const [selectedProduct, setSelectedProduct] = useState<ProductItem | null>(null);
   const [activeImage, setActiveImage] = useState<string>('');
+  const [isImagePreviewOpen, setIsImagePreviewOpen] = useState<boolean>(false);
   const [selectedColor, setSelectedColor] = useState<string>('');
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [modalQuantity, setModalQuantity] = useState<number>(1);
@@ -187,7 +192,7 @@ export default function ShopView({
     document.body.style.overflow = 'hidden';
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' && !isImagePreviewOpen) {
         setSelectedProduct(null);
       }
     };
@@ -197,7 +202,7 @@ export default function ShopView({
       document.body.style.overflow = originalOverflow;
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [selectedProduct]);
+  }, [selectedProduct, isImagePreviewOpen]);
 
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
@@ -258,6 +263,7 @@ export default function ShopView({
   const handleOpenProductDetail = (product: ProductItem) => {
     setSelectedProduct(product);
     setActiveImage(product.imageUrl);
+    setIsImagePreviewOpen(false);
     setSelectedColor(product.availableColors && product.availableColors.length > 0 ? product.availableColors[0] : '');
     setSelectedSize(product.availableSizes && product.availableSizes.length > 0 ? product.availableSizes[0] : '');
     setModalQuantity(product.minOrderQty || 1);
@@ -309,31 +315,69 @@ export default function ShopView({
       
       {/* Floating Shop Navigation Header matching the website navbar */}
       <header className="fixed top-3 sm:top-5 inset-x-0 mx-auto z-50 w-[min(780px,calc(100%-20px))] sm:w-[min(780px,calc(100%-32px))] pointer-events-auto">
-        <nav className="glass-pill backdrop-blur-2xl backdrop-saturate-200 rounded-full px-2.5 sm:px-4 py-1.5 flex items-center justify-between gap-2 sm:gap-4 shadow-[0_16px_36px_-6px_rgba(0,0,0,0.14),0_3px_12px_rgba(0,0,0,0.06)] border border-white/90">
-          {/* 1. Main Website */}
+        <nav
+          className={`glass-pill rounded-full px-2.5 sm:px-4 py-1.5 flex items-center justify-between transition-all duration-350 ease-liquid-spring ${
+            isSearchExpanded ? 'gap-1.5 sm:gap-4' : 'gap-2 sm:gap-4'
+          }`}
+        >
+          {/* 1. Main Website (collapses smoothly on mobile when search is expanded) */}
           <button
+            type="button"
             onClick={onNavigateHome}
-            className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-2 sm:py-1.5 rounded-full hover:bg-black/5 active:bg-black/10 text-[#1d1d1f] hover:text-[#f47b20] text-xs font-semibold transition-colors cursor-pointer shrink-0 touch-action-btn"
+            tabIndex={isSearchExpanded ? -1 : 0}
+            className={`inline-flex items-center gap-1.5 rounded-full hover:bg-black/5 active:bg-black/10 text-[#1d1d1f] hover:text-[#f47b20] text-xs font-semibold transition-all duration-350 ease-liquid-spring cursor-pointer shrink-0 touch-action-btn whitespace-nowrap ${
+              isSearchExpanded
+                ? 'max-w-0 opacity-0 px-0 py-2 -mr-1.5 pointer-events-none scale-90 overflow-hidden sm:max-w-[180px] sm:opacity-100 sm:px-3 sm:py-1.5 sm:mr-0 sm:pointer-events-auto sm:scale-100 sm:overflow-visible'
+                : 'max-w-[180px] opacity-100 px-2.5 sm:px-3 py-2 sm:py-1.5 scale-100'
+            }`}
             title="Return to Main Website"
           >
-            <ArrowLeft className="w-3.5 h-3.5" />
+            <ArrowLeft className="w-3.5 h-3.5 shrink-0" />
             <span className="text-[11px] sm:text-xs">Main Website</span>
           </button>
 
-          {/* 2. Search Panel */}
-          <div className="relative flex-1 max-w-xs sm:max-w-sm">
+          {/* 2. Search Panel (expands to fill the floating bar on mobile click/focus) */}
+          <div
+            onClick={() => {
+              setIsSearchExpanded(true);
+              searchInputRef.current?.focus();
+            }}
+            className={`relative flex-1 min-w-0 transition-all duration-350 ease-liquid-spring ${
+              isSearchExpanded ? 'max-w-full sm:max-w-sm' : 'max-w-xs sm:max-w-sm'
+            }`}
+          >
             <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
+              ref={searchInputRef}
               type="text"
               placeholder="Search products…"
               value={searchQuery}
+              onFocus={() => setIsSearchExpanded(true)}
+              onBlur={() => {
+                window.setTimeout(() => {
+                  if (document.activeElement !== searchInputRef.current) {
+                    setIsSearchExpanded(false);
+                  }
+                }, 120);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape' || e.key === 'Enter') {
+                  e.currentTarget.blur();
+                  setIsSearchExpanded(false);
+                }
+              }}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-8 pr-7 py-2 sm:py-1.5 text-xs bg-black/5 hover:bg-black/8 focus:bg-white border border-transparent focus:border-gray-200 rounded-full outline-none transition-all placeholder:text-gray-400 text-[#1d1d1f]"
+              className="w-full pl-8 pr-8 py-2 sm:py-1.5 text-xs bg-black/5 hover:bg-black/8 focus:bg-white border border-transparent focus:border-black/10 rounded-full outline-none transition-all placeholder:text-gray-400 text-[#1d1d1f]"
             />
             {searchQuery && (
               <button
                 type="button"
-                onClick={() => setSearchQuery('')}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSearchQuery('');
+                  searchInputRef.current?.focus();
+                }}
                 className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black p-1 cursor-pointer touch-action-btn"
                 title="Clear search"
               >
@@ -342,20 +386,45 @@ export default function ShopView({
             )}
           </div>
 
-          {/* 3. Cart Icon */}
-          <button
-            onClick={openCart}
-            className="relative w-9 h-9 sm:w-8 sm:h-8 rounded-full bg-[#1d1d1f] hover:bg-[#3a3a3c] text-white transition-all shadow-xs cursor-pointer shrink-0 flex items-center justify-center touch-action-btn"
-            aria-label="View shopping cart"
-            title="View shopping cart"
-          >
-            <ShoppingCart className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-white" />
-            {totalCartCount > 0 && (
-              <span className="absolute -top-1 -right-1 px-1.2 py-0.2 min-w-4 h-4 rounded-full bg-[#f47b20] text-white text-[9px] font-bold flex items-center justify-center shadow-xs">
-                {totalCartCount}
-              </span>
-            )}
-          </button>
+          {/* 3. Right Action: Cart Icon (collapses on mobile while searching) + Mobile Done Pill */}
+          <div className="flex items-center shrink-0">
+            <button
+              type="button"
+              onClick={openCart}
+              tabIndex={isSearchExpanded ? -1 : 0}
+              className={`relative rounded-full bg-[#1d1d1f] hover:bg-[#3a3a3c] text-white transition-all duration-350 ease-liquid-spring shadow-xs cursor-pointer shrink-0 flex items-center justify-center touch-action-btn ${
+                isSearchExpanded
+                  ? 'w-0 h-0 opacity-0 scale-75 pointer-events-none overflow-hidden sm:overflow-visible sm:w-8 sm:h-8 sm:opacity-100 sm:scale-100 sm:pointer-events-auto'
+                  : 'w-9 h-9 sm:w-8 sm:h-8 opacity-100 scale-100'
+              }`}
+              aria-label="View shopping cart"
+              title="View shopping cart"
+            >
+              <ShoppingCart className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-white" />
+              {totalCartCount > 0 && (
+                <span className="absolute -top-1 -right-1 px-1.2 py-0.2 min-w-4 h-4 rounded-full bg-[#f47b20] text-white text-[9px] font-bold flex items-center justify-center shadow-xs">
+                  {totalCartCount}
+                </span>
+              )}
+            </button>
+
+            <button
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => {
+                setIsSearchExpanded(false);
+                searchInputRef.current?.blur();
+              }}
+              className={`sm:hidden inline-flex items-center justify-center rounded-full bg-[#1d1d1f] text-white text-xs font-semibold transition-all duration-350 ease-liquid-spring cursor-pointer touch-action-btn whitespace-nowrap ${
+                isSearchExpanded
+                  ? 'max-w-[80px] h-9 px-3.5 opacity-100 scale-100'
+                  : 'max-w-0 w-0 h-0 px-0 opacity-0 scale-75 pointer-events-none overflow-hidden'
+              }`}
+              aria-label="Done searching"
+            >
+              Done
+            </button>
+          </div>
         </nav>
       </header>
 
@@ -387,7 +456,7 @@ export default function ShopView({
       {/* Simple, Streamlined Product Grid with Apple Liquid Glass & Concentric Geometry */}
       <div className="max-w-5xl mx-auto w-full px-4 sm:px-6">
         {filteredProducts.length === 0 ? (
-          <div className="text-center py-16 apple-liquid-glass rounded-[28px] border border-white/90 my-4 relative overflow-hidden">
+          <div className="text-center py-16 apple-liquid-glass rounded-[28px] my-4 relative overflow-hidden">
             <div className="specular-highlight opacity-50" />
             <Package className="w-8 h-8 text-gray-300 mx-auto mb-2 relative z-10" />
             <p className="text-xs font-semibold text-gray-700 relative z-10">No products found</p>
@@ -399,17 +468,17 @@ export default function ShopView({
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 sm:gap-4">
             {filteredProducts.map((product) => (
               <div
                 key={product.id}
                 onClick={() => handleOpenProductDetail(product)}
-                className="group apple-liquid-glass-interactive rounded-[28px] p-3 border border-white/90 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.95),0_10px_28px_-4px_rgba(0,0,0,0.05)] overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col justify-between cursor-pointer touch-action-card relative"
+                className="group apple-liquid-glass-interactive rounded-[20px] sm:rounded-[28px] p-2.5 sm:p-3 overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col justify-between cursor-pointer touch-action-card relative"
               >
                 <div className="specular-highlight opacity-75" />
 
-                {/* Concentric Image: Outer 28px - 12px padding = 16px inner radius */}
-                <div className="relative aspect-4/3 rounded-[16px] bg-gray-50 overflow-hidden shadow-2xs z-10 mb-2.5">
+                {/* Concentric Image: Mobile 20px - 10px = 10-12px; Desktop 28px - 12px = 16px */}
+                <div className="relative aspect-4/3 rounded-[12px] sm:rounded-[16px] bg-gray-50 overflow-hidden shadow-2xs z-10 mb-2 sm:mb-2.5">
                   <img
                     src={product.imageUrl}
                     alt={product.title}
@@ -417,34 +486,34 @@ export default function ShopView({
                     loading="lazy"
                   />
                   {product.compareAtPrice && product.compareAtPrice > product.price && (
-                    <span className="absolute top-2 right-2 px-2.5 py-0.5 rounded-full bg-[#f47b20] text-white text-[9px] font-bold shadow-xs">
+                    <span className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 px-2 sm:px-2.5 py-0.5 rounded-full bg-[#f47b20] text-white text-[9px] font-bold shadow-xs">
                       Deal
                     </span>
                   )}
                 </div>
 
                 {/* Info */}
-                <div className="flex-1 flex flex-col justify-between relative z-10 px-1">
+                <div className="flex-1 flex flex-col justify-between relative z-10 px-0.5 sm:px-1">
                   <div>
-                    <p className="text-[10px] text-gray-400 mb-0.5 uppercase tracking-wider font-semibold">
+                    <p className="text-[9.5px] sm:text-[10px] text-gray-400 mb-0.5 uppercase tracking-wider font-semibold truncate">
                       {product.category}
                     </p>
-                    <h3 className="font-semibold text-xs sm:text-[13px] text-[#1d1d1f] line-clamp-2 leading-snug mb-1 group-hover:text-[#c95510] transition-colors">
+                    <h3 className="font-semibold text-[12px] sm:text-[13px] text-[#1d1d1f] line-clamp-2 leading-snug mb-1 group-hover:text-[#c95510] transition-colors">
                       {product.title}
                     </h3>
                   </div>
 
-                  <div className="pt-2 flex items-center justify-between gap-2 mt-auto border-t border-black/5">
-                    <div>
-                      <span className="font-display text-xs sm:text-sm font-bold text-[#1d1d1f] block tabular-nums leading-tight">
+                  <div className="pt-2 flex items-end sm:items-center justify-between gap-1.5 mt-auto border-t border-black/5">
+                    <div className="min-w-0">
+                      <span className="font-display text-xs sm:text-sm font-bold text-[#1d1d1f] block tabular-nums leading-tight truncate">
                         {formatNaira(product.price)}
                       </span>
-                      <span className="text-[10px] text-gray-400 block">
+                      <span className="text-[10px] text-gray-400 block truncate">
                         Min: {product.minOrderQty || 1} {product.unit}
                       </span>
                     </div>
 
-                    <span className="text-[11px] font-semibold text-[#c95510] group-hover:text-[#1d1d1f] transition-colors flex items-center gap-0.5">
+                    <span className="text-[11px] font-semibold text-[#c95510] group-hover:text-[#1d1d1f] transition-colors flex items-center gap-0.5 shrink-0">
                       <span>View</span>
                       <ChevronRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
                     </span>
@@ -471,13 +540,13 @@ export default function ShopView({
           onClick={() => setSelectedProduct(null)}
         >
           <div 
-            className="relative bg-white/95 backdrop-blur-2xl rounded-[28px] sm:rounded-[36px] w-full max-w-2xl shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_24px_64px_rgba(0,0,0,0.22)] border border-white/95 overflow-hidden animate-fluid-sheet max-h-[calc(100dvh-24px)] sm:max-h-[calc(100dvh-48px)] flex flex-col touch-auto my-auto"
+            className="relative bg-white/82 backdrop-blur-2xl backdrop-saturate-200 rounded-[24px] sm:rounded-[36px] w-full max-w-2xl shadow-[inset_0_0.5px_0.5px_rgba(255,255,255,0.85),0_24px_64px_rgba(0,0,0,0.22)] border-[0.5px] border-white/60 overflow-hidden animate-fluid-sheet max-h-[calc(100dvh-24px)] sm:max-h-[calc(100dvh-48px)] flex flex-col touch-auto my-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="specular-highlight opacity-70" />
 
             {/* Modal Header: Sticky Floating Bar with Fixed Cancel Button */}
-            <div className="sticky top-0 z-30 px-5 sm:px-6 py-3 border-b border-black/5 flex items-center justify-between shrink-0 bg-white/85 backdrop-blur-xl rounded-t-[28px] sm:rounded-t-[36px]">
+            <div className="sticky top-0 z-30 px-4 sm:px-6 py-3 border-b border-black/5 flex items-center justify-between shrink-0 bg-white/75 backdrop-blur-2xl rounded-t-[24px] sm:rounded-t-[36px]">
               <div className="flex items-center gap-2 text-xs text-gray-500 min-w-0 pr-2">
                 <span className="font-semibold text-[#f47b20] uppercase tracking-wider text-[11px] truncate">
                   {selectedProduct.category}
@@ -499,23 +568,32 @@ export default function ShopView({
             </div>
 
             {/* Modal Body: Scrollable & Properly Padded */}
-            <div className="p-4 sm:p-6 overflow-y-auto space-y-4 flex-1 overscroll-contain">
+            <div className="p-3.5 sm:p-6 overflow-y-auto space-y-4 flex-1 overscroll-contain">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 items-start">
                 
                 {/* Left: Images & Gallery switcher */}
                 <div className="space-y-2.5">
-                  <div className="relative h-48 sm:h-56 rounded-[20px] overflow-hidden bg-gray-50 border border-gray-200">
+                  <button
+                    type="button"
+                    onClick={() => setIsImagePreviewOpen(true)}
+                    className="group relative w-full h-48 sm:h-56 rounded-[20px] overflow-hidden bg-gray-50 border border-gray-200 cursor-zoom-in block text-left active:scale-[0.985] transition-transform duration-300 ease-liquid-spring"
+                    aria-label={`Preview ${selectedProduct.title} image`}
+                    title="Click to preview & zoom image"
+                  >
                     <img 
                       src={activeImage || selectedProduct.imageUrl} 
                       alt={selectedProduct.title}
-                      className="w-full h-full object-cover transition-all duration-300"
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
                     />
                     {selectedProduct.compareAtPrice && selectedProduct.compareAtPrice > selectedProduct.price && (
                       <span className="absolute top-2.5 right-2.5 px-2.5 py-0.5 rounded-full bg-[#f47b20] text-white text-[10px] font-bold shadow-xs">
                         Special Price
                       </span>
                     )}
-                  </div>
+                    <span className="absolute bottom-2.5 right-2.5 w-8 h-8 rounded-full apple-floating-glass flex items-center justify-center opacity-85 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300 ease-liquid-spring">
+                      <Maximize2 className="w-3.5 h-3.5 text-[#1d1d1f]" />
+                    </span>
+                  </button>
 
                   {/* Multiple Pictures Thumbnails */}
                   {productImages.length > 1 && (
@@ -569,7 +647,7 @@ export default function ShopView({
                     </div>
 
                     {/* 2. Simple & Understandable Description Box */}
-                    <div className="p-4 rounded-[22px] bg-gray-50 border border-gray-100/90 text-xs text-gray-700 space-y-2.5">
+                    <div className="p-3.5 sm:p-4 rounded-[18px] sm:rounded-[22px] bg-gray-50 border border-gray-100/90 text-xs text-gray-700 space-y-2.5">
                       <p className="leading-relaxed text-gray-600">
                         {selectedProduct.description}
                       </p>
@@ -657,7 +735,7 @@ export default function ShopView({
                     )}
 
                     {/* 5. Quantity Stepper - Capsule Pill */}
-                    <div className="flex items-center justify-between text-xs p-4 rounded-[22px] bg-gray-50 border border-gray-100">
+                    <div className="flex items-center justify-between text-xs p-3.5 sm:p-4 rounded-[18px] sm:rounded-[22px] bg-gray-50 border border-gray-100">
                       <div>
                         <span className="font-semibold text-gray-800 block text-xs">Quantity</span>
                         <span className="text-[10.5px] text-gray-400">Order amount in {selectedProduct.unit}</span>
@@ -737,6 +815,32 @@ export default function ShopView({
         </div>,
         document.body
       )}
+
+      {/* ========================================================
+          FULL-SCREEN PRODUCT IMAGE LIGHTBOX PREVIEW & ZOOM
+         ======================================================== */}
+      {selectedProduct && isImagePreviewOpen && productImages.length > 0 && (() => {
+        const currentIdx = Math.max(0, productImages.indexOf(activeImage || selectedProduct.imageUrl));
+        return (
+          <LiquidGlassLightbox
+            images={productImages}
+            currentImageIndex={currentIdx}
+            onSelectImageIndex={(idx) => setActiveImage(productImages[idx] || selectedProduct.imageUrl)}
+            title={selectedProduct.title}
+            subtitle={`${formatNaira(selectedProduct.price)} / ${selectedProduct.unit}`}
+            description={selectedProduct.description}
+            onPrev={() => {
+              const prevIdx = (currentIdx - 1 + productImages.length) % productImages.length;
+              setActiveImage(productImages[prevIdx] || selectedProduct.imageUrl);
+            }}
+            onNext={() => {
+              const nextIdx = (currentIdx + 1) % productImages.length;
+              setActiveImage(productImages[nextIdx] || selectedProduct.imageUrl);
+            }}
+            onClose={() => setIsImagePreviewOpen(false)}
+          />
+        );
+      })()}
 
     </div>
   );
