@@ -1,8 +1,9 @@
 import { collection, doc, getDoc, getDocs, setDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
-import jdpiBlueImg from '../assets/images/jdpi_blue_shirt_1795012541809.jpg';
-import jdpiBlackPressImg from '../assets/images/jdpi_black_press_1795012542853.jpg';
-import jdpiPressDetailImg from '../assets/images/jdpi_press_detail_clean_1795012558850.jpg';
+
+const JDPI_BLUE_IMG = '/portfolio/jdpi-blue-shirt.jpg';
+const JDPI_BLACK_PRESS_IMG = '/portfolio/jdpi-black-press.jpg';
+const JDPI_PRESS_DETAIL_IMG = '/portfolio/jdpi-press-detail.jpg';
 
 export interface PortfolioItem {
   id: string;
@@ -47,32 +48,50 @@ export const DEFAULT_PORTFOLIO: PortfolioItem[] = [
     ],
     impact:
       'Vibrant, wash-resistant branded T-shirts delivered across royal blue and black garment editions for JDPI.',
-    imageUrl: jdpiBlueImg,
+    imageUrl: JDPI_BLUE_IMG,
     gallery: [
-      jdpiBlueImg,
-      jdpiBlackPressImg,
-      jdpiPressDetailImg
+      JDPI_BLUE_IMG,
+      JDPI_BLACK_PRESS_IMG,
+      JDPI_PRESS_DETAIL_IMG
     ],
     featured: true,
     order: 1
   }
 ];
 
-const LOCAL_STORAGE_KEY = 'enj_portfolio_data_v2';
-const LEGACY_LOCAL_STORAGE_KEY = 'enj_portfolio_data_v1';
-const MIGRATION_MARKER_ID = 'portfolio_jdpi_reset_v1';
+const LOCAL_STORAGE_KEY = 'enj_portfolio_data_v3';
+const LEGACY_LOCAL_STORAGE_KEYS = ['enj_portfolio_data_v1', 'enj_portfolio_data_v2'];
+const MIGRATION_MARKER_ID = 'portfolio_jdpi_reset_v2';
 export const PORTFOLIO_CHANGED_EVENT = 'enj_portfolio_changed';
+
+function normalizeImageUrl(url: string): string {
+  if (!url) return url;
+  if (url.includes('jdpi_blue_shirt')) return JDPI_BLUE_IMG;
+  if (url.includes('jdpi_black_press')) return JDPI_BLACK_PRESS_IMG;
+  if (url.includes('jdpi_press_detail')) return JDPI_PRESS_DETAIL_IMG;
+  return url;
+}
+
+function normalizePortfolioItem(item: PortfolioItem): PortfolioItem {
+  return {
+    ...item,
+    imageUrl: normalizeImageUrl(item.imageUrl),
+    gallery: Array.isArray(item.gallery) ? item.gallery.map(normalizeImageUrl) : item.gallery
+  };
+}
 
 export function getLocalPortfolio(): PortfolioItem[] {
   try {
-    if (localStorage.getItem(LEGACY_LOCAL_STORAGE_KEY)) {
-      localStorage.removeItem(LEGACY_LOCAL_STORAGE_KEY);
+    for (const oldKey of LEGACY_LOCAL_STORAGE_KEYS) {
+      if (localStorage.getItem(oldKey)) {
+        localStorage.removeItem(oldKey);
+      }
     }
     const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) {
-        return parsed;
+        return parsed.map(normalizePortfolioItem);
       }
     }
   } catch (e) {
@@ -83,8 +102,9 @@ export function getLocalPortfolio(): PortfolioItem[] {
 
 export function saveLocalPortfolio(list: PortfolioItem[]): void {
   try {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(list));
-    window.dispatchEvent(new CustomEvent(PORTFOLIO_CHANGED_EVENT, { detail: list }));
+    const normalized = list.map(normalizePortfolioItem);
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(normalized));
+    window.dispatchEvent(new CustomEvent(PORTFOLIO_CHANGED_EVENT, { detail: normalized }));
   } catch (e) {
     console.warn('Could not save portfolio to localStorage', e);
   }
@@ -97,7 +117,7 @@ export async function fetchLivePortfolio(): Promise<PortfolioItem[]> {
     const snap = await getDocs(collection(db, 'portfolio'));
 
     if (!markerSnap.exists()) {
-      // One-time cleanup: delete all prior portfolio documents, leaving only the JDPI project
+      // Cleanup & sync stable /portfolio/*.jpg paths for both dev and hosted deployments
       for (const existingDoc of snap.docs) {
         if (existingDoc.id !== DEFAULT_PORTFOLIO[0].id) {
           try {
@@ -121,10 +141,12 @@ export async function fetchLivePortfolio(): Promise<PortfolioItem[]> {
     }
 
     if (!snap.empty) {
-      const items: PortfolioItem[] = snap.docs.map(d => ({
-        id: d.id,
-        ...(d.data() as Omit<PortfolioItem, 'id'>)
-      }));
+      const items: PortfolioItem[] = snap.docs.map(d =>
+        normalizePortfolioItem({
+          id: d.id,
+          ...(d.data() as Omit<PortfolioItem, 'id'>)
+        })
+      );
       items.sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
       saveLocalPortfolio(items);
       return items;
