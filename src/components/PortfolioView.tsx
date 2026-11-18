@@ -22,7 +22,7 @@ export default function PortfolioView({ onNavigateShop: _onNavigateShop, onNavig
   useEffect(() => {
     let isMounted = true;
     fetchLivePortfolio().then(liveList => {
-      if (isMounted && liveList.length > 0) {
+      if (isMounted) {
         setItems(liveList);
       }
     });
@@ -59,9 +59,9 @@ export default function PortfolioView({ onNavigateShop: _onNavigateShop, onNavig
     return list;
   }, [selectedProject]);
 
-  const handleOpenProject = (index: number) => {
+  const handleOpenProject = (index: number, initialImageIndex: number = 0) => {
     setSelectedProjectIndex(index);
-    setCurrentImageIndex(0);
+    setCurrentImageIndex(initialImageIndex);
   };
 
   const handleCloseModal = () => {
@@ -97,13 +97,26 @@ export default function PortfolioView({ onNavigateShop: _onNavigateShop, onNavig
     }
   }, [currentImageIndex, currentProjectImages.length, selectedProjectIndex, items]);
 
+  // Showcase gallery for single-project view
+  const singleProjectGallery = React.useMemo(() => {
+    if (items.length !== 1) return [];
+    const p = items[0];
+    const list = [p.imageUrl];
+    if (Array.isArray(p.gallery)) {
+      p.gallery.forEach(img => {
+        if (img && !list.includes(img)) list.push(img);
+      });
+    }
+    return list;
+  }, [items]);
+
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 animate-fluid-page pt-2 pb-16 relative isolate">
       {/* Ambient Apple Liquid Glass Refraction Mesh */}
       <div className="fixed inset-0 pointer-events-none -z-10 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(244,123,32,0.08),rgba(255,255,255,0))]" />
       <div className="fixed inset-0 pointer-events-none -z-10 bg-[radial-gradient(ellipse_60%_50%_at_85%_85%,rgba(124,156,200,0.08),rgba(255,255,255,0))]" />
       
-      {/* 1. CLEAN HEADER (Categories removed completely) */}
+      {/* 1. CLEAN HEADER */}
       <div className="grid grid-cols-1 md:grid-cols-2 items-end gap-6 mb-8">
         <div>
           <p className="text-[10px] font-bold tracking-widest text-[#6e6e73] uppercase mb-1.5">
@@ -115,7 +128,7 @@ export default function PortfolioView({ onNavigateShop: _onNavigateShop, onNavig
         </div>
         <div>
           <p className="text-[#6e6e73] text-xs sm:text-sm leading-relaxed">
-            A showcase of architectural branding, commercial print installations, solar energy deployments, and custom apparel executed for clients across Nigeria.
+            Custom apparel printing, brand identity, and commercial production crafted with precision.
           </p>
         </div>
       </div>
@@ -126,6 +139,63 @@ export default function PortfolioView({ onNavigateShop: _onNavigateShop, onNavig
           <div className="specular-highlight opacity-50" />
           <Briefcase className="w-8 h-8 mx-auto text-gray-300 mb-2.5 relative z-10" />
           <h3 className="text-sm font-semibold text-gray-900 relative z-10">No projects to display</h3>
+        </div>
+      ) : items.length === 1 ? (
+        <div className="mb-16 space-y-5">
+          {singleProjectGallery.length >= 3 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3.5 md:gap-4">
+              <div
+                onClick={() => handleOpenProject(0, 0)}
+                className="group relative sm:col-span-2 h-64 sm:h-[360px] md:h-[420px] rounded-[20px] sm:rounded-[26px] overflow-hidden cursor-pointer touch-action-card transition-all duration-300 hover:shadow-2xl hover:scale-[1.01] active:scale-[0.985] bg-gray-100 border-[0.5px] border-white/60 shadow-[inset_0_0.5px_0.5px_rgba(255,255,255,0.75),0_8px_24px_-4px_rgba(0,0,0,0.06)]"
+              >
+                <div className="specular-highlight opacity-40 z-10" />
+                <img
+                  src={singleProjectGallery[0]}
+                  alt={`${items[0].title} — Primary view`}
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-1 gap-2.5 sm:gap-3.5 md:gap-4">
+                {singleProjectGallery.slice(1, 3).map((imgUrl, idx) => (
+                  <div
+                    key={idx}
+                    onClick={() => handleOpenProject(0, idx + 1)}
+                    className="group relative h-36 sm:h-[173px] md:h-[202px] rounded-[18px] sm:rounded-[24px] overflow-hidden cursor-pointer touch-action-card transition-all duration-300 hover:shadow-2xl hover:scale-[1.015] active:scale-[0.985] bg-gray-100 border-[0.5px] border-white/60 shadow-[inset_0_0.5px_0.5px_rgba(255,255,255,0.75),0_8px_24px_-4px_rgba(0,0,0,0.06)]"
+                  >
+                    <div className="specular-highlight opacity-40 z-10" />
+                    <img
+                      src={imgUrl}
+                      alt={`${items[0].title} — View ${idx + 2}`}
+                      referrerPolicy="no-referrer"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              {singleProjectGallery.map((imgUrl, idx) => (
+                <div
+                  key={idx}
+                  onClick={() => handleOpenProject(0, idx)}
+                  className={`group relative rounded-[20px] sm:rounded-[26px] overflow-hidden cursor-pointer touch-action-card transition-all duration-300 hover:shadow-2xl hover:scale-[1.01] active:scale-[0.985] bg-gray-100 border-[0.5px] border-white/60 shadow-[inset_0_0.5px_0.5px_rgba(255,255,255,0.75),0_8px_24px_-4px_rgba(0,0,0,0.06)] ${
+                    singleProjectGallery.length === 1 ? 'sm:col-span-2 h-64 sm:h-[380px]' : 'h-56 sm:h-72'
+                  }`}
+                >
+                  <div className="specular-highlight opacity-40 z-10" />
+                  <img
+                    src={imgUrl}
+                    alt={items[0].title}
+                    referrerPolicy="no-referrer"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-3 gap-2.5 sm:gap-3.5 md:gap-4 mb-16">
@@ -148,13 +218,14 @@ export default function PortfolioView({ onNavigateShop: _onNavigateShop, onNavig
             return (
               <div
                 key={project.id}
-                onClick={() => handleOpenProject(index)}
+                onClick={() => handleOpenProject(index, 0)}
                 className={`group relative rounded-[18px] sm:rounded-[24px] overflow-hidden cursor-pointer touch-action-card transition-all duration-300 hover:shadow-2xl hover:scale-[1.015] active:scale-[0.985] bg-gray-100 border-[0.5px] border-white/60 shadow-[inset_0_0.5px_0.5px_rgba(255,255,255,0.75),0_8px_24px_-4px_rgba(0,0,0,0.06)] ${mosaicSpanClass}`}
               >
                 <div className="specular-highlight opacity-40 z-10" />
                 <img 
                   src={project.imageUrl} 
                   alt={project.title}
+                  referrerPolicy="no-referrer"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   loading="lazy"
                 />
