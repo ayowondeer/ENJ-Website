@@ -1,9 +1,12 @@
 import { collection, doc, getDoc, getDocs, setDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
+import jdpiBlueImg from '../assets/images/jdpi_blue_shirt_1795012541809.jpg';
+import jdpiBlackPressImg from '../assets/images/jdpi_black_press_1795012542853.jpg';
+import jdpiPressDetailImg from '../assets/images/jdpi_press_detail_clean_1795012558850.jpg';
 
-const JDPI_BLUE_IMG = '/portfolio/jdpi-blue-shirt.jpg';
-const JDPI_BLACK_PRESS_IMG = '/portfolio/jdpi-black-press.jpg';
-const JDPI_PRESS_DETAIL_IMG = '/portfolio/jdpi-press-detail.jpg';
+const JDPI_BLUE_IMG = jdpiBlueImg;
+const JDPI_BLACK_PRESS_IMG = jdpiBlackPressImg;
+const JDPI_PRESS_DETAIL_IMG = jdpiPressDetailImg;
 
 export interface PortfolioItem {
   id: string;
@@ -59,16 +62,16 @@ export const DEFAULT_PORTFOLIO: PortfolioItem[] = [
   }
 ];
 
-const LOCAL_STORAGE_KEY = 'enj_portfolio_data_v3';
-const LEGACY_LOCAL_STORAGE_KEYS = ['enj_portfolio_data_v1', 'enj_portfolio_data_v2'];
-const MIGRATION_MARKER_ID = 'portfolio_jdpi_reset_v2';
+const LOCAL_STORAGE_KEY = 'enj_portfolio_data_v4';
+const LEGACY_LOCAL_STORAGE_KEYS = ['enj_portfolio_data_v1', 'enj_portfolio_data_v2', 'enj_portfolio_data_v3'];
+const MIGRATION_MARKER_ID = 'portfolio_jdpi_reset_v3';
 export const PORTFOLIO_CHANGED_EVENT = 'enj_portfolio_changed';
 
 function normalizeImageUrl(url: string): string {
   if (!url) return url;
-  if (url.includes('jdpi_blue_shirt')) return JDPI_BLUE_IMG;
-  if (url.includes('jdpi_black_press')) return JDPI_BLACK_PRESS_IMG;
-  if (url.includes('jdpi_press_detail')) return JDPI_PRESS_DETAIL_IMG;
+  if (url.includes('jdpi_blue_shirt') || url.includes('jdpi-blue-shirt')) return JDPI_BLUE_IMG;
+  if (url.includes('jdpi_black_press') || url.includes('jdpi-black-press')) return JDPI_BLACK_PRESS_IMG;
+  if (url.includes('jdpi_press_detail') || url.includes('jdpi-press-detail')) return JDPI_PRESS_DETAIL_IMG;
   return url;
 }
 

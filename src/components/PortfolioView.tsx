@@ -110,6 +110,20 @@ export default function PortfolioView({ onNavigateShop: _onNavigateShop, onNavig
     return list;
   }, [items]);
 
+  const handleImageFallback = (e: React.SyntheticEvent<HTMLImageElement>, idxHint?: number) => {
+    const img = e.currentTarget;
+    if (img.dataset.fallbackApplied) return;
+    img.dataset.fallbackApplied = '1';
+    const src = img.getAttribute('src') || '';
+    if (src.includes('black_press') || src.includes('black-press') || idxHint === 1) {
+      img.src = '/jdpi-black-press.jpg';
+    } else if (src.includes('press_detail') || src.includes('press-detail') || idxHint === 2) {
+      img.src = '/jdpi-press-detail.jpg';
+    } else {
+      img.src = '/jdpi-blue-shirt.jpg';
+    }
+  };
+
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 animate-fluid-page pt-2 pb-16 relative isolate">
       {/* Ambient Apple Liquid Glass Refraction Mesh */}
@@ -153,6 +167,7 @@ export default function PortfolioView({ onNavigateShop: _onNavigateShop, onNavig
                   src={singleProjectGallery[0]}
                   alt={`${items[0].title} — Primary view`}
                   referrerPolicy="no-referrer"
+                  onError={(e) => handleImageFallback(e, 0)}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
               </div>
@@ -169,6 +184,7 @@ export default function PortfolioView({ onNavigateShop: _onNavigateShop, onNavig
                       src={imgUrl}
                       alt={`${items[0].title} — View ${idx + 2}`}
                       referrerPolicy="no-referrer"
+                      onError={(e) => handleImageFallback(e, idx + 1)}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   </div>
@@ -190,6 +206,7 @@ export default function PortfolioView({ onNavigateShop: _onNavigateShop, onNavig
                     src={imgUrl}
                     alt={items[0].title}
                     referrerPolicy="no-referrer"
+                    onError={(e) => handleImageFallback(e, idx)}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                 </div>
@@ -226,6 +243,7 @@ export default function PortfolioView({ onNavigateShop: _onNavigateShop, onNavig
                   src={project.imageUrl} 
                   alt={project.title}
                   referrerPolicy="no-referrer"
+                  onError={(e) => handleImageFallback(e)}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   loading="lazy"
                 />
