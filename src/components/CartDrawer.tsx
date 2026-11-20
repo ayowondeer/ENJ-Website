@@ -296,18 +296,33 @@ export default function CartDrawer({
   if (typeof document === 'undefined') return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[9999] bg-black/40 backdrop-blur-md flex justify-end animate-fluid-page font-sans overscroll-none touch-none h-[100dvh] max-h-[100dvh] w-screen overflow-hidden">
+    <div className="fixed inset-0 z-[9999] apple-modal-backdrop animate-liquid-backdrop flex justify-end font-sans overscroll-none touch-none h-[100dvh] max-h-[100dvh] w-screen overflow-hidden">
       
       {/* Backdrop click */}
       <div className="flex-1 no-print" onClick={onClose} />
 
       {/* Slide-over Drawer Panel */}
-      <div className="w-full max-w-sm sm:max-w-md bg-white/84 backdrop-blur-2xl backdrop-saturate-200 h-[100dvh] max-h-[100dvh] shadow-2xl flex flex-col justify-between animate-drawer-bounce relative sm:rounded-l-[36px] overflow-hidden border-l-[0.5px] border-white/60 touch-auto">
+      <div className="w-full max-w-sm sm:max-w-md apple-modal-glass h-[100dvh] max-h-[100dvh] flex flex-col justify-between animate-drawer-bounce relative sm:rounded-l-[32px] overflow-hidden touch-auto">
+        <div className="pointer-events-none absolute -top-20 -right-20 w-56 h-56 rounded-full bg-orange-400/14 blur-3xl z-0" />
+        <div className="pointer-events-none absolute -bottom-24 -left-16 w-60 h-60 rounded-full bg-sky-400/10 blur-3xl z-0" />
+        <div className="specular-highlight opacity-75 z-20" />
         
-        {/* Top Header: Sticky Floating Bar with Fixed Cancel Button */}
-        <div className="px-5 py-3.5 border-b border-black/5 flex items-center justify-between no-print bg-white/75 backdrop-blur-2xl sticky top-0 z-40 shadow-2xs sm:rounded-tl-[36px]">
+        {/* Pinned Floating Circular Close Button */}
+        <button
+          type="button"
+          onClick={onClose}
+          className="apple-floating-glass absolute top-3 right-3 sm:top-3.5 sm:right-3.5 z-50 w-9 h-9 rounded-full overflow-hidden flex items-center justify-center text-[#1d1d1f] transition-all cursor-pointer active:scale-95 touch-action-btn no-print"
+          aria-label="Close cart"
+          title="Close"
+        >
+          <span className="specular-highlight opacity-70" />
+          <X className="w-4 h-4 relative z-10" />
+        </button>
+
+        {/* Top Header: Sticky Floating Bar */}
+        <div className="pl-5 pr-14 py-3.5 border-b border-black/[0.06] flex items-center justify-between no-print bg-white/85 backdrop-blur-xl sticky top-0 z-40 sm:rounded-tl-[32px]">
           <div className="flex items-center gap-2 min-w-0 pr-2">
-            <div className="w-8 h-8 rounded-full bg-orange-50 flex items-center justify-center text-[#f47b20] shrink-0 border border-orange-100">
+            <div className="w-8 h-8 rounded-full bg-orange-50/90 flex items-center justify-center text-[#c95510] shrink-0 border border-orange-200/70">
               <ShoppingCart className="w-4 h-4" />
             </div>
             <div className="min-w-0">
@@ -316,28 +331,17 @@ export default function CartDrawer({
                 {step === 'checkout' && 'Checkout & Delivery'}
                 {step === 'success' && 'Order Confirmed'}
               </h2>
-              <span className="text-[11px] text-gray-500 truncate block mt-0.5">
+              <span className="text-[11px] text-[#515154] truncate block mt-0.5">
                 {step === 'cart' && `${totalItemCount} ${totalItemCount === 1 ? 'item' : 'items'}`}
                 {step === 'checkout' && 'Provide delivery details'}
                 {step === 'success' && 'Verified Official Receipt'}
               </span>
             </div>
           </div>
-
-          {/* Floating Cancel Button: Always fixed and accessible while scrolling */}
-          <button
-            type="button"
-            onClick={onClose}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/5 hover:bg-black/10 text-gray-700 font-semibold text-xs transition-all cursor-pointer active:scale-95 shadow-2xs border border-black/5 shrink-0"
-            aria-label="Cancel and close cart"
-          >
-            <X className="w-3.5 h-3.5" />
-            <span>Cancel</span>
-          </button>
         </div>
 
         {/* Modern Interactive Progress Stepper */}
-        <div className="px-4 sm:px-5 py-3 bg-gray-50/80 border-b border-black/5 no-print">
+        <div className="px-4 sm:px-5 py-3 bg-white/80 backdrop-blur-md border-b border-black/[0.06] no-print relative z-10">
           <div className="flex items-center justify-between gap-1.5 sm:gap-2">
             
             {/* Step 1: Cart Items */}
@@ -452,12 +456,12 @@ export default function CartDrawer({
               ) : (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between pb-1">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#515154]">
                       Selected Items ({totalItemCount})
                     </span>
                     <button
                       onClick={clearCart}
-                      className="text-[11px] text-gray-400 hover:text-red-600 transition-colors cursor-pointer touch-action-btn py-1 px-1.5"
+                      className="text-[11px] font-medium text-[#515154] hover:text-red-600 transition-colors cursor-pointer touch-action-btn py-1 px-1.5"
                     >
                       Clear all
                     </button>
@@ -466,13 +470,13 @@ export default function CartDrawer({
                   {cart.map((item, index) => (
                     <div 
                       key={`${item.product.id}-${index}`}
-                      className="flex gap-2.5 sm:gap-3 p-3 sm:p-3.5 rounded-[18px] sm:rounded-[22px] apple-liquid-glass relative overflow-hidden items-start"
+                      className="flex gap-2.5 sm:gap-3 p-3 sm:p-3.5 rounded-[20px] sm:rounded-[24px] apple-liquid-glass relative overflow-hidden items-start"
                     >
-                      <div className="specular-highlight opacity-50" />
+                      <div className="specular-highlight opacity-55" />
                       <img
                         src={item.product.imageUrl}
                         alt={item.product.title}
-                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-[10px] object-cover bg-white shrink-0 border border-black/5 shadow-2xs relative z-10"
+                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-[12px] sm:rounded-[14px] object-cover bg-white shrink-0 border border-white/70 shadow-2xs relative z-10"
                       />
                       <div className="flex-1 min-w-0 relative z-10">
                         <h4 className="font-semibold text-xs sm:text-[13px] text-[#1d1d1f] truncate leading-tight">
@@ -550,7 +554,7 @@ export default function CartDrawer({
           {step === 'checkout' && (
             <form onSubmit={handlePaymentCheckout} className="space-y-3.5 text-xs">
               {submitError && (
-                <div className="p-3.5 rounded-2xl apple-liquid-glass-error text-xs text-rose-950 flex items-center gap-2.5 shadow-sm animate-fluid-sheet">
+                <div className="p-3.5 rounded-[14px] sm:rounded-[18px] apple-liquid-glass-error text-xs text-rose-950 flex items-center gap-2.5 shadow-sm animate-liquid-expand">
                   <div className="specular-highlight opacity-40" />
                   <div className="w-6 h-6 rounded-full bg-rose-500/15 border border-rose-500/25 flex items-center justify-center shrink-0">
                     <AlertCircle className="w-3.5 h-3.5 text-rose-600" />
@@ -560,16 +564,16 @@ export default function CartDrawer({
               )}
 
               {/* Order Quick Summary Bar */}
-              <div className="py-2.5 px-3.5 sm:px-4 rounded-[18px] sm:rounded-full bg-gray-50 border border-gray-200/80 flex items-center justify-between gap-2">
+              <div className="py-2.5 px-3.5 sm:px-4 rounded-[14px] sm:rounded-full bg-white/88 backdrop-blur-md border border-black/[0.06] flex items-center justify-between gap-2 shadow-2xs">
                 <div className="min-w-0">
-                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Order Subtotal</span>
+                  <span className="text-[10px] font-bold text-[#515154] uppercase tracking-wider block">Order Subtotal</span>
                   <span className="font-display text-sm font-bold text-[#1d1d1f] tabular-nums">{formatNaira(totalAmount)}</span>
-                  <span className="text-[10px] text-gray-500 ml-1.5">({totalItemCount} {totalItemCount === 1 ? 'item' : 'items'})</span>
+                  <span className="text-[10px] text-[#515154] ml-1.5">({totalItemCount} {totalItemCount === 1 ? 'item' : 'items'})</span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setStep('cart')}
-                  className="px-3 py-1.5 rounded-full text-[11px] font-semibold text-[#f47b20] hover:bg-orange-50 transition-colors touch-action-btn flex items-center gap-1 cursor-pointer shrink-0"
+                  className="px-3 py-1.5 rounded-full text-[11px] font-semibold text-[#c95510] hover:bg-orange-50/80 transition-colors touch-action-btn flex items-center gap-1 cursor-pointer shrink-0"
                 >
                   <span>Review Items</span>
                   <ChevronRight className="w-3.5 h-3.5" />
@@ -577,7 +581,7 @@ export default function CartDrawer({
               </div>
 
               {/* CARD 1: Contact Information */}
-              <div className="bg-white rounded-[18px] sm:rounded-[24px] border border-gray-200/80 p-3.5 sm:p-4.5 shadow-xs space-y-3">
+              <div className="bg-white/88 backdrop-blur-md rounded-[20px] sm:rounded-[24px] border border-black/[0.06] p-3.5 sm:p-4.5 shadow-2xs space-y-3">
                 <div className="flex items-center gap-2 pb-2 border-b border-gray-100">
                   <div className="w-6 h-6 rounded-full bg-orange-50 text-[#f47b20] flex items-center justify-center">
                     <User className="w-3.5 h-3.5" />
@@ -631,7 +635,7 @@ export default function CartDrawer({
               </div>
 
               {/* CARD 2: Delivery Destination */}
-              <div className="bg-white rounded-[18px] sm:rounded-[24px] border border-gray-200/80 p-3.5 sm:p-4.5 shadow-xs space-y-3">
+              <div className="bg-white/88 backdrop-blur-md rounded-[20px] sm:rounded-[24px] border border-black/[0.06] p-3.5 sm:p-4.5 shadow-2xs space-y-3">
                 <div className="flex items-center gap-2 pb-2 border-b border-gray-100">
                   <div className="w-6 h-6 rounded-full bg-orange-50 text-[#f47b20] flex items-center justify-center">
                     <MapPin className="w-3.5 h-3.5" />
@@ -690,7 +694,7 @@ export default function CartDrawer({
               </div>
 
               {/* CARD 3: Delivery Terms & Period */}
-              <div className="bg-gradient-to-br from-amber-50/70 to-orange-50/50 rounded-[18px] sm:rounded-[22px] border border-amber-200/80 p-3.5 sm:p-4 space-y-2 text-xs">
+              <div className="bg-gradient-to-br from-amber-50/75 to-orange-50/55 backdrop-blur-md rounded-[20px] sm:rounded-[24px] border border-amber-200/75 p-3.5 sm:p-4 space-y-2 text-xs">
                 <div className="flex items-start gap-2.5">
                   <div className="w-6 h-6 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 mt-0.5">
                     <Truck className="w-3.5 h-3.5" />
@@ -710,19 +714,19 @@ export default function CartDrawer({
               </div>
 
               {/* CARD 4: Optional Remarks */}
-              <div className="bg-white rounded-[18px] sm:rounded-[24px] border border-gray-200/80 p-3.5 sm:p-4.5 shadow-xs">
+              <div className="bg-white/88 backdrop-blur-md rounded-[20px] sm:rounded-[24px] border border-black/[0.06] p-3.5 sm:p-4.5 shadow-2xs">
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="font-bold text-xs text-gray-900">
                     Order Remark / Special Request
                   </label>
-                  <span className="text-[10px] text-gray-400 font-normal">Optional</span>
+                  <span className="text-[10px] text-[#515154] font-normal">Optional</span>
                 </div>
                 <textarea
                   rows={2}
                   placeholder="Any special printing instructions or landmark details..."
                   value={orderNotes}
                   onChange={(e) => setOrderNotes(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-[16px] sm:rounded-[18px] border border-gray-200 focus:border-[#f47b20] focus:ring-1 focus:ring-[#f47b20] outline-none text-sm sm:text-xs leading-relaxed transition-all bg-gray-50/50 focus:bg-white"
+                  className="w-full px-4 py-2.5 rounded-[14px] sm:rounded-[18px] border border-white/80 focus:border-[#f47b20] focus:ring-1 focus:ring-[#f47b20] outline-none text-sm sm:text-xs leading-relaxed transition-all bg-white/75 focus:bg-white"
                 />
               </div>
             </form>
@@ -730,12 +734,12 @@ export default function CartDrawer({
 
           {/* STEP 3: ORDER SUCCESS & PROFESSIONAL MINIMAL RECEIPT */}
           {step === 'success' && completedOrder && (
-            <div className="py-1 animate-fluid-sheet font-sans">
+            <div className="py-1 animate-liquid-expand font-sans">
               
               {/* Minimal Luxury Official Receipt Card */}
               <div 
                 id="official-receipt-print"
-                className="bg-white rounded-2xl border border-gray-200/90 p-4 sm:p-5 shadow-xs mb-4"
+                className="bg-white/90 backdrop-blur-md rounded-[20px] sm:rounded-[24px] border border-white/85 p-4 sm:p-5 shadow-2xs mb-4"
               >
                 {/* 1. Header with Clean Hierarchy */}
                 <div className="border-b border-gray-200 pb-3 mb-3.5">
@@ -748,21 +752,21 @@ export default function CartDrawer({
                       <span>PAID ONLINE</span>
                     </span>
                   </div>
-                  <p className="text-[10px] text-[#f47b20] font-semibold uppercase tracking-wider">
+                  <p className="text-[10px] text-[#c95510] font-semibold uppercase tracking-wider">
                     Digital Printing · Corporate Branding · Renewable Energy
                   </p>
-                  <p className="text-[10px] text-gray-400 mt-0.5">
+                  <p className="text-[10px] text-[#515154] mt-0.5">
                     Thatcher Building, UNIMAID, Maiduguri, Borno State · +234 813 353 5756
                   </p>
                 </div>
 
                 {/* 2. Structured Metadata Grid with Small Labels, Large Values, and QR Code */}
-                <div className="bg-gray-50/80 p-3 sm:p-3.5 rounded-xl mb-3.5 border border-gray-100 flex flex-col sm:flex-row items-stretch sm:items-start justify-between gap-3">
+                <div className="bg-white/88 p-3 sm:p-3.5 rounded-[14px] sm:rounded-[16px] mb-3.5 border border-black/[0.06] flex flex-col sm:flex-row items-stretch sm:items-start justify-between gap-3">
                   <div className="grid grid-cols-2 gap-2.5 sm:gap-3 text-xs flex-1 min-w-0">
                     
                     {/* Order # */}
                     <div className="min-w-0">
-                      <span className="text-gray-400 block text-[9.5px] uppercase font-semibold tracking-wider">
+                      <span className="text-[#515154] block text-[9.5px] uppercase font-semibold tracking-wider">
                         Order / Receipt #
                       </span>
                       <strong className="text-gray-900 font-mono text-sm sm:text-base font-bold tracking-tight block mt-0.5 break-all">
@@ -772,7 +776,7 @@ export default function CartDrawer({
 
                     {/* Date & Time */}
                     <div className="min-w-0">
-                      <span className="text-gray-400 block text-[9.5px] uppercase font-semibold tracking-wider">
+                      <span className="text-[#515154] block text-[9.5px] uppercase font-semibold tracking-wider">
                         Date & Time
                       </span>
                       <strong className="text-gray-900 text-xs sm:text-sm font-semibold block mt-0.5">
@@ -782,20 +786,20 @@ export default function CartDrawer({
 
                     {/* Customer */}
                     <div className="col-span-2 pt-1.5 border-t border-gray-200/60 min-w-0">
-                      <span className="text-gray-400 block text-[9.5px] uppercase font-semibold tracking-wider">
+                      <span className="text-[#515154] block text-[9.5px] uppercase font-semibold tracking-wider">
                         Billed to Customer
                       </span>
                       <strong className="text-gray-900 text-sm sm:text-base font-bold block mt-0.5 break-words">
                         {completedOrder.customerName}
                       </strong>
-                      <span className="text-gray-500 text-[11px] block mt-0.5 break-all">
+                      <span className="text-[#424245] text-[11px] block mt-0.5 break-all">
                         {completedOrder.customerPhone} · {completedOrder.customerEmail}
                       </span>
                     </div>
 
                     {/* Delivery Destination */}
                     <div className="col-span-2 pt-1.5 border-t border-gray-200/60 min-w-0">
-                      <span className="text-gray-400 block text-[9.5px] uppercase font-semibold tracking-wider">
+                      <span className="text-[#515154] block text-[9.5px] uppercase font-semibold tracking-wider">
                         Delivery Destination
                       </span>
                       <strong className="text-gray-900 text-xs sm:text-sm font-semibold block mt-0.5 leading-snug break-words">
@@ -805,7 +809,7 @@ export default function CartDrawer({
 
                     {/* Payment Reference */}
                     <div className="col-span-2 pt-1.5 border-t border-gray-200/60 min-w-0">
-                      <span className="text-gray-400 block text-[9.5px] uppercase font-semibold tracking-wider">
+                      <span className="text-[#515154] block text-[9.5px] uppercase font-semibold tracking-wider">
                         Payment Reference
                       </span>
                       <span className="font-mono text-xs font-semibold text-gray-800 block mt-0.5 break-all">
@@ -815,13 +819,13 @@ export default function CartDrawer({
 
                     {/* Delivery Period */}
                     <div className="col-span-2 pt-1.5 border-t border-gray-200/60 min-w-0">
-                      <span className="text-gray-400 block text-[9.5px] uppercase font-semibold tracking-wider">
+                      <span className="text-[#515154] block text-[9.5px] uppercase font-semibold tracking-wider">
                         Estimated Delivery Period
                       </span>
                       <strong className="text-emerald-700 text-xs sm:text-sm font-semibold block mt-0.5">
                         2 to 4 Business Days (Same-day dispatch in Maiduguri MMC)
                       </strong>
-                      <span className="text-emerald-600 font-medium text-[10.5px] mt-0.5 flex items-start gap-1 break-all">
+                      <span className="text-emerald-700 font-medium text-[10.5px] mt-0.5 flex items-start gap-1 break-all">
                         <MailCheck className="w-3.5 h-3.5 shrink-0 mt-0.5" />
                         <span>Confirmation & tracking details emailed to {completedOrder.customerEmail}</span>
                       </span>
@@ -831,13 +835,13 @@ export default function CartDrawer({
 
                   {/* QR Code on Receipt */}
                   {receiptQrDataUrl && (
-                    <div className="flex sm:flex-col items-center justify-center gap-2 sm:gap-0 p-2 bg-white rounded-xl border border-gray-200/80 shrink-0 text-center shadow-2xs self-start sm:self-auto">
+                    <div className="flex sm:flex-col items-center justify-center gap-2 sm:gap-0 p-2 bg-white rounded-[14px] border border-gray-200/80 shrink-0 text-center shadow-2xs self-start sm:self-auto">
                       <img 
                         src={receiptQrDataUrl} 
                         alt="Order Verification QR" 
                         className="w-16 h-16 sm:w-20 sm:h-20 object-contain rounded"
                       />
-                      <span className="text-[8px] font-bold text-gray-400 tracking-wider uppercase sm:mt-1">
+                      <span className="text-[8px] font-bold text-[#515154] tracking-wider uppercase sm:mt-1">
                         Scan to Verify
                       </span>
                     </div>
@@ -846,7 +850,7 @@ export default function CartDrawer({
 
                 {/* 3. Items Ordered Table */}
                 <div className="mb-3.5">
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-[#515154] mb-1.5">
                     Order Summary
                   </div>
                   <div className="divide-y divide-gray-100 text-xs">
@@ -874,7 +878,7 @@ export default function CartDrawer({
                 </div>
 
                 {/* 4. Delivery Notice */}
-                <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-[10.5px] leading-relaxed mb-3.5">
+                <div className="p-2.5 rounded-[14px] sm:rounded-[16px] bg-amber-50/90 border border-amber-200/80 text-amber-900 text-[10.5px] leading-relaxed mb-3.5">
                   <div className="flex items-center justify-between mb-0.5">
                     <strong className="block text-amber-950 font-bold">🚚 Delivery Courier Fee:</strong>
                     <span className="text-[10px] font-semibold text-emerald-800 bg-emerald-100/70 px-2 py-0.5 rounded-full">2–4 Days Delivery</span>
@@ -883,7 +887,7 @@ export default function CartDrawer({
                 </div>
 
                 {/* 5. Total Paid Bar */}
-                <div className="flex items-center justify-between p-3 rounded-xl bg-gray-900 text-white text-xs">
+                <div className="flex items-center justify-between p-3 rounded-[14px] sm:rounded-[16px] bg-[#1d1d1f] text-white text-xs">
                   <span className="font-medium text-gray-300">Total Paid (NGN):</span>
                   <span className="font-bold text-lg text-emerald-400 tabular-nums">
                     {formatNaira(completedOrder.totalAmount)}
@@ -896,7 +900,7 @@ export default function CartDrawer({
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     onClick={handlePrintReceipt}
-                    className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-gray-900 hover:bg-black text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+                    className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 rounded-full bg-[#1d1d1f] hover:bg-black text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
                   >
                     <Printer className="w-3.5 h-3.5" />
                     <span>Print Receipt</span>
@@ -904,7 +908,7 @@ export default function CartDrawer({
 
                   <button
                     onClick={handleDownloadReceiptPdf}
-                    className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-gray-300 hover:bg-gray-50 text-gray-800 text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+                    className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 rounded-full border border-white/80 bg-white/75 hover:bg-white text-gray-800 text-xs font-semibold shadow-2xs transition-colors cursor-pointer"
                   >
                     <Download className="w-3.5 h-3.5 text-gray-600" />
                     <span>Download PDF</span>
@@ -916,7 +920,7 @@ export default function CartDrawer({
                     setStep('cart');
                     onClose();
                   }}
-                  className="w-full py-2.5 rounded-full border border-gray-200 text-gray-700 hover:bg-gray-100 text-xs font-semibold transition-colors cursor-pointer"
+                  className="w-full py-2.5 rounded-full border border-white/80 bg-white/60 hover:bg-white text-gray-700 text-xs font-semibold transition-colors cursor-pointer"
                 >
                   Return to Store
                 </button>
@@ -929,7 +933,7 @@ export default function CartDrawer({
 
         {/* Footer Actions for Cart and Checkout */}
         {step !== 'success' && cart.length > 0 && (
-          <div className="p-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] border-t border-gray-100 bg-white/95 backdrop-blur-md no-print shrink-0">
+          <div className="p-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] border-t border-white/45 bg-white/55 backdrop-blur-xl no-print shrink-0 relative z-10">
             {step === 'cart' ? (
               <>
                 <div className="flex items-center justify-between mb-3 px-1">
@@ -995,11 +999,26 @@ export default function CartDrawer({
 
       {/* High-Speed Instant Payment Gateway Modal */}
       {showPaymentFallback && (
-        <div className="fixed inset-0 z-[140] bg-black/40 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 no-print animate-fluid-page">
-          <div className="relative bg-white rounded-3xl max-w-sm sm:max-w-md w-full p-5 sm:p-6 shadow-2xl border border-gray-100 animate-fluid-sheet max-h-[92vh] overflow-y-auto">
+        <div className="fixed inset-0 z-[140] apple-modal-backdrop animate-liquid-backdrop flex items-center justify-center p-3 sm:p-4 no-print">
+          <div className="relative apple-modal-glass rounded-[24px] sm:rounded-[32px] max-w-sm sm:max-w-md w-full animate-liquid-expand max-h-[92vh] overflow-hidden flex flex-col">
+            <div className="pointer-events-none absolute -top-20 -right-20 w-52 h-52 rounded-full bg-emerald-400/14 blur-3xl z-0" />
+            <div className="pointer-events-none absolute -bottom-20 -left-16 w-52 h-52 rounded-full bg-orange-400/12 blur-3xl z-0" />
+            <div className="specular-highlight opacity-80 z-20" />
             
-            {/* Header: Sticky Floating Bar with Fixed Cancel Button */}
-            <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md -mx-5 -mt-5 px-5 pt-5 pb-3 border-b border-gray-100 mb-3.5 flex items-center justify-between shadow-2xs">
+            {/* Pinned Floating Circular Close Button */}
+            <button 
+              type="button"
+              onClick={() => { setShowPaymentFallback(false); setIsProcessing(false); }}
+              className="apple-floating-glass absolute top-3 right-3 sm:top-3.5 sm:right-3.5 z-40 w-9 h-9 rounded-full overflow-hidden flex items-center justify-center text-[#1d1d1f] transition-all cursor-pointer active:scale-95 touch-action-btn"
+              aria-label="Close gateway"
+              title="Close"
+            >
+              <span className="specular-highlight opacity-70" />
+              <X className="w-4 h-4 relative z-10" />
+            </button>
+
+            {/* Header */}
+            <div className="shrink-0 z-30 bg-white/85 backdrop-blur-xl pl-5 pr-14 pt-4 pb-3 border-b border-black/[0.06] flex items-center justify-between">
               <div className="flex items-center gap-2 min-w-0 pr-2">
                 <span className="relative flex h-2.5 w-2.5 shrink-0">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -1007,25 +1026,15 @@ export default function CartDrawer({
                 </span>
                 <div className="min-w-0">
                   <h3 className="font-bold text-xs text-gray-900 leading-none truncate">High-Speed Secure Gateway</h3>
-                  <span className="text-[10px] text-emerald-600 font-medium truncate block mt-0.5">Instant 256-bit SSL Connection</span>
+                  <span className="text-[10px] text-emerald-700 font-medium truncate block mt-0.5">Instant 256-bit SSL Connection</span>
                 </div>
               </div>
-              
-              {/* Floating Cancel Button: Always fixed and accessible while scrolling */}
-              <button 
-                type="button"
-                onClick={() => { setShowPaymentFallback(false); setIsProcessing(false); }}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-xs transition-all cursor-pointer active:scale-95 shadow-2xs border border-gray-200/60 shrink-0"
-                aria-label="Cancel gateway"
-              >
-                <X className="w-3.5 h-3.5" />
-                <span>Cancel</span>
-              </button>
             </div>
 
+            <div className="overflow-y-auto p-5 relative z-10">
             {/* Order Brief Summary */}
-            <div className="bg-gray-50 rounded-2xl p-3 mb-3.5 text-xs space-y-1 border border-gray-100">
-              <div className="flex justify-between text-gray-500">
+            <div className="bg-white/88 backdrop-blur-md rounded-[14px] sm:rounded-[18px] p-3 mb-3.5 text-xs space-y-1 border border-black/[0.06] shadow-2xs">
+              <div className="flex justify-between text-[#424245]">
                 <span>Customer:</span>
                 <span className="font-semibold text-gray-900 truncate max-w-[180px]">{customerName}</span>
               </div>
@@ -1037,21 +1046,21 @@ export default function CartDrawer({
                 <span>Delivery:</span>
                 <span className="font-medium text-emerald-700">2–4 Days ({selectedState})</span>
               </div>
-              <div className="flex justify-between pt-1 border-t border-gray-200/60 items-baseline">
+              <div className="flex justify-between pt-1 border-t border-black/[0.06] items-baseline">
                 <span className="font-bold text-gray-800">Total Amount Due:</span>
                 <span className="font-bold text-base text-emerald-600 tabular-nums">{formatNaira(totalAmount)}</span>
               </div>
             </div>
 
             {/* Payment Method Switcher Tabs: Card vs Bank Transfer */}
-            <div className="grid grid-cols-2 gap-1.5 p-1 bg-gray-100 rounded-xl mb-3 text-xs font-semibold">
+            <div className="grid grid-cols-2 gap-1.5 p-1 bg-white/55 backdrop-blur-md border border-white/70 rounded-[14px] sm:rounded-[16px] mb-3 text-xs font-semibold">
               <button
                 type="button"
                 onClick={() => setGatewayTab('card')}
-                className={`py-1.5 rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                className={`py-1.5 rounded-[10px] sm:rounded-[12px] flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                   gatewayTab === 'card' 
                     ? 'bg-white text-gray-900 shadow-xs' 
-                    : 'text-gray-500 hover:text-gray-900'
+                    : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
                 <CreditCard className="w-3.5 h-3.5" />
@@ -1060,10 +1069,10 @@ export default function CartDrawer({
               <button
                 type="button"
                 onClick={() => setGatewayTab('transfer')}
-                className={`py-1.5 rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                className={`py-1.5 rounded-[10px] sm:rounded-[12px] flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                   gatewayTab === 'transfer' 
                     ? 'bg-white text-gray-900 shadow-xs' 
-                    : 'text-gray-500 hover:text-gray-900'
+                    : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
                 <Building2 className="w-3.5 h-3.5" />
@@ -1073,8 +1082,8 @@ export default function CartDrawer({
 
             {/* Tab 1: Instant Card Checkout */}
             {gatewayTab === 'card' && (
-              <div className="space-y-3 mb-2 animate-fluid-sheet text-xs">
-                <div className="p-3 bg-emerald-50/70 rounded-xl border border-emerald-100 text-emerald-950 text-[11px] leading-relaxed">
+              <div className="space-y-3 mb-2 animate-liquid-expand text-xs">
+                <div className="p-3 bg-emerald-50/75 backdrop-blur-md rounded-[14px] sm:rounded-[18px] border border-emerald-200/70 text-emerald-950 text-[11px] leading-relaxed">
                   <div className="font-bold text-emerald-900 mb-0.5 flex items-center gap-1.5">
                     <Zap className="w-3.5 h-3.5 text-emerald-600" />
                     <span>Instant Direct Gateway</span>
@@ -1117,8 +1126,8 @@ export default function CartDrawer({
 
             {/* Tab 2: Instant Dedicated Bank Transfer */}
             {gatewayTab === 'transfer' && (
-              <div className="space-y-2.5 mb-2 animate-fluid-sheet text-xs">
-                <div className="p-3 bg-gray-50 rounded-xl border border-gray-200/80 space-y-2">
+              <div className="space-y-2.5 mb-2 animate-liquid-expand text-xs">
+                <div className="p-3 bg-white/65 backdrop-blur-md rounded-[14px] sm:rounded-[18px] border border-white/75 space-y-2 shadow-2xs">
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Bank Name:</span>
                     <strong className="text-gray-900">Moniepoint MFB / Access Bank</strong>
@@ -1200,9 +1209,10 @@ export default function CartDrawer({
               </div>
             )}
 
-            <p className="text-[10px] text-center text-gray-400 mt-2">
+            <p className="text-[10px] text-center text-gray-500 mt-2">
               🚚 Courier fee payable upon delivery • Confirmation email will be dispatched immediately
             </p>
+            </div>
 
           </div>
         </div>

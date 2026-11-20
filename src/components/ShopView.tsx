@@ -16,6 +16,9 @@ import {
   Eye,
   CheckCircle2,
   ChevronRight,
+  ChevronDown,
+  ArrowUpDown,
+  LayoutGrid,
   Maximize2
 } from 'lucide-react';
 import { 
@@ -45,6 +48,79 @@ const CATEGORIES = [
   'Fashion & Apparel',
   'New Arrival',
   'Deals'
+];
+
+function matchesCategory(p: ProductItem, category: string): boolean {
+  if (category === 'All') return true;
+  if (category === 'Marketing & Business Materials') {
+    return (
+      p.category === 'Marketing & Business Materials' ||
+      p.category === 'Digital Printing' ||
+      p.category === 'Signage & Displays' ||
+      Boolean(p.category?.toLowerCase().includes('marketing')) ||
+      Boolean(p.category?.toLowerCase().includes('print'))
+    );
+  }
+  if (category === 'Office supplies') {
+    return (
+      p.category === 'Office supplies' ||
+      p.category === 'Office Supplies' ||
+      p.category === 'Corporate Supplies' ||
+      Boolean(p.category?.toLowerCase().includes('office'))
+    );
+  }
+  if (category === 'Electronics & Gadgets') {
+    return (
+      p.category === 'Electronics & Gadgets' ||
+      Boolean(p.category?.toLowerCase().includes('gadget')) ||
+      Boolean(p.category?.toLowerCase().includes('electronic'))
+    );
+  }
+  if (category === 'Solar & Renewable') {
+    return (
+      p.category === 'Solar & Renewable' ||
+      p.category === 'Solar & Renewable Energy' ||
+      Boolean(p.category?.toLowerCase().includes('solar')) ||
+      Boolean(p.category?.toLowerCase().includes('renewable')) ||
+      Boolean(p.category?.toLowerCase().includes('inverter'))
+    );
+  }
+  if (category === 'Fashion & Apparel') {
+    return (
+      p.category === 'Fashion & Apparel' ||
+      p.category === 'Apparel & Merchandise' ||
+      Boolean(p.category?.toLowerCase().includes('apparel')) ||
+      Boolean(p.category?.toLowerCase().includes('fashion'))
+    );
+  }
+  if (category === 'New Arrival') {
+    return (
+      p.category === 'New Arrival' ||
+      p.category === 'New Arrivals' ||
+      p.featured === true
+    );
+  }
+  if (category === 'Deals') {
+    return (
+      p.category === 'Deals' ||
+      p.category === 'deals' ||
+      Boolean(p.compareAtPrice && p.compareAtPrice > p.price)
+    );
+  }
+  return p.category?.toLowerCase() === category.toLowerCase();
+}
+
+type SortOption =
+  | 'featured'
+  | 'price-asc'
+  | 'price-desc'
+  | 'newest';
+
+const SORT_OPTIONS: { value: SortOption; label: string; shortLabel: string }[] = [
+  { value: 'featured', label: 'Featured Order', shortLabel: 'Featured' },
+  { value: 'price-asc', label: 'Price: Low to High', shortLabel: 'Price: Low → High' },
+  { value: 'price-desc', label: 'Price: High to Low', shortLabel: 'Price: High → Low' },
+  { value: 'newest', label: 'Newest Arrivals', shortLabel: 'Newest' }
 ];
 
 export const formatNaira = (amount: number) => {
@@ -127,6 +203,11 @@ export default function ShopView({
 }: ShopViewProps) {
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
+  const categoryMenuRef = useRef<HTMLDivElement | null>(null);
+  const [sortBy, setSortBy] = useState<SortOption>('featured');
+  const [isSortMenuOpen, setIsSortMenuOpen] = useState(false);
+  const sortMenuRef = useRef<HTMLDivElement | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
@@ -149,6 +230,7 @@ export default function ShopView({
       collection(db, 'products'),
       (snapshot) => {
         if (!snapshot.empty) {
+          localStorage.setItem('enj_catalog_initialized_v1', 'true');
           const loaded: ProductItem[] = snapshot.docs
             .map((d) => ({
               id: d.id,
@@ -170,15 +252,15 @@ export default function ShopView({
       },
       (error) => {
         console.warn('Firestore products notice:', error);
-        if (localStorage.getItem('enj_catalog_initialized_v1') === 'true') {
-          setProducts([]);
-        } else {
-          setProducts(
-            INITIAL_PRODUCTS
-              .map((p, idx) => ({ id: `prod-seed-${idx + 1}`, ...p }))
-              .filter((p) => !isProductDeleted(p.id, p.title))
-          );
-        }
+        setProducts((prev) => {
+          if (prev.length > 0) return prev;
+          if (localStorage.getItem('enj_catalog_initialized_v1') === 'true') {
+            return [];
+          }
+          return INITIAL_PRODUCTS
+            .map((p, idx) => ({ id: `prod-seed-${idx + 1}`, ...p }))
+            .filter((p) => !isProductDeleted(p.id, p.title));
+        });
       }
     );
 
@@ -204,60 +286,63 @@ export default function ShopView({
     };
   }, [selectedProduct, isImagePreviewOpen]);
 
+  // Close category or sort menu on outside click or Escape key
+  useEffect(() => {
+    if (!isCategoryMenuOpen && !isSortMenuOpen) return;
+
+    const handlePointerDown = (e: MouseEvent | TouchEvent) => {
+      const target = e.target as Node;
+      if (categoryMenuRef.current && !categoryMenuRef.current.contains(target)) {
+        setIsCategoryMenuOpen(false);
+      }
+      if (sortMenuRef.current && !sortMenuRef.current.contains(target)) {
+        setIsSortMenuOpen(false);
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsCategoryMenuOpen(false);
+        setIsSortMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener('touchstart', handlePointerDown, { passive: true });
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('touchstart', handlePointerDown);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isCategoryMenuOpen, isSortMenuOpen]);
+
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
-      let matchCat = false;
-      if (selectedCategory === 'All') {
-        matchCat = true;
-      } else if (selectedCategory === 'Marketing & Business Materials') {
-        matchCat = p.category === 'Marketing & Business Materials' ||
-          p.category === 'Digital Printing' ||
-          p.category === 'Signage & Displays' ||
-          p.category?.toLowerCase().includes('marketing') ||
-          p.category?.toLowerCase().includes('print');
-      } else if (selectedCategory === 'Office supplies') {
-        matchCat = p.category === 'Office supplies' ||
-          p.category === 'Office Supplies' ||
-          p.category === 'Corporate Supplies' ||
-          p.category?.toLowerCase().includes('office');
-      } else if (selectedCategory === 'Electronics & Gadgets') {
-        matchCat = p.category === 'Electronics & Gadgets' ||
-          p.category?.toLowerCase().includes('gadget') ||
-          p.category?.toLowerCase().includes('electronic');
-      } else if (selectedCategory === 'Solar & Renewable') {
-        matchCat = p.category === 'Solar & Renewable' ||
-          p.category === 'Solar & Renewable Energy' ||
-          p.category?.toLowerCase().includes('solar') ||
-          p.category?.toLowerCase().includes('renewable') ||
-          p.category?.toLowerCase().includes('inverter');
-      } else if (selectedCategory === 'Fashion & Apparel') {
-        matchCat = p.category === 'Fashion & Apparel' ||
-          p.category === 'Apparel & Merchandise' ||
-          p.category?.toLowerCase().includes('apparel') ||
-          p.category?.toLowerCase().includes('fashion');
-      } else if (selectedCategory === 'New Arrival') {
-        matchCat = p.category === 'New Arrival' ||
-          p.category === 'New Arrivals' ||
-          p.featured === true;
-      } else if (selectedCategory === 'Deals') {
-        matchCat = p.category === 'Deals' ||
-          p.category === 'deals' ||
-          Boolean(p.compareAtPrice && p.compareAtPrice > p.price);
-      } else {
-        matchCat = p.category?.toLowerCase() === selectedCategory.toLowerCase();
-      }
-
+      const matchCat = matchesCategory(p, selectedCategory);
       const matchQuery = searchQuery === '' || 
         p.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
         p.description.toLowerCase().includes(searchQuery.toLowerCase());
       return matchCat && matchQuery;
     }).sort((a, b) => {
+      if (sortBy === 'price-asc') {
+        if (a.price !== b.price) return a.price - b.price;
+      } else if (sortBy === 'price-desc') {
+        if (a.price !== b.price) return b.price - a.price;
+      } else if (sortBy === 'newest') {
+        const timeA = a.createdAt ? Date.parse(a.createdAt) || 0 : 0;
+        const timeB = b.createdAt ? Date.parse(b.createdAt) || 0 : 0;
+        if (timeA !== timeB) return timeB - timeA;
+      }
+
       const posA = a.position !== undefined ? a.position : 99999;
       const posB = b.position !== undefined ? b.position : 99999;
       if (posA !== posB) return posA - posB;
-      return 0;
+      return a.title.localeCompare(b.title);
     });
-  }, [products, selectedCategory, searchQuery]);
+  }, [products, selectedCategory, searchQuery, sortBy]);
+
+  const activeSortOption = SORT_OPTIONS.find(opt => opt.value === sortBy) || SORT_OPTIONS[0];
 
   // Open detail modal when clicking a product
   const handleOpenProductDetail = (product: ProductItem) => {
@@ -428,40 +513,162 @@ export default function ShopView({
         </nav>
       </header>
 
-      {/* Clean Category Filter Pills (smooth momentum scrolling) */}
-      <div className="max-w-5xl mx-auto w-full px-4 sm:px-6 pt-18 sm:pt-20 pb-3">
-        <div className="flex items-center justify-between gap-3 overflow-x-auto pb-1.5 scrollbar-none" style={{ WebkitOverflowScrolling: 'touch' }}>
-          <div className="flex items-center gap-2 sm:gap-1.5 shrink-0">
-            {CATEGORIES.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`whitespace-nowrap px-3.5 sm:px-3 py-2 sm:py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer touch-action-btn ${
-                  selectedCategory === cat
-                    ? 'bg-[#1d1d1f] text-white shadow-xs'
-                    : 'apple-liquid-glass-pill hover:bg-white text-gray-600 hover:text-[#1d1d1f]'
+      {/* Top Controls Bar: Centered Liquid Glass Category & Sort Button Holders */}
+      <div className="max-w-5xl mx-auto w-full px-4 sm:px-6 pt-18 sm:pt-20 pb-3.5 relative z-30">
+        <div className="flex items-center justify-center gap-2 sm:gap-2.5 flex-wrap">
+          {/* Category Button Holder & Dropdown */}
+          <div className="relative min-w-0" ref={categoryMenuRef}>
+            <button
+              type="button"
+              onClick={() => {
+                setIsCategoryMenuOpen(prev => !prev);
+                setIsSortMenuOpen(false);
+              }}
+              aria-haspopup="listbox"
+              aria-expanded={isCategoryMenuOpen}
+              aria-label="Filter by category"
+              className={`inline-flex items-center gap-1.5 px-3.5 py-2 sm:py-1.5 rounded-full text-xs font-semibold transition-all duration-300 ease-liquid-spring cursor-pointer touch-action-btn max-w-[205px] sm:max-w-[280px] ${
+                selectedCategory !== 'All'
+                  ? 'bg-[#1d1d1f] text-white shadow-xs'
+                  : isCategoryMenuOpen
+                    ? 'bg-white text-[#1d1d1f] shadow-sm border border-black/10'
+                    : 'apple-liquid-glass-pill hover:bg-white text-[#1d1d1f]'
+              }`}
+            >
+              <LayoutGrid className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">
+                {selectedCategory === 'All' ? 'Categories' : selectedCategory}
+              </span>
+              <ChevronDown
+                className={`w-3 h-3 shrink-0 transition-transform duration-300 ease-liquid-spring ${
+                  isCategoryMenuOpen ? 'rotate-180' : ''
                 }`}
-              >
-                {cat}
-              </button>
-            ))}
+              />
+            </button>
+
+            {/* Liquid Glass Category Dropdown */}
+            <div
+              role="listbox"
+              aria-label="Product categories"
+              aria-hidden={!isCategoryMenuOpen}
+              className={`absolute left-0 top-full mt-2 w-56 sm:w-60 origin-top-left apple-liquid-glass p-1.5 rounded-[14px] sm:rounded-[18px] z-40 overflow-hidden transition-all duration-300 ease-liquid-spring ${
+                isCategoryMenuOpen
+                  ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
+                  : 'opacity-0 scale-95 -translate-y-1.5 pointer-events-none'
+              }`}
+            >
+              <div className="specular-highlight opacity-75" />
+              <div className="space-y-0.5 max-h-[60vh] overflow-y-auto overscroll-contain relative z-10">
+                {CATEGORIES.map((cat) => {
+                  const isSelected = selectedCategory === cat;
+                  return (
+                    <button
+                      key={cat}
+                      type="button"
+                      role="option"
+                      aria-selected={isSelected}
+                      tabIndex={isCategoryMenuOpen ? 0 : -1}
+                      onClick={() => {
+                        setSelectedCategory(cat);
+                        setIsCategoryMenuOpen(false);
+                      }}
+                      className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-[12px] text-xs text-left transition-colors cursor-pointer touch-action-btn ${
+                        isSelected
+                          ? 'bg-[#1d1d1f] text-white font-semibold'
+                          : 'text-[#1d1d1f] font-medium hover:bg-black/[0.04] active:bg-black/[0.08]'
+                      }`}
+                    >
+                      <span className="truncate">{cat === 'All' ? 'All Products' : cat}</span>
+                      {isSelected && <Check className="w-3.5 h-3.5 shrink-0 text-white" />}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
 
-          <span className="text-[11px] text-gray-400 hidden md:inline shrink-0 font-mono">
-            {filteredProducts.length} {filteredProducts.length === 1 ? 'item' : 'items'}
-          </span>
+          {/* Sort Button Holder & Dropdown */}
+          <div className="relative shrink-0" ref={sortMenuRef}>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsSortMenuOpen(prev => !prev);
+                  setIsCategoryMenuOpen(false);
+                }}
+                aria-haspopup="listbox"
+                aria-expanded={isSortMenuOpen}
+                aria-label="Sort products"
+                className={`inline-flex items-center gap-1.5 px-3 sm:px-3.5 py-2 sm:py-1.5 rounded-full text-xs font-semibold transition-all duration-300 ease-liquid-spring cursor-pointer touch-action-btn whitespace-nowrap ${
+                  sortBy !== 'featured'
+                    ? 'bg-[#1d1d1f] text-white shadow-xs'
+                    : isSortMenuOpen
+                      ? 'bg-white text-[#1d1d1f] shadow-sm border border-black/10'
+                      : 'apple-liquid-glass-pill hover:bg-white text-[#1d1d1f]'
+                }`}
+              >
+                <ArrowUpDown className="w-3.5 h-3.5 shrink-0" />
+                <span>
+                  {sortBy === 'featured' ? 'Sort' : activeSortOption.shortLabel}
+                </span>
+                <ChevronDown
+                  className={`w-3 h-3 shrink-0 transition-transform duration-300 ease-liquid-spring ${
+                    isSortMenuOpen ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+
+              {/* Liquid Glass Sort Dropdown */}
+              <div
+                role="listbox"
+                aria-label="Sort options"
+                aria-hidden={!isSortMenuOpen}
+                className={`absolute right-0 top-full mt-2 w-48 origin-top-right apple-liquid-glass p-1.5 rounded-[14px] sm:rounded-[18px] z-40 overflow-hidden transition-all duration-300 ease-liquid-spring ${
+                  isSortMenuOpen
+                    ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
+                    : 'opacity-0 scale-95 -translate-y-1.5 pointer-events-none'
+                }`}
+              >
+                <div className="specular-highlight opacity-75" />
+                <div className="space-y-0.5 relative z-10">
+                  {SORT_OPTIONS.map((option) => {
+                    const isSelected = sortBy === option.value;
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        role="option"
+                        aria-selected={isSelected}
+                        tabIndex={isSortMenuOpen ? 0 : -1}
+                        onClick={() => {
+                          setSortBy(option.value);
+                          setIsSortMenuOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-[12px] text-xs text-left transition-colors cursor-pointer touch-action-btn ${
+                          isSelected
+                            ? 'bg-[#1d1d1f] text-white font-semibold'
+                            : 'text-[#1d1d1f] font-medium hover:bg-black/[0.04] active:bg-black/[0.08]'
+                        }`}
+                      >
+                        <span>{option.label}</span>
+                        {isSelected && <Check className="w-3.5 h-3.5 shrink-0 text-white" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
         </div>
       </div>
 
       {/* Simple, Streamlined Product Grid with Apple Liquid Glass & Concentric Geometry */}
       <div className="max-w-5xl mx-auto w-full px-4 sm:px-6">
         {filteredProducts.length === 0 ? (
-          <div className="text-center py-16 apple-liquid-glass rounded-[28px] my-4 relative overflow-hidden">
+          <div className="text-center py-16 apple-liquid-glass rounded-[24px] sm:rounded-[32px] my-4 relative overflow-hidden">
             <div className="specular-highlight opacity-50" />
             <Package className="w-8 h-8 text-gray-300 mx-auto mb-2 relative z-10" />
             <p className="text-xs font-semibold text-gray-700 relative z-10">No products found</p>
             <button
-              onClick={() => { setSelectedCategory('All'); setSearchQuery(''); }}
+              onClick={() => { setSelectedCategory('All'); setSearchQuery(''); setSortBy('featured'); }}
               className="mt-3 px-4 py-1.5 rounded-full bg-[#1d1d1f] text-white text-xs font-medium cursor-pointer relative z-10 touch-action-btn shadow-xs"
             >
               Reset Filters
@@ -473,11 +680,11 @@ export default function ShopView({
               <div
                 key={product.id}
                 onClick={() => handleOpenProductDetail(product)}
-                className="group apple-liquid-glass-interactive rounded-[20px] sm:rounded-[28px] p-2.5 sm:p-3 overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col justify-between cursor-pointer touch-action-card relative"
+                className="group apple-liquid-glass-interactive rounded-[20px] sm:rounded-[24px] p-2.5 sm:p-3 overflow-hidden hover:shadow-xl transition-all duration-300 ease-liquid-spring flex flex-col justify-between cursor-pointer touch-action-card relative"
               >
                 <div className="specular-highlight opacity-75" />
 
-                {/* Concentric Image: Mobile 20px - 10px = 10-12px; Desktop 28px - 12px = 16px */}
+                {/* Concentric Image */}
                 <div className="relative aspect-4/3 rounded-[12px] sm:rounded-[16px] bg-gray-50 overflow-hidden shadow-2xs z-10 mb-2 sm:mb-2.5">
                   <img
                     src={product.imageUrl}
@@ -495,7 +702,7 @@ export default function ShopView({
                 {/* Info */}
                 <div className="flex-1 flex flex-col justify-between relative z-10 px-0.5 sm:px-1">
                   <div>
-                    <p className="text-[9.5px] sm:text-[10px] text-gray-400 mb-0.5 uppercase tracking-wider font-semibold truncate">
+                    <p className="text-[9.5px] sm:text-[10px] text-[#515154] mb-0.5 uppercase tracking-wider font-semibold truncate">
                       {product.category}
                     </p>
                     <h3 className="font-semibold text-[12px] sm:text-[13px] text-[#1d1d1f] line-clamp-2 leading-snug mb-1 group-hover:text-[#c95510] transition-colors">
@@ -508,7 +715,7 @@ export default function ShopView({
                       <span className="font-display text-xs sm:text-sm font-bold text-[#1d1d1f] block tabular-nums leading-tight truncate">
                         {formatNaira(product.price)}
                       </span>
-                      <span className="text-[10px] text-gray-400 block truncate">
+                      <span className="text-[10px] text-[#515154] block truncate">
                         Min: {product.minOrderQty || 1} {product.unit}
                       </span>
                     </div>
@@ -536,39 +743,31 @@ export default function ShopView({
          ======================================================== */}
       {selectedProduct && typeof document !== 'undefined' && createPortal(
         <div 
-          className="fixed inset-0 z-[9999] bg-black/40 backdrop-blur-md flex items-center justify-center p-2.5 sm:p-4 overscroll-none touch-none animate-fluid-page w-screen h-[100dvh]"
+          className="fixed inset-0 z-[9999] apple-modal-backdrop animate-liquid-backdrop flex items-center justify-center p-2.5 sm:p-4 overscroll-none touch-none w-screen h-[100dvh]"
           onClick={() => setSelectedProduct(null)}
         >
           <div 
-            className="relative bg-white/82 backdrop-blur-2xl backdrop-saturate-200 rounded-[24px] sm:rounded-[36px] w-full max-w-2xl shadow-[inset_0_0.5px_0.5px_rgba(255,255,255,0.85),0_24px_64px_rgba(0,0,0,0.22)] border-[0.5px] border-white/60 overflow-hidden animate-fluid-sheet max-h-[calc(100dvh-24px)] sm:max-h-[calc(100dvh-48px)] flex flex-col touch-auto my-auto"
+            className="relative apple-modal-glass animate-liquid-expand rounded-[24px] sm:rounded-[32px] w-full max-w-2xl overflow-hidden max-h-[calc(100dvh-24px)] sm:max-h-[calc(100dvh-48px)] flex flex-col touch-auto my-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="specular-highlight opacity-70" />
+            <div className="pointer-events-none absolute -top-20 -right-16 w-56 h-56 rounded-full bg-[#f47b20]/16 blur-3xl z-0" />
+            <div className="pointer-events-none absolute -bottom-24 -left-16 w-60 h-60 rounded-full bg-sky-300/20 blur-3xl z-0" />
+            <div className="specular-highlight opacity-85 z-20" />
 
-            {/* Modal Header: Sticky Floating Bar with Fixed Cancel Button */}
-            <div className="sticky top-0 z-30 px-4 sm:px-6 py-3 border-b border-black/5 flex items-center justify-between shrink-0 bg-white/75 backdrop-blur-2xl rounded-t-[24px] sm:rounded-t-[36px]">
-              <div className="flex items-center gap-2 text-xs text-gray-500 min-w-0 pr-2">
-                <span className="font-semibold text-[#f47b20] uppercase tracking-wider text-[11px] truncate">
-                  {selectedProduct.category}
-                </span>
-                <span aria-hidden="true" className="text-gray-300">·</span>
-                <span className="truncate">{selectedProduct.inStock ? 'Ready Stock' : 'Custom Production'}</span>
-              </div>
-              
-              {/* Floating Cancel Button: Always visible and pinned while scrolling */}
-              <button 
-                type="button"
-                onClick={() => setSelectedProduct(null)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/5 hover:bg-black/10 text-gray-700 font-semibold text-xs transition-all cursor-pointer active:scale-95 shadow-2xs border border-black/5 shrink-0"
-                aria-label="Cancel and close modal"
-              >
-                <X className="w-3.5 h-3.5" />
-                <span>Cancel</span>
-              </button>
-            </div>
+            {/* Pinned Floating Circular Close Button */}
+            <button 
+              type="button"
+              onClick={() => setSelectedProduct(null)}
+              className="absolute top-3 right-3 sm:top-3.5 sm:right-3.5 z-40 w-9 h-9 rounded-full apple-floating-glass overflow-hidden text-[#1d1d1f] flex items-center justify-center transition-all cursor-pointer active:scale-95 touch-action-btn"
+              aria-label="Close product modal"
+              title="Close"
+            >
+              <span className="specular-highlight opacity-70" />
+              <X className="w-4 h-4 relative z-10" />
+            </button>
 
             {/* Modal Body: Scrollable & Properly Padded */}
-            <div className="p-3.5 sm:p-6 overflow-y-auto space-y-4 flex-1 overscroll-contain">
+            <div className="p-4 sm:p-6 overflow-y-auto space-y-4 flex-1 overscroll-contain relative z-10">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 items-start">
                 
                 {/* Left: Images & Gallery switcher */}
@@ -576,7 +775,7 @@ export default function ShopView({
                   <button
                     type="button"
                     onClick={() => setIsImagePreviewOpen(true)}
-                    className="group relative w-full h-48 sm:h-56 rounded-[20px] overflow-hidden bg-gray-50 border border-gray-200 cursor-zoom-in block text-left active:scale-[0.985] transition-transform duration-300 ease-liquid-spring"
+                    className="group relative w-full h-48 sm:h-56 rounded-[14px] sm:rounded-[18px] overflow-hidden bg-gray-50 border border-white/65 shadow-sm cursor-zoom-in block text-left active:scale-[0.985] transition-transform duration-300 ease-liquid-spring"
                     aria-label={`Preview ${selectedProduct.title} image`}
                     title="Click to preview & zoom image"
                   >
@@ -586,7 +785,7 @@ export default function ShopView({
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
                     />
                     {selectedProduct.compareAtPrice && selectedProduct.compareAtPrice > selectedProduct.price && (
-                      <span className="absolute top-2.5 right-2.5 px-2.5 py-0.5 rounded-full bg-[#f47b20] text-white text-[10px] font-bold shadow-xs">
+                      <span className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full bg-[#f47b20] text-white text-[10px] font-bold shadow-xs">
                         Special Price
                       </span>
                     )}
@@ -598,7 +797,7 @@ export default function ShopView({
                   {/* Multiple Pictures Thumbnails */}
                   {productImages.length > 1 && (
                     <div>
-                      <span className="block text-[10px] font-semibold text-gray-400 mb-1.5 uppercase tracking-wider">
+                      <span className="block text-[10px] font-semibold text-[#515154] mb-1.5 uppercase tracking-wider">
                         Product Gallery ({productImages.length}):
                       </span>
                       <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
@@ -607,7 +806,7 @@ export default function ShopView({
                             key={idx}
                             type="button"
                             onClick={() => setActiveImage(img)}
-                            className={`w-14 h-14 rounded-[14px] overflow-hidden border-2 shrink-0 transition-all cursor-pointer ${
+                            className={`w-14 h-14 rounded-[10px] sm:rounded-[12px] overflow-hidden border-2 shrink-0 transition-all cursor-pointer ${
                               activeImage === img 
                                 ? 'border-[#f47b20] ring-2 ring-orange-200 scale-102' 
                                 : 'border-gray-200 opacity-70 hover:opacity-100'
@@ -626,7 +825,10 @@ export default function ShopView({
                   <div className="space-y-3.5">
                     
                     {/* 1. Title & Price */}
-                    <div>
+                    <div className="pr-10 sm:pr-11">
+                      <p className="text-[10px] font-bold tracking-widest uppercase text-[#c95510] mb-1">
+                        {selectedProduct.category} · {selectedProduct.inStock ? 'Ready Stock' : 'Custom Production'}
+                      </p>
                       <h2 className="font-display text-lg sm:text-xl font-bold text-[#1d1d1f] leading-snug">
                         {selectedProduct.title}
                       </h2>
@@ -635,7 +837,7 @@ export default function ShopView({
                         <span className="font-display text-2xl font-bold text-[#1d1d1f] tabular-nums">
                           {formatNaira(selectedProduct.price)}
                         </span>
-                        <span className="text-xs text-gray-500 font-medium">
+                        <span className="text-xs text-[#424245] font-medium">
                           / {selectedProduct.unit}
                         </span>
                         {selectedProduct.compareAtPrice && selectedProduct.compareAtPrice > selectedProduct.price && (
@@ -647,19 +849,19 @@ export default function ShopView({
                     </div>
 
                     {/* 2. Simple & Understandable Description Box */}
-                    <div className="p-3.5 sm:p-4 rounded-[18px] sm:rounded-[22px] bg-gray-50 border border-gray-100/90 text-xs text-gray-700 space-y-2.5">
-                      <p className="leading-relaxed text-gray-600">
+                    <div className="p-3.5 sm:p-4 rounded-[14px] sm:rounded-[18px] bg-white/88 backdrop-blur-md border border-black/[0.06] text-xs text-[#1d1d1f] space-y-2.5 shadow-2xs">
+                      <p className="leading-relaxed text-[#3a3a3c]">
                         {selectedProduct.description}
                       </p>
                       
                       {/* Simple Key Details Grid */}
-                      <div className="pt-2 border-t border-gray-200/60 grid grid-cols-2 gap-2 text-[11px]">
-                        <div className="flex items-center gap-1.5 text-gray-600">
+                      <div className="pt-2 border-t border-gray-200/70 grid grid-cols-2 gap-2 text-[11px]">
+                        <div className="flex items-center gap-1.5 text-[#3a3a3c]">
                           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                           <span>Quality Guaranteed</span>
                         </div>
-                        <div className="flex items-center gap-1.5 text-gray-600">
-                          <Package className="w-3.5 h-3.5 text-[#f47b20] shrink-0" />
+                        <div className="flex items-center gap-1.5 text-[#3a3a3c]">
+                          <Package className="w-3.5 h-3.5 text-[#c95510] shrink-0" />
                           <span>Min: {selectedProduct.minOrderQty} {selectedProduct.unit}</span>
                         </div>
                       </div>
@@ -735,10 +937,10 @@ export default function ShopView({
                     )}
 
                     {/* 5. Quantity Stepper - Capsule Pill */}
-                    <div className="flex items-center justify-between text-xs p-3.5 sm:p-4 rounded-[18px] sm:rounded-[22px] bg-gray-50 border border-gray-100">
+                    <div className="flex items-center justify-between text-xs p-3.5 sm:p-4 rounded-[14px] sm:rounded-[18px] bg-white/88 backdrop-blur-md border border-black/[0.06] shadow-2xs">
                       <div>
-                        <span className="font-semibold text-gray-800 block text-xs">Quantity</span>
-                        <span className="text-[10.5px] text-gray-400">Order amount in {selectedProduct.unit}</span>
+                        <span className="font-semibold text-[#1d1d1f] block text-xs">Quantity</span>
+                        <span className="text-[10.5px] text-[#515154]">Order amount in {selectedProduct.unit}</span>
                       </div>
                       <div className="flex items-center border border-gray-200 rounded-full bg-white shadow-2xs overflow-hidden">
                         <button
@@ -767,7 +969,7 @@ export default function ShopView({
                   {/* 6. Order Actions (Finger-friendly full-width buttons min 48px height) */}
                   <div className="pt-2 border-t border-gray-100 space-y-2.5">
                     <div className="flex items-center justify-between text-xs mb-1 px-1">
-                      <span className="text-gray-500 font-medium">Total:</span>
+                      <span className="text-[#424245] font-medium">Total:</span>
                       <span className="font-display text-lg sm:text-xl font-bold text-[#1d1d1f] tabular-nums">
                         {formatNaira(selectedProduct.price * modalQuantity)}
                       </span>

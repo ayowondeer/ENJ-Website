@@ -1,9 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Briefcase } from 'lucide-react';
 import { 
   PortfolioItem, 
   getLocalPortfolio, 
   fetchLivePortfolio, 
+  subscribePortfolio,
+  preloadPortfolioImages,
   PORTFOLIO_CHANGED_EVENT 
 } from '../data/portfolio';
 import LiquidGlassLightbox from './LiquidGlassLightbox';
@@ -13,18 +15,87 @@ interface PortfolioViewProps {
   onNavigateContact: () => void;
 }
 
+interface ProgressiveImageProps {
+  src: string;
+  alt: string;
+  idxHint?: number;
+  priority?: boolean;
+  lazy?: boolean;
+  onFallback: (e: React.SyntheticEvent<HTMLImageElement>, idxHint?: number) => void;
+}
+
+function ProgressivePortfolioImage({
+  src,
+  alt,
+  idxHint,
+  priority = false,
+  lazy = false,
+  onFallback
+}: ProgressiveImageProps) {
+  const imgRef = useRef<HTMLImageElement | null>(null);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    if (imgRef.current?.complete && imgRef.current.naturalWidth > 0) {
+      setLoaded(true);
+    } else {
+      setLoaded(false);
+    }
+  }, [src]);
+
+  return (
+    <>
+      {!loaded && (
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-gradient-to-br from-neutral-200/80 via-neutral-100/90 to-neutral-200/80 animate-pulse"
+        />
+      )}
+      <img
+        ref={imgRef}
+        src={src}
+        alt={alt}
+        referrerPolicy="no-referrer"
+        loading={lazy ? 'lazy' : 'eager'}
+        decoding="async"
+        fetchPriority={priority ? 'high' : 'auto'}
+        onLoad={() => setLoaded(true)}
+        onError={(e) => {
+          onFallback(e, idxHint);
+          setLoaded(true);
+        }}
+        className={`w-full h-full object-cover group-hover:scale-105 transition-all duration-300 ${
+          loaded ? 'opacity-100' : 'opacity-0'
+        }`}
+      />
+    </>
+  );
+}
+
 export default function PortfolioView({ onNavigateShop: _onNavigateShop, onNavigateContact: _onNavigateContact }: PortfolioViewProps) {
   const [items, setItems] = useState<PortfolioItem[]>(() => getLocalPortfolio());
   const [selectedProjectIndex, setSelectedProjectIndex] = useState<number | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
 
-  // Sync portfolio from Firestore and listen to local updates
+  // Sync portfolio from Firestore (live + initial fetch) and listen to local updates
   useEffect(() => {
+    preloadPortfolioImages();
     let isMounted = true;
     fetchLivePortfolio().then(liveList => {
       if (isMounted) {
-        setItems(liveList);
+        setItems(prev => {
+          if (JSON.stringify(prev) === JSON.stringify(liveList)) return prev;
+          return liveList;
+        });
       }
+    });
+
+    const unsubLive = subscribePortfolio((liveList) => {
+      if (!isMounted) return;
+      setItems(prev => {
+        if (JSON.stringify(prev) === JSON.stringify(liveList)) return prev;
+        return liveList;
+      });
     });
 
     const handleStorageChange = (e: Event) => {
@@ -39,6 +110,7 @@ export default function PortfolioView({ onNavigateShop: _onNavigateShop, onNavig
     window.addEventListener(PORTFOLIO_CHANGED_EVENT, handleStorageChange);
     return () => {
       isMounted = false;
+      unsubLive();
       window.removeEventListener(PORTFOLIO_CHANGED_EVENT, handleStorageChange);
     };
   }, []);
@@ -110,7 +182,7 @@ export default function PortfolioView({ onNavigateShop: _onNavigateShop, onNavig
     return list;
   }, [items]);
 
-  const handleImageFallback = (e: React.SyntheticEvent<HTMLImageElement>, idxHint?: number) => {
+  const handleImageFallback = useCallback((e: React.SyntheticEvent<HTMLImageElement>, idxHint?: number) => {
     const img = e.currentTarget;
     if (img.dataset.fallbackApplied) return;
     img.dataset.fallbackApplied = '1';
@@ -122,7 +194,7 @@ export default function PortfolioView({ onNavigateShop: _onNavigateShop, onNavig
     } else {
       img.src = '/jdpi-blue-shirt.jpg';
     }
-  };
+  }, []);
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 animate-fluid-page pt-2 pb-16 relative isolate">
@@ -149,7 +221,7 @@ export default function PortfolioView({ onNavigateShop: _onNavigateShop, onNavig
 
       {/* 2. MOSAIC PICTURE GRID */}
       {items.length === 0 ? (
-        <div className="p-12 text-center rounded-[28px] apple-liquid-glass mb-10 overflow-hidden relative">
+        <div className="p-12 text-center rounded-[24px] sm:rounded-[32px] apple-liquid-glass mb-10 overflow-hidden relative">
           <div className="specular-highlight opacity-50" />
           <Briefcase className="w-8 h-8 mx-auto text-gray-300 mb-2.5 relative z-10" />
           <h3 className="text-sm font-semibold text-gray-900 relative z-10">No projects to display</h3>
@@ -160,15 +232,15 @@ export default function PortfolioView({ onNavigateShop: _onNavigateShop, onNavig
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3.5 md:gap-4">
               <div
                 onClick={() => handleOpenProject(0, 0)}
-                className="group relative sm:col-span-2 h-64 sm:h-[360px] md:h-[420px] rounded-[20px] sm:rounded-[26px] overflow-hidden cursor-pointer touch-action-card transition-all duration-300 hover:shadow-2xl hover:scale-[1.01] active:scale-[0.985] bg-gray-100 border-[0.5px] border-white/60 shadow-[inset_0_0.5px_0.5px_rgba(255,255,255,0.75),0_8px_24px_-4px_rgba(0,0,0,0.06)]"
+                className="group relative sm:col-span-2 h-64 sm:h-[360px] md:h-[420px] rounded-[20px] sm:rounded-[24px] overflow-hidden cursor-pointer touch-action-card transition-all duration-300 ease-liquid-spring hover:shadow-2xl hover:scale-[1.012] active:scale-[0.985] bg-gray-100 border-[0.5px] border-white/60 shadow-[inset_0_0.5px_0.5px_rgba(255,255,255,0.75),0_8px_24px_-4px_rgba(0,0,0,0.06)]"
               >
-                <div className="specular-highlight opacity-40 z-10" />
-                <img
+                <div className="specular-highlight opacity-65 z-10" />
+                <ProgressivePortfolioImage
                   src={singleProjectGallery[0]}
                   alt={`${items[0].title} — Primary view`}
-                  referrerPolicy="no-referrer"
-                  onError={(e) => handleImageFallback(e, 0)}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  idxHint={0}
+                  priority
+                  onFallback={handleImageFallback}
                 />
               </div>
 
@@ -177,15 +249,15 @@ export default function PortfolioView({ onNavigateShop: _onNavigateShop, onNavig
                   <div
                     key={idx}
                     onClick={() => handleOpenProject(0, idx + 1)}
-                    className="group relative h-36 sm:h-[173px] md:h-[202px] rounded-[18px] sm:rounded-[24px] overflow-hidden cursor-pointer touch-action-card transition-all duration-300 hover:shadow-2xl hover:scale-[1.015] active:scale-[0.985] bg-gray-100 border-[0.5px] border-white/60 shadow-[inset_0_0.5px_0.5px_rgba(255,255,255,0.75),0_8px_24px_-4px_rgba(0,0,0,0.06)]"
+                    className="group relative h-36 sm:h-[173px] md:h-[202px] rounded-[20px] sm:rounded-[24px] overflow-hidden cursor-pointer touch-action-card transition-all duration-300 ease-liquid-spring hover:shadow-2xl hover:scale-[1.015] active:scale-[0.985] bg-gray-100 border-[0.5px] border-white/60 shadow-[inset_0_0.5px_0.5px_rgba(255,255,255,0.75),0_8px_24px_-4px_rgba(0,0,0,0.06)]"
                   >
-                    <div className="specular-highlight opacity-40 z-10" />
-                    <img
+                    <div className="specular-highlight opacity-65 z-10" />
+                    <ProgressivePortfolioImage
                       src={imgUrl}
                       alt={`${items[0].title} — View ${idx + 2}`}
-                      referrerPolicy="no-referrer"
-                      onError={(e) => handleImageFallback(e, idx + 1)}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      idxHint={idx + 1}
+                      priority
+                      onFallback={handleImageFallback}
                     />
                   </div>
                 ))}
@@ -197,17 +269,17 @@ export default function PortfolioView({ onNavigateShop: _onNavigateShop, onNavig
                 <div
                   key={idx}
                   onClick={() => handleOpenProject(0, idx)}
-                  className={`group relative rounded-[20px] sm:rounded-[26px] overflow-hidden cursor-pointer touch-action-card transition-all duration-300 hover:shadow-2xl hover:scale-[1.01] active:scale-[0.985] bg-gray-100 border-[0.5px] border-white/60 shadow-[inset_0_0.5px_0.5px_rgba(255,255,255,0.75),0_8px_24px_-4px_rgba(0,0,0,0.06)] ${
+                  className={`group relative rounded-[20px] sm:rounded-[24px] overflow-hidden cursor-pointer touch-action-card transition-all duration-300 ease-liquid-spring hover:shadow-2xl hover:scale-[1.012] active:scale-[0.985] bg-gray-100 border-[0.5px] border-white/60 shadow-[inset_0_0.5px_0.5px_rgba(255,255,255,0.75),0_8px_24px_-4px_rgba(0,0,0,0.06)] ${
                     singleProjectGallery.length === 1 ? 'sm:col-span-2 h-64 sm:h-[380px]' : 'h-56 sm:h-72'
                   }`}
                 >
-                  <div className="specular-highlight opacity-40 z-10" />
-                  <img
+                  <div className="specular-highlight opacity-65 z-10" />
+                  <ProgressivePortfolioImage
                     src={imgUrl}
                     alt={items[0].title}
-                    referrerPolicy="no-referrer"
-                    onError={(e) => handleImageFallback(e, idx)}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    idxHint={idx}
+                    priority
+                    onFallback={handleImageFallback}
                   />
                 </div>
               ))}
@@ -236,16 +308,15 @@ export default function PortfolioView({ onNavigateShop: _onNavigateShop, onNavig
               <div
                 key={project.id}
                 onClick={() => handleOpenProject(index, 0)}
-                className={`group relative rounded-[18px] sm:rounded-[24px] overflow-hidden cursor-pointer touch-action-card transition-all duration-300 hover:shadow-2xl hover:scale-[1.015] active:scale-[0.985] bg-gray-100 border-[0.5px] border-white/60 shadow-[inset_0_0.5px_0.5px_rgba(255,255,255,0.75),0_8px_24px_-4px_rgba(0,0,0,0.06)] ${mosaicSpanClass}`}
+                className={`group relative rounded-[20px] sm:rounded-[24px] overflow-hidden cursor-pointer touch-action-card transition-all duration-300 ease-liquid-spring hover:shadow-2xl hover:scale-[1.015] active:scale-[0.985] bg-gray-100 border-[0.5px] border-white/60 shadow-[inset_0_0.5px_0.5px_rgba(255,255,255,0.75),0_8px_24px_-4px_rgba(0,0,0,0.06)] ${mosaicSpanClass}`}
               >
-                <div className="specular-highlight opacity-40 z-10" />
-                <img 
-                  src={project.imageUrl} 
+                <div className="specular-highlight opacity-65 z-10" />
+                <ProgressivePortfolioImage
+                  src={project.imageUrl}
                   alt={project.title}
-                  referrerPolicy="no-referrer"
-                  onError={(e) => handleImageFallback(e)}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  loading="lazy"
+                  priority={index < 3}
+                  lazy={index >= 3}
+                  onFallback={handleImageFallback}
                 />
               </div>
             );

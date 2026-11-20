@@ -32,9 +32,11 @@ import { CartItem, ProductItem } from './firebase';
 import { 
   TestimonialItem, 
   getLocalTestimonials, 
-  fetchLiveTestimonials 
+  fetchLiveTestimonials,
+  subscribeTestimonials
 } from './data/testimonials';
 import { applySEOForPage, PageType } from './utils/seo';
+import { preloadPortfolioImages } from './data/portfolio';
 
 interface HomeServiceItem {
   id: string;
@@ -236,7 +238,7 @@ export default function App() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    service: '',
+    service: 'General Enquiry',
     message: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -249,9 +251,10 @@ export default function App() {
   const [submitStatus, setSubmitStatus] = useState<{
     type: 'idle' | 'loading' | 'success' | 'error';
     message: string;
+    needsActivation?: boolean;
   }>({
     type: 'idle',
-    message: "We'll send your message directly to ENJ Digital Concept."
+    message: 'Sends directly to enjdigitalconcept@gmail.com.'
   });
 
   // Newsletter State
@@ -261,6 +264,7 @@ export default function App() {
   // Testimonials live sync
   useEffect(() => {
     fetchLiveTestimonials().then(setTestimonials);
+    const unsubTestimonials = subscribeTestimonials(setTestimonials);
 
     const handleTestimonialsUpdate = (e: Event) => {
       const customEvent = e as CustomEvent<TestimonialItem[]>;
@@ -270,7 +274,16 @@ export default function App() {
     };
 
     window.addEventListener('enj_testimonials_changed', handleTestimonialsUpdate);
-    return () => window.removeEventListener('enj_testimonials_changed', handleTestimonialsUpdate);
+
+    const idleTimer = window.setTimeout(() => {
+      preloadPortfolioImages();
+    }, 800);
+
+    return () => {
+      unsubTestimonials();
+      window.removeEventListener('enj_testimonials_changed', handleTestimonialsUpdate);
+      window.clearTimeout(idleTimer);
+    };
   }, []);
 
   // Scroll Position State for Apple Fluid Parallax Effect
@@ -440,12 +453,13 @@ export default function App() {
     e.preventDefault();
     const trimmedName = formData.name.trim();
     const trimmedEmail = formData.email.trim();
+    const selectedService = formData.service.trim() || 'General Enquiry';
     const trimmedMessage = formData.message.trim();
 
     if (!trimmedName || !trimmedEmail || !trimmedMessage) {
       setSubmitStatus({
         type: 'error',
-        message: 'Please provide your name, email, and message.'
+        message: 'Please provide your name, email address, and message.'
       });
       return;
     }
@@ -462,51 +476,52 @@ export default function App() {
     setIsSubmitting(true);
     setSubmitStatus({
       type: 'loading',
-      message: 'Dispatching your message directly to enjdigitalconcept@gmail.com…'
+      message: 'Sending your message to enjdigitalconcept@gmail.com…'
     });
 
     const payload = {
       name: trimmedName,
       email: trimmedEmail,
-      service: formData.service || 'General Enquiry',
-      message: trimmedMessage,
-      _subject: `New Enquiry from ${trimmedName} — ${formData.service || 'ENJ Digital Concept'}`,
-      _replyto: trimmedEmail,
-      _template: 'table',
-      _captcha: 'false'
+      service: selectedService,
+      message: trimmedMessage
     };
 
     try {
-      const response = await fetch('https://formsubmit.co/ajax/enjdigitalconcept@gmail.com', {
+      const response = await fetch('/api/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          Accept: 'application/json'
         },
         body: JSON.stringify(payload)
       });
 
-      const result = await response.json().catch(() => ({}));
+      const result = (await response.json().catch(() => ({}))) as {
+        ok?: boolean;
+        needsActivation?: boolean;
+        error?: string;
+      };
 
-      if (response.ok || result.success === true || result.success === 'true' || result.message) {
-        setSubmittedData({
-          name: payload.name,
-          email: payload.email,
-          service: payload.service,
-          message: payload.message
-        });
+      if (response.ok && result.ok === true) {
+        setSubmittedData(payload);
         setSubmitStatus({
           type: 'success',
-          message: 'Your message has been sent directly to enjdigitalconcept@gmail.com!'
+          message: 'Your message has been delivered to enjdigitalconcept@gmail.com!'
         });
-        setFormData({ name: '', email: '', service: '', message: '' });
+        setFormData({ name: '', email: '', service: 'General Enquiry', message: '' });
       } else {
-        throw new Error(result.message || 'Submission failed');
+        setSubmitStatus({
+          type: 'error',
+          needsActivation: Boolean(result.needsActivation),
+          message:
+            result.error ||
+            'Could not confirm automated delivery. Use Send via Gmail or Open Mail App below to send directly to enjdigitalconcept@gmail.com.'
+        });
       }
     } catch {
       setSubmitStatus({
         type: 'error',
-        message: 'Direct automated dispatch could not complete. Click below to send via your email client or WhatsApp.'
+        message: 'Connection error while sending. Click Send via Gmail or Open Mail App below to send directly to enjdigitalconcept@gmail.com.'
       });
     } finally {
       setIsSubmitting(false);
@@ -622,6 +637,9 @@ export default function App() {
             </button>
             <button
               onClick={() => navigateTo('portfolio')}
+              onMouseEnter={preloadPortfolioImages}
+              onFocus={preloadPortfolioImages}
+              onTouchStart={preloadPortfolioImages}
               className={`px-3 py-1 text-[11px] font-semibold rounded-full cursor-pointer nav-pill-btn ${
                 activeNavPage === 'portfolio'
                   ? 'bg-white text-[#1d1d1f] shadow-xs font-bold scale-[1.02]'
@@ -673,13 +691,13 @@ export default function App() {
           </div>
         </nav>
 
-        {/* Floating Mobile Dropdown Panel with iPhone Liquid Glass Spring Expansion */}
+        {/* Floating Mobile Dropdown Panel with Liquid Glass Spring Expansion */}
         <div
           aria-hidden={!mobileMenuOpen}
-          className={`md:hidden absolute top-full inset-x-0 mt-2 p-3 apple-liquid-glass rounded-[28px] shadow-2xl flex flex-col gap-1.5 overflow-hidden origin-top-right transition-all duration-350 ease-liquid-spring ${
+          className={`md:hidden absolute top-full inset-x-0 mt-2 p-3 apple-liquid-glass rounded-[24px] shadow-2xl flex flex-col gap-1.5 overflow-hidden origin-top-right transition-all duration-300 ease-liquid-spring ${
             mobileMenuOpen
-              ? 'opacity-100 scale-100 translate-y-0 blur-0 pointer-events-auto'
-              : 'opacity-0 scale-[0.72] -translate-y-3 blur-[6px] pointer-events-none'
+              ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
+              : 'opacity-0 scale-[0.94] -translate-y-2 pointer-events-none'
           }`}
         >
           <div className="specular-highlight opacity-75" />
@@ -697,6 +715,7 @@ export default function App() {
           <button
             tabIndex={mobileMenuOpen ? 0 : -1}
             onClick={() => navigateTo('portfolio')}
+            onTouchStart={preloadPortfolioImages}
             style={{ transitionDelay: mobileMenuOpen ? '25ms' : '0ms' }}
             className={`w-full text-left px-5 py-3 rounded-full text-sm font-semibold cursor-pointer touch-action-btn relative z-10 transition-all duration-300 ease-liquid-spring ${
               mobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1'
@@ -899,10 +918,10 @@ export default function App() {
                         setExpandedServiceId(service.id);
                       }
                     }}
-                    className="group rounded-[22px] sm:rounded-[28px] p-3 sm:p-3.5 apple-liquid-glass-interactive hover:shadow-xl transition-all duration-300 cursor-pointer touch-action-card relative overflow-hidden flex flex-col text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#f47b20]/60"
+                    className="group rounded-[20px] sm:rounded-[24px] p-3 sm:p-3.5 apple-liquid-glass-interactive hover:shadow-xl transition-all duration-300 ease-liquid-spring cursor-pointer touch-action-card relative overflow-hidden flex flex-col text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#f47b20]/60"
                   >
                     <div className="specular-highlight opacity-75" />
-                    <div className="relative h-44 sm:h-48 rounded-[14px] overflow-hidden bg-gray-100 mb-3 shadow-2xs z-10">
+                    <div className="relative h-44 sm:h-48 rounded-[12px] sm:rounded-[16px] overflow-hidden bg-gray-100 mb-3 shadow-2xs z-10">
                       <img
                         src={service.image}
                         alt={service.title}
@@ -911,7 +930,7 @@ export default function App() {
                           (e.target as HTMLImageElement).src = service.fallback;
                         }}
                       />
-                      <span className="absolute top-2.5 left-2.5 w-7 h-7 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center font-display font-bold text-[10px] text-[#1d1d1f] shadow-xs border border-white/80">
+                      <span className="absolute top-2.5 left-2.5 w-7 h-7 rounded-full bg-white/95 backdrop-blur-md flex items-center justify-center font-display font-bold text-[10px] text-[#1d1d1f] shadow-xs border border-white/90">
                         {service.id}
                       </span>
                     </div>
@@ -920,7 +939,7 @@ export default function App() {
                         {service.title}
                       </h3>
                     </div>
-                    <p className="text-[#6e6e73] text-xs leading-relaxed line-clamp-2 relative z-10">
+                    <p className="text-[#424245] text-xs leading-relaxed line-clamp-2 relative z-10">
                       {service.shortDescription}
                     </p>
                   </div>
@@ -928,11 +947,11 @@ export default function App() {
               </div>
 
               {/* Explore Store Banner */}
-              <div className="mt-8 sm:mt-10 p-5 sm:p-6 rounded-[22px] sm:rounded-[28px] apple-liquid-glass relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="mt-8 sm:mt-10 p-5 sm:p-6 rounded-[24px] sm:rounded-[32px] apple-liquid-glass relative overflow-hidden flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="specular-highlight opacity-60" />
                 <div className="text-center sm:text-left relative z-10">
                   <h3 className="font-display text-lg font-medium text-[#1d1d1f]">Visit our Online Store</h3>
-                  <p className="text-[#6e6e73] text-xs mt-0.5">Browse live print products, compare prices in Naira, and pay securely online.</p>
+                  <p className="text-[#424245] text-xs mt-0.5">Browse live print products, compare prices in Naira, and pay securely online.</p>
                 </div>
                 <button
                   onClick={() => navigateTo('shop')}
@@ -949,10 +968,10 @@ export default function App() {
                 <div className="specular-highlight opacity-60" />
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 sm:gap-4 mb-6 sm:mb-8 relative z-10">
                   <div>
-                    <p className="text-[10px] font-bold tracking-widest text-[#6e6e73] uppercase mb-1.5">Our impact</p>
+                    <p className="text-[10px] font-bold tracking-widest text-[#515154] uppercase mb-1.5">Our impact</p>
                     <h2 className="font-display text-2xl sm:text-3xl font-medium tracking-tight text-[#1d1d1f]">In numbers.</h2>
                   </div>
-                  <p className="text-[#6e6e73] text-xs max-w-xs leading-relaxed">
+                  <p className="text-[#424245] text-xs max-w-xs leading-relaxed">
                     Milestones achieved together with clients across Nigeria.
                   </p>
                 </div>
@@ -960,15 +979,15 @@ export default function App() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 pt-5 sm:pt-6 border-t border-black/10 relative z-10">
                   <div className="space-y-1 pb-4 border-b border-black/10 md:border-b-0 md:pb-0">
                     <span className="block font-display text-3xl sm:text-4xl font-light tracking-tight text-[#1d1d1f]">20k+</span>
-                    <span className="text-xs font-medium text-[#6e6e73]">Prints & Orders Delivered</span>
+                    <span className="text-xs font-medium text-[#424245]">Prints & Orders Delivered</span>
                   </div>
                   <div className="space-y-1 pb-4 border-b border-black/10 md:border-b-0 md:pb-0 md:border-l md:border-black/10 md:pl-6">
                     <span className="block font-display text-3xl sm:text-4xl font-light tracking-tight text-[#1d1d1f]">5+</span>
-                    <span className="text-xs font-medium text-[#6e6e73]">Years of Industry Excellence</span>
+                    <span className="text-xs font-medium text-[#424245]">Years of Industry Excellence</span>
                   </div>
                   <div className="space-y-1 md:border-l md:border-black/10 md:pl-6">
                     <span className="block font-display text-3xl sm:text-4xl font-light tracking-tight text-[#1d1d1f]">99%</span>
-                    <span className="text-xs font-medium text-[#6e6e73]">Client Satisfaction Rating</span>
+                    <span className="text-xs font-medium text-[#424245]">Client Satisfaction Rating</span>
                   </div>
                 </div>
               </div>
@@ -996,7 +1015,7 @@ export default function App() {
                 {testimonials.map((item) => (
                   <figure 
                     key={item.id}
-                    className="w-[min(82vw,310px)] sm:w-[360px] md:w-[390px] shrink-0 snap-start p-5 sm:p-7 rounded-[22px] sm:rounded-[28px] apple-liquid-glass-interactive flex flex-col justify-between transition-all duration-300 hover:shadow-xl touch-action-card relative overflow-hidden group min-h-[180px] sm:min-h-[200px]"
+                    className="w-[min(82vw,310px)] sm:w-[360px] md:w-[390px] shrink-0 snap-start p-5 sm:p-7 rounded-[20px] sm:rounded-[24px] apple-liquid-glass-interactive flex flex-col justify-between transition-all duration-300 ease-liquid-spring hover:shadow-xl touch-action-card relative overflow-hidden group min-h-[180px] sm:min-h-[200px]"
                   >
                     <div className="specular-highlight opacity-70" />
                     <div className="absolute top-2.5 right-4 font-serif text-5xl sm:text-6xl leading-none text-black/5 select-none pointer-events-none group-hover:text-[#f47b20]/15 transition-colors">
@@ -1007,12 +1026,12 @@ export default function App() {
                       “{item.quote.replace(/^“|”$/g, '')}”
                     </blockquote>
 
-                    <figcaption className="text-xs font-semibold text-[#1d1d1f] relative z-10 flex flex-wrap items-center justify-between gap-2 border-t border-black/5 pt-3 mt-auto">
+                    <figcaption className="text-xs font-semibold text-[#1d1d1f] relative z-10 flex flex-wrap items-center justify-between gap-2 border-t border-black/8 pt-3 mt-auto">
                       <div className="min-w-0 flex-1">
                         <span className="block font-bold text-sm text-gray-900 truncate">{item.author}</span>
-                        <span className="block text-[11px] font-normal text-[#6e6e73] mt-0.5 truncate">{item.role}</span>
+                        <span className="block text-[11px] font-normal text-[#424245] mt-0.5 truncate">{item.role}</span>
                       </div>
-                      <span className="px-2.5 sm:px-3 py-1 rounded-full bg-black/5 text-[10px] font-semibold text-gray-700 shrink-0 border border-black/5">
+                      <span className="px-2.5 sm:px-3 py-1 rounded-full bg-black/5 text-[10px] font-semibold text-[#1d1d1f] shrink-0 border border-black/8">
                         Verified Client
                       </span>
                     </figcaption>
@@ -1085,7 +1104,7 @@ export default function App() {
                   { title: 'Cleaning detergents', desc: 'Disinfectants, mops, industrial cleaners, trash cans and paper towels.', icon: 'icon-cleaning' },
                   { title: 'Computers & ICT accessories', desc: 'Laptops, desktops, keyboards, mice, storage drives and networking parts.', icon: 'icon-computer' }
                 ].map((item, idx) => (
-                  <div key={idx} className="p-3.5 sm:p-4 rounded-[20px] sm:rounded-[26px] apple-liquid-glass-interactive hover:shadow-md transition-all touch-action-card relative overflow-hidden group flex flex-col justify-between">
+                  <div key={idx} className="p-3.5 sm:p-4 rounded-[20px] sm:rounded-[24px] apple-liquid-glass-interactive hover:shadow-md transition-all duration-300 ease-liquid-spring touch-action-card relative overflow-hidden group flex flex-col justify-between">
                     <div className="specular-highlight opacity-60" />
                     <div className="relative z-10 flex items-start gap-3 sm:block">
                       <span className="w-9 h-9 rounded-full bg-black/5 flex items-center justify-center text-[#1d1d1f] shrink-0 mb-0 sm:mb-3 group-hover:scale-105 transition-transform">
@@ -1093,7 +1112,7 @@ export default function App() {
                       </span>
                       <div className="min-w-0 flex-1">
                         <h3 className="font-display text-sm font-semibold text-[#1d1d1f] mb-0.5 sm:mb-1 group-hover:text-[#c95510] transition-colors leading-snug">{item.title}</h3>
-                        <p className="text-[11px] text-[#6e6e73] leading-relaxed line-clamp-2">{item.desc}</p>
+                        <p className="text-[11px] text-[#424245] leading-relaxed line-clamp-2">{item.desc}</p>
                       </div>
                     </div>
                   </div>
@@ -1160,12 +1179,12 @@ export default function App() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-[0.85fr_1.15fr] gap-4 sm:gap-6 items-stretch mb-10">
-              <aside className="p-5 sm:p-7 rounded-[22px] sm:rounded-[28px] apple-liquid-glass flex flex-col gap-5 sm:gap-6 relative overflow-hidden">
+              <aside className="p-5 sm:p-7 rounded-[24px] sm:rounded-[32px] apple-liquid-glass flex flex-col gap-5 sm:gap-6 relative overflow-hidden">
                 <div className="specular-highlight opacity-60" />
                 <div className="relative z-10">
-                  <p className="text-[10px] font-bold tracking-widest text-[#6e6e73] uppercase mb-1">Get in touch</p>
+                  <p className="text-[10px] font-bold tracking-widest text-[#515154] uppercase mb-1">Get in touch</p>
                   <h2 className="font-display text-xl font-medium text-[#1d1d1f] mb-2">We’re here to help.</h2>
-                  <p className="text-[#6e6e73] text-xs leading-relaxed">
+                  <p className="text-[#424245] text-xs leading-relaxed">
                     Reach out directly or send us a message using the form.
                   </p>
                 </div>
@@ -1195,7 +1214,7 @@ export default function App() {
               </aside>
 
               {/* Working Contact Form */}
-              <section className="p-5 sm:p-7 rounded-[22px] sm:rounded-[28px] apple-liquid-glass flex flex-col justify-between relative overflow-hidden">
+              <section className="p-5 sm:p-7 rounded-[24px] sm:rounded-[32px] apple-liquid-glass flex flex-col justify-between relative overflow-hidden">
                 <div className="specular-highlight opacity-60" />
                 {submittedData ? (
                   <div className="py-4 flex flex-col items-start gap-4 animate-fluid-sheet relative z-10">
@@ -1205,12 +1224,12 @@ export default function App() {
 
                     <div>
                       <h3 className="font-display text-xl font-bold text-[#1d1d1f]">Message Dispatched!</h3>
-                      <p className="text-xs text-gray-500 mt-0.5">
+                      <p className="text-xs text-[#424245] mt-0.5">
                         Sent to <strong className="text-black">enjdigitalconcept@gmail.com</strong>.
                       </p>
                     </div>
 
-                    <div className="w-full p-4 rounded-[16px] bg-white/70 backdrop-blur-md border border-white/90 text-xs text-gray-700 space-y-1.5 shadow-2xs">
+                    <div className="w-full p-4 rounded-[14px] sm:rounded-[18px] bg-white/88 backdrop-blur-md border border-black/[0.06] text-xs text-[#3a3a3c] space-y-1.5 shadow-2xs">
                       <div><strong className="text-gray-900">Name:</strong> {submittedData.name}</div>
                       <div><strong className="text-gray-900">Email:</strong> {submittedData.email}</div>
                       <div><strong className="text-gray-900">Service:</strong> {submittedData.service}</div>
@@ -1219,7 +1238,7 @@ export default function App() {
 
                     <div className="flex flex-wrap items-center gap-2 pt-1">
                       <button
-                        onClick={() => { setSubmittedData(null); setSubmitStatus({ type: 'idle', message: "We'll send your message directly to ENJ Digital Concept." }); }}
+                        onClick={() => { setSubmittedData(null); setSubmitStatus({ type: 'idle', message: 'Sends directly to enjdigitalconcept@gmail.com.' }); }}
                         className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-gray-300 text-xs font-semibold text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
                       >
                         <RotateCcw className="w-3 h-3" />
@@ -1241,7 +1260,7 @@ export default function App() {
                   <>
                     <div className="relative z-10">
                       <h3 className="font-display text-xl font-medium text-[#1d1d1f] mb-1">Send us a direct message</h3>
-                      <p className="text-xs text-[#6e6e73] mb-4">
+                      <p className="text-xs text-[#424245] mb-4">
                         Fill in your details below and we will get back to you promptly.
                       </p>
                     </div>
@@ -1257,7 +1276,7 @@ export default function App() {
                           value={formData.name}
                           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                           placeholder="e.g. Emmanuel Moses"
-                          className="w-full px-5 py-3 rounded-full bg-white/75 backdrop-blur-md border border-black/10 focus:border-[#f47b20] focus:bg-white text-sm sm:text-xs outline-none transition-all shadow-2xs"
+                          className="w-full px-5 py-3 rounded-full bg-white/90 backdrop-blur-md border border-black/10 focus:border-[#f47b20] focus:bg-white text-sm sm:text-xs text-[#1d1d1f] placeholder:text-[#515154] outline-none transition-all shadow-2xs"
                         />
                       </div>
 
@@ -1272,7 +1291,7 @@ export default function App() {
                             value={formData.email}
                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                             placeholder="emmanuel@example.com"
-                            className="w-full px-5 py-3 rounded-full bg-white/75 backdrop-blur-md border border-black/10 focus:border-[#f47b20] focus:bg-white text-sm sm:text-xs outline-none transition-all shadow-2xs"
+                            className="w-full px-5 py-3 rounded-full bg-white/90 backdrop-blur-md border border-black/10 focus:border-[#f47b20] focus:bg-white text-sm sm:text-xs text-[#1d1d1f] placeholder:text-[#515154] outline-none transition-all shadow-2xs"
                           />
                         </div>
 
@@ -1283,7 +1302,7 @@ export default function App() {
                           <select
                             value={formData.service}
                             onChange={(e) => setFormData({ ...formData, service: e.target.value })}
-                            className="w-full px-5 py-3 rounded-full bg-white/75 backdrop-blur-md border border-black/10 focus:border-[#f47b20] focus:bg-white text-sm sm:text-xs outline-none transition-all cursor-pointer shadow-2xs"
+                            className="w-full px-5 py-3 rounded-full bg-white/90 backdrop-blur-md border border-black/10 focus:border-[#f47b20] focus:bg-white text-sm sm:text-xs text-[#1d1d1f] outline-none transition-all cursor-pointer shadow-2xs"
                           >
                             <option value="General Enquiry">General Enquiry</option>
                             <option value="Digital Printing">Digital Printing</option>
@@ -1306,12 +1325,12 @@ export default function App() {
                           value={formData.message}
                           onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                           placeholder="Tell us about the project, quantities, dimensions, or timeline..."
-                          className="w-full px-5 py-3.5 rounded-[20px] bg-white/75 backdrop-blur-md border border-black/10 focus:border-[#f47b20] focus:bg-white text-sm sm:text-xs outline-none transition-all resize-y leading-relaxed shadow-2xs"
+                          className="w-full px-5 py-3.5 rounded-[14px] sm:rounded-[18px] bg-white/90 backdrop-blur-md border border-black/10 focus:border-[#f47b20] focus:bg-white text-sm sm:text-xs text-[#1d1d1f] placeholder:text-[#515154] outline-none transition-all resize-y leading-relaxed shadow-2xs"
                         />
                       </div>
 
                       {submitStatus.type === 'error' && (
-                        <div className="p-4 rounded-2xl apple-liquid-glass-error text-xs text-rose-950 space-y-2.5 shadow-sm animate-fluid-sheet">
+                        <div className="p-4 rounded-[14px] sm:rounded-[18px] apple-liquid-glass-error text-xs text-rose-950 space-y-2.5 shadow-sm animate-fluid-sheet">
                           <div className="specular-highlight opacity-40" />
                           <div className="flex items-start gap-2.5 relative z-10">
                             <div className="w-6 h-6 rounded-full bg-rose-500/15 border border-rose-500/25 flex items-center justify-center shrink-0 mt-0.5">
@@ -1321,8 +1340,17 @@ export default function App() {
                           </div>
                           <div className="flex flex-wrap items-center gap-2 pt-0.5 relative z-10">
                             <a
-                              href={`mailto:enjdigitalconcept@gmail.com?subject=${encodeURIComponent(`Website enquiry from ${formData.name || 'Client'}: ${formData.service || 'General'}`)}&body=${encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\nService: ${formData.service}\n\nMessage:\n${formData.message}`)}`}
+                              href={`https://mail.google.com/mail/?view=cm&fs=1&to=enjdigitalconcept@gmail.com&su=${encodeURIComponent(`Website enquiry from ${formData.name || 'Client'}: ${formData.service || 'General Enquiry'}`)}&body=${encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\nService: ${formData.service || 'General Enquiry'}\n\nMessage:\n${formData.message}`)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
                               className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white font-medium text-xs transition-colors touch-action-btn shadow-xs"
+                            >
+                              <Mail className="w-3.5 h-3.5" />
+                              Send via Gmail
+                            </a>
+                            <a
+                              href={`mailto:enjdigitalconcept@gmail.com?subject=${encodeURIComponent(`Website enquiry from ${formData.name || 'Client'}: ${formData.service || 'General Enquiry'}`)}&body=${encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\nService: ${formData.service || 'General Enquiry'}\n\nMessage:\n${formData.message}`)}`}
+                              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white/90 border border-rose-300 hover:bg-white text-rose-900 font-medium text-xs transition-colors touch-action-btn shadow-2xs"
                             >
                               <Mail className="w-3.5 h-3.5" />
                               Open Mail App
@@ -1363,7 +1391,7 @@ export default function App() {
                           <p className={`text-[11px] ${
                             submitStatus.type === 'loading'
                               ? 'text-[#c95510] font-medium flex items-center gap-1'
-                              : 'text-[#6e6e73]'
+                              : 'text-[#515154]'
                           }`}>
                             {submitStatus.type === 'loading' && <Loader2 className="w-3 h-3 animate-spin" />}
                             {submitStatus.message}
@@ -1442,7 +1470,7 @@ export default function App() {
         typeof document !== 'undefined' &&
         createPortal(
           <div
-            className="fixed inset-0 z-[9990] flex items-center justify-center p-3.5 sm:p-6 apple-lightbox-backdrop animate-liquid-backdrop"
+            className="fixed inset-0 z-[9990] flex items-center justify-center p-3.5 sm:p-6 apple-modal-backdrop animate-liquid-backdrop"
             role="dialog"
             aria-modal="true"
             aria-labelledby="expanded-service-title"
@@ -1451,19 +1479,22 @@ export default function App() {
             <div
               key={selectedService.id}
               onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-lg max-h-[90dvh] rounded-[28px] sm:rounded-[34px] apple-modal-glass animate-liquid-expand overflow-hidden flex flex-col"
+              className="relative w-full max-w-lg max-h-[90dvh] rounded-[24px] sm:rounded-[32px] apple-modal-glass animate-liquid-expand overflow-hidden flex flex-col"
             >
-              <div className="specular-highlight opacity-80 z-20" />
+              <div className="pointer-events-none absolute -top-20 -right-16 w-56 h-56 rounded-full bg-[#f47b20]/18 blur-3xl z-0" />
+              <div className="pointer-events-none absolute -bottom-24 -left-16 w-60 h-60 rounded-full bg-sky-300/22 blur-3xl z-0" />
+              <div className="specular-highlight opacity-85 z-20" />
 
               {/* Pinned Floating Close Button while scrolling */}
               <button
                 type="button"
                 onClick={() => setExpandedServiceId(null)}
-                className="absolute top-3 right-3 sm:top-3.5 sm:right-3.5 z-30 w-9 h-9 rounded-full apple-floating-glass flex items-center justify-center text-[#1d1d1f] cursor-pointer touch-action-btn"
+                className="absolute top-3 right-3 sm:top-3.5 sm:right-3.5 z-30 w-9 h-9 rounded-full apple-floating-glass overflow-hidden flex items-center justify-center text-[#1d1d1f] cursor-pointer touch-action-btn"
                 aria-label="Close service details"
                 title="Close"
               >
-                <X className="w-4 h-4" />
+                <span className="specular-highlight opacity-70" />
+                <X className="w-4 h-4 relative z-10" />
               </button>
 
               {/* Scrollable Modal Body underneath floating actions */}
@@ -1472,7 +1503,7 @@ export default function App() {
                 className="overflow-y-auto touch-momentum p-3.5 sm:p-5 flex-1 min-h-0 relative z-10"
               >
                 {/* Hero Preview Image */}
-                <div className="relative h-52 sm:h-64 rounded-[20px] sm:rounded-[24px] overflow-hidden bg-gray-100 mb-4 shadow-sm">
+                <div className="relative h-52 sm:h-64 rounded-[14px] sm:rounded-[18px] overflow-hidden bg-gray-100 mb-4 shadow-sm border border-white/60">
                   <img
                     src={selectedService.image}
                     alt={selectedService.title}
@@ -1497,13 +1528,13 @@ export default function App() {
                     </h3>
                   </div>
 
-                  <div className="space-y-2 text-xs sm:text-sm text-[#3a3a3c] leading-relaxed">
+                  <div className="space-y-2 text-xs sm:text-sm text-[#1d1d1f] leading-relaxed">
                     <p className="font-medium text-[#1d1d1f]">{selectedService.shortDescription}</p>
-                    <p className="text-[#515154]">{selectedService.fullDescription}</p>
+                    <p className="text-[#424245]">{selectedService.fullDescription}</p>
                   </div>
 
                   <div className="pt-3 border-t border-black/10">
-                    <p className="text-[10px] font-bold tracking-widest uppercase text-[#6e6e73] mb-2">
+                    <p className="text-[10px] font-bold tracking-widest uppercase text-[#515154] mb-2">
                       What we produce
                     </p>
                     <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">

@@ -11,6 +11,7 @@ import {
   initializeFirestore,
   collection, 
   doc, 
+  getDoc,
   setDoc,
   getDocFromServer,
   getDocs, 
@@ -26,12 +27,13 @@ import firebaseConfig from '../firebase-applet-config.json';
 // Initialize Firebase App
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firestore with custom database ID and forced long polling
-// (prevents 10-second WebChannel timeout in proxied/iframe environments)
+// Initialize Firestore with custom database ID, forced long polling, and ignoreUndefinedProperties
+// (prevents 10-second WebChannel timeout in proxied/iframe environments and avoids undefined-field write rejections)
 export const db = initializeFirestore(
   app,
   {
     experimentalForceLongPolling: true,
+    ignoreUndefinedProperties: true,
   },
   firebaseConfig.firestoreDatabaseId
 );
@@ -85,6 +87,111 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
   };
   console.error('Firestore Error: ', JSON.stringify(errInfo));
   throw new Error(JSON.stringify(errInfo));
+}
+
+export const MAX_FIRESTORE_DOC_BYTES = 920_000;
+
+export function stripUndefinedDeep<T>(value: T): T {
+  if (Array.isArray(value)) {
+    return value
+      .filter((item) => item !== undefined)
+      .map((item) => stripUndefinedDeep(item)) as unknown as T;
+  }
+  if (value !== null && typeof value === 'object') {
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+      if (v !== undefined) {
+        out[k] = stripUndefinedDeep(v);
+      }
+    }
+    return out as T;
+  }
+  return value;
+}
+
+export function estimateUtf8Bytes(data: unknown): number {
+  const json = JSON.stringify(stripUndefinedDeep(data)) || '';
+  if (typeof TextEncoder !== 'undefined') {
+    return new TextEncoder().encode(json).length;
+  }
+  return json.length * 2;
+}
+
+function recompressDataUrl(dataUrl: string, maxDim: number, quality: number): Promise<string> {
+  if (!dataUrl.startsWith('data:image/') || typeof document === 'undefined') {
+    return Promise.resolve(dataUrl);
+  }
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      let { width, height } = img;
+      if (width > maxDim || height > maxDim) {
+        if (width > height) {
+          height = Math.max(1, Math.round((height * maxDim) / width));
+          width = maxDim;
+        } else {
+          width = Math.max(1, Math.round((width * maxDim) / height));
+          height = maxDim;
+        }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        resolve(dataUrl);
+        return;
+      }
+      ctx.drawImage(img, 0, 0, width, height);
+      const out = canvas.toDataURL('image/jpeg', quality);
+      resolve(out.length < dataUrl.length ? out : dataUrl);
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
+}
+
+/**
+ * Ensures image data URLs + metadata fit safely below Firestore's 1 MiB document limit.
+ */
+export async function fitImagesToFirestoreBudget(
+  images: string[],
+  metadataSample: Record<string, unknown>,
+  maxDocBytes: number = MAX_FIRESTORE_DOC_BYTES
+): Promise<string[]> {
+  let working = images.filter(Boolean);
+  if (working.length === 0) return working;
+
+  const measure = (imgs: string[]) =>
+    estimateUtf8Bytes({
+      ...metadataSample,
+      imageUrl: imgs[0],
+      gallery: imgs,
+    });
+
+  if (measure(working) <= maxDocBytes) {
+    return working;
+  }
+
+  const passes: Array<{ maxDim: number; quality: number }> = [
+    { maxDim: 720, quality: 0.72 },
+    { maxDim: 600, quality: 0.65 },
+    { maxDim: 480, quality: 0.56 },
+    { maxDim: 380, quality: 0.48 },
+  ];
+
+  for (const pass of passes) {
+    working = await Promise.all(
+      working.map((src) => recompressDataUrl(src, pass.maxDim, pass.quality))
+    );
+    if (measure(working) <= maxDocBytes) {
+      return working;
+    }
+  }
+
+  throw new Error(
+    'Total photo size exceeds the 1 MB database limit. Please upload fewer photos or smaller images.'
+  );
 }
 
 // Connection test on initialization
@@ -325,10 +432,9 @@ export function getDeletedRecords(): DeletedRecord[] {
   }
 }
 
-export function isProductDeleted(id: string, title?: string): boolean {
+export function isProductDeleted(id: string, _title?: string): boolean {
   const records = getDeletedRecords();
-  const cleanTitle = title?.trim().toLowerCase();
-  return records.some(r => r.id === id || (cleanTitle && r.title.toLowerCase() === cleanTitle));
+  return records.some(r => r.id === id);
 }
 
 export function markProductAsDeletedLocally(id: string, title: string) {
@@ -414,9 +520,18 @@ export async function seedProductsIfEmpty(): Promise<ProductItem[]> {
         .filter(p => !isProductDeleted(p.id, p.title));
     }
 
-    // If already marked as initialized (e.g. merchant deleted all products), do not re-seed!
+    // Also check Firestore system initialization record so fresh browsers never overwrite or re-seed
     if (isAlreadyInitialized) {
       return [];
+    }
+    try {
+      const initSnap = await getDoc(initDocRef);
+      if (initSnap.exists()) {
+        localStorage.setItem(LOCAL_INIT_KEY, 'true');
+        return [];
+      }
+    } catch (initCheckErr) {
+      console.warn("Init marker check notice:", initCheckErr);
     }
 
     // Seed into Firestore using deterministic IDs so they are consistent across sessions
@@ -428,11 +543,11 @@ export async function seedProductsIfEmpty(): Promise<ProductItem[]> {
       // Skip any product that was previously deleted
       if (isProductDeleted(prodId, p.title)) continue;
 
-      const payload = {
+      const payload = stripUndefinedDeep({
         ...p,
         position: p.position ?? (idx + 1),
         createdAt: new Date().toISOString()
-      };
+      });
       await setDoc(doc(db, 'products', prodId), payload);
       seededList.push({ id: prodId, ...payload });
     }

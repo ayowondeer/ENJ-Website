@@ -1,5 +1,13 @@
-import { collection, doc, getDocs, setDoc, deleteDoc } from 'firebase/firestore';
-import { db } from '../firebase';
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  setDoc,
+  deleteDoc,
+  onSnapshot
+} from 'firebase/firestore';
+import { db, handleFirestoreError, OperationType, stripUndefinedDeep } from '../firebase';
 
 export interface TestimonialItem {
   id: string;
@@ -69,19 +77,28 @@ export const DEFAULT_TESTIMONIALS: TestimonialItem[] = [
 ];
 
 const LOCAL_STORAGE_KEY = 'enj_testimonials_data_v2';
-const TESTIMONIALS_CHANGED_EVENT = 'enj_testimonials_changed';
+const TESTIMONIALS_INIT_MARKER_ID = 'testimonials_init_v1';
+export const TESTIMONIALS_CHANGED_EVENT = 'enj_testimonials_changed';
+
+let memoryTestimonialsCache: TestimonialItem[] | null = null;
 
 export function getLocalTestimonials(): TestimonialItem[] {
+  if (memoryTestimonialsCache !== null) {
+    return memoryTestimonialsCache;
+  }
   try {
     const raw = localStorage.getItem(LOCAL_STORAGE_KEY) || localStorage.getItem('enj_testimonials_data_v1');
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length >= 4) {
-        // If it was the older 4 items, prefer the full new default set so user gets dynamic rotation
+      if (Array.isArray(parsed)) {
         if (parsed.length === 4 && parsed[0]?.author === 'Amina Bello' && parsed[1]?.author?.includes('Moses')) {
-          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(DEFAULT_TESTIMONIALS));
+          memoryTestimonialsCache = DEFAULT_TESTIMONIALS;
+          try {
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(DEFAULT_TESTIMONIALS));
+          } catch {}
           return DEFAULT_TESTIMONIALS;
         }
+        memoryTestimonialsCache = parsed;
         return parsed;
       }
     }
@@ -92,11 +109,47 @@ export function getLocalTestimonials(): TestimonialItem[] {
 }
 
 export function saveLocalTestimonials(list: TestimonialItem[]): void {
+  memoryTestimonialsCache = list;
   try {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(list));
-    window.dispatchEvent(new CustomEvent(TESTIMONIALS_CHANGED_EVENT, { detail: list }));
   } catch (e) {
     console.warn('Could not save testimonials to localStorage', e);
+  }
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent(TESTIMONIALS_CHANGED_EVENT, { detail: list }));
+  }
+}
+
+function normalizeTestimonialsFromDocs(
+  docs: Array<{ id: string; data: () => Record<string, unknown> }>
+): TestimonialItem[] {
+  return docs.map((d) => {
+    const raw = d.data() || {};
+    return {
+      id: d.id,
+      quote: String(raw.quote || ''),
+      author: String(raw.author || ''),
+      role: String(raw.role || 'Verified Client'),
+      highlight: Boolean(raw.highlight),
+    };
+  });
+}
+
+async function ensureTestimonialsSeededIfUninit(): Promise<TestimonialItem[]> {
+  const markerRef = doc(db, 'system', TESTIMONIALS_INIT_MARKER_ID);
+  try {
+    const markerSnap = await getDoc(markerRef);
+    if (markerSnap.exists()) {
+      return [];
+    }
+    for (const item of DEFAULT_TESTIMONIALS) {
+      await setDoc(doc(db, 'testimonials', item.id), stripUndefinedDeep(item));
+    }
+    await setDoc(markerRef, { initialized: true, updatedAt: new Date().toISOString() });
+    return DEFAULT_TESTIMONIALS;
+  } catch (e) {
+    console.warn('Testimonials init seed notice:', e);
+    return getLocalTestimonials();
   }
 }
 
@@ -104,55 +157,116 @@ export async function fetchLiveTestimonials(): Promise<TestimonialItem[]> {
   try {
     const snap = await getDocs(collection(db, 'testimonials'));
     if (!snap.empty) {
-      const items: TestimonialItem[] = snap.docs.map(d => ({
-        id: d.id,
-        ...(d.data() as Omit<TestimonialItem, 'id'>)
-      }));
+      const items = normalizeTestimonialsFromDocs(snap.docs);
       saveLocalTestimonials(items);
       return items;
     }
+    const seeded = await ensureTestimonialsSeededIfUninit();
+    saveLocalTestimonials(seeded);
+    return seeded;
   } catch (e) {
     console.warn('Firestore testimonials fetch notice:', e);
+    return getLocalTestimonials();
   }
-  return getLocalTestimonials();
+}
+
+export function subscribeTestimonials(
+  onUpdate: (items: TestimonialItem[]) => void
+): () => void {
+  let active = true;
+
+  const unsubscribe = onSnapshot(
+    collection(db, 'testimonials'),
+    async (snap) => {
+      if (!active) return;
+      if (!snap.empty) {
+        const items = normalizeTestimonialsFromDocs(snap.docs);
+        saveLocalTestimonials(items);
+        onUpdate(items);
+        return;
+      }
+      const seeded = await ensureTestimonialsSeededIfUninit();
+      if (!active) return;
+      saveLocalTestimonials(seeded);
+      onUpdate(seeded);
+    },
+    (err) => {
+      console.warn('Firestore testimonials live listener notice:', err);
+    }
+  );
+
+  return () => {
+    active = false;
+    unsubscribe();
+  };
 }
 
 export async function syncTestimonialToStorage(item: TestimonialItem): Promise<void> {
-  const current = getLocalTestimonials();
-  const index = current.findIndex(t => t.id === item.id);
-  const updated = index >= 0
-    ? current.map(t => t.id === item.id ? item : t)
-    : [...current, item];
-  
-  saveLocalTestimonials(updated);
+  const cleanItem = stripUndefinedDeep({
+    id: item.id,
+    quote: item.quote.trim(),
+    author: item.author.trim(),
+    role: item.role.trim() || 'Verified Client',
+    highlight: Boolean(item.highlight),
+  });
 
   try {
-    await setDoc(doc(db, 'testimonials', item.id), item);
+    await setDoc(doc(db, 'testimonials', cleanItem.id), cleanItem);
+    await setDoc(
+      doc(db, 'system', TESTIMONIALS_INIT_MARKER_ID),
+      { initialized: true, updatedAt: new Date().toISOString() },
+      { merge: true }
+    ).catch(() => {});
   } catch (e) {
-    console.warn('Firestore testimonial save notice:', e);
+    handleFirestoreError(e, OperationType.WRITE, `testimonials/${cleanItem.id}`);
   }
+
+  const current = getLocalTestimonials();
+  const index = current.findIndex((t) => t.id === cleanItem.id);
+  const updated =
+    index >= 0
+      ? current.map((t) => (t.id === cleanItem.id ? cleanItem : t))
+      : [...current, cleanItem];
+
+  saveLocalTestimonials(updated);
 }
 
 export async function removeTestimonialFromStorage(id: string): Promise<void> {
-  const current = getLocalTestimonials();
-  const updated = current.filter(t => t.id !== id);
-  saveLocalTestimonials(updated);
-
   try {
+    await setDoc(
+      doc(db, 'system', TESTIMONIALS_INIT_MARKER_ID),
+      { initialized: true, updatedAt: new Date().toISOString() },
+      { merge: true }
+    ).catch(() => {});
     await deleteDoc(doc(db, 'testimonials', id));
   } catch (e) {
-    console.warn('Firestore testimonial delete notice:', e);
+    handleFirestoreError(e, OperationType.DELETE, `testimonials/${id}`);
   }
+
+  const current = getLocalTestimonials();
+  const updated = current.filter((t) => t.id !== id);
+  saveLocalTestimonials(updated);
 }
 
 export async function resetTestimonialsToDefault(): Promise<TestimonialItem[]> {
-  saveLocalTestimonials(DEFAULT_TESTIMONIALS);
   try {
-    for (const item of DEFAULT_TESTIMONIALS) {
-      await setDoc(doc(db, 'testimonials', item.id), item);
+    const snap = await getDocs(collection(db, 'testimonials'));
+    const defaultIds = new Set(DEFAULT_TESTIMONIALS.map((d) => d.id));
+    for (const existingDoc of snap.docs) {
+      if (!defaultIds.has(existingDoc.id)) {
+        await deleteDoc(doc(db, 'testimonials', existingDoc.id));
+      }
     }
+    for (const item of DEFAULT_TESTIMONIALS) {
+      await setDoc(doc(db, 'testimonials', item.id), stripUndefinedDeep(item));
+    }
+    await setDoc(doc(db, 'system', TESTIMONIALS_INIT_MARKER_ID), {
+      initialized: true,
+      updatedAt: new Date().toISOString()
+    });
   } catch (e) {
-    console.warn('Firestore reset notice:', e);
+    handleFirestoreError(e, OperationType.WRITE, 'testimonials');
   }
+  saveLocalTestimonials(DEFAULT_TESTIMONIALS);
   return DEFAULT_TESTIMONIALS;
 }

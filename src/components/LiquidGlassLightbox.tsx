@@ -147,10 +147,21 @@ export default function LiquidGlassLightbox({
   handlePrevRef.current = handlePrevWrapped;
   handleNextRef.current = handleNextWrapped;
 
-  // Reset zoom whenever image changes
+  // Reset zoom and preload adjacent images whenever active image changes
   useEffect(() => {
     resetZoom();
-  }, [activeImageUrl, resetZoom]);
+    if (images.length <= 1) return;
+    const neighbors = [
+      images[(currentImageIndex + 1) % images.length],
+      images[(currentImageIndex - 1 + images.length) % images.length]
+    ];
+    neighbors.forEach((src) => {
+      if (!src) return;
+      const pre = new Image();
+      pre.decoding = 'async';
+      pre.src = src;
+    });
+  }, [activeImageUrl, currentImageIndex, images, resetZoom]);
 
   // Lock background scroll & handle keyboard controls
   useEffect(() => {
@@ -600,7 +611,7 @@ export default function LiquidGlassLightbox({
               src={activeImageUrl}
               alt={title}
               draggable={false}
-              className="max-w-[calc(100vw-2rem)] sm:max-w-[calc(100vw-5rem)] md:max-w-[calc(100vw-8rem)] max-h-[calc(100dvh-10rem)] w-auto h-auto object-contain select-none rounded-xl shadow-[0_24px_64px_rgba(0,0,0,0.45)]"
+              className="max-w-[calc(100vw-2rem)] sm:max-w-[calc(100vw-5rem)] md:max-w-[calc(100vw-8rem)] max-h-[calc(100dvh-10rem)] w-auto h-auto object-contain select-none rounded-[14px] sm:rounded-[18px] shadow-[0_24px_64px_rgba(0,0,0,0.45)]"
             />
           </div>
         </div>
@@ -659,10 +670,10 @@ export default function LiquidGlassLightbox({
           {hasMultiplePhotos && (
             <div
               aria-hidden={!isPhotoMenuOpen}
-              className={`absolute top-full mt-2.5 left-1/2 -translate-x-1/2 origin-top apple-floating-glass p-2.5 rounded-[24px] flex flex-wrap items-center justify-center gap-1.5 min-w-[132px] max-w-[252px] z-50 overflow-hidden transition-all duration-350 ease-liquid-spring ${
+              className={`absolute top-full mt-2.5 left-1/2 -translate-x-1/2 origin-top apple-floating-glass p-2.5 rounded-[18px] sm:rounded-[20px] flex flex-wrap items-center justify-center gap-1.5 min-w-[132px] max-w-[252px] z-50 overflow-hidden transition-all duration-300 ease-liquid-spring ${
                 isPhotoMenuOpen
-                  ? 'opacity-100 scale-100 translate-y-0 blur-0 pointer-events-auto'
-                  : 'opacity-0 scale-[0.68] -translate-y-2.5 blur-[6px] pointer-events-none'
+                  ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
+                  : 'opacity-0 scale-[0.88] -translate-y-2 pointer-events-none'
               }`}
               onClick={(e) => e.stopPropagation()}
             >
@@ -720,10 +731,10 @@ export default function LiquidGlassLightbox({
 
               <div
                 aria-hidden={!isProjectMenuOpen}
-                className={`absolute top-full mt-2.5 right-0 origin-top-right apple-floating-glass p-2.5 rounded-[24px] grid grid-cols-4 sm:grid-cols-5 gap-1.5 min-w-[172px] max-w-[252px] max-h-[210px] overflow-y-auto z-50 transition-all duration-350 ease-liquid-spring ${
+                className={`absolute top-full mt-2.5 right-0 origin-top-right apple-floating-glass p-2.5 rounded-[18px] sm:rounded-[20px] grid grid-cols-4 sm:grid-cols-5 gap-1.5 min-w-[172px] max-w-[252px] max-h-[210px] overflow-y-auto z-50 transition-all duration-300 ease-liquid-spring ${
                   isProjectMenuOpen
-                    ? 'opacity-100 scale-100 translate-y-0 blur-0 pointer-events-auto'
-                    : 'opacity-0 scale-[0.68] -translate-y-2.5 blur-[6px] pointer-events-none'
+                    ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
+                    : 'opacity-0 scale-[0.88] -translate-y-2 pointer-events-none'
                 }`}
                 onClick={(e) => e.stopPropagation()}
               >
@@ -843,10 +854,10 @@ export default function LiquidGlassLightbox({
               setIsProjectMenuOpen(false);
             }
           }}
-          className={`pointer-events-auto apple-floating-glass relative overflow-hidden origin-bottom transition-all duration-400 ease-liquid-spring ${
+          className={`pointer-events-auto apple-floating-glass relative overflow-hidden origin-bottom transition-all duration-350 ease-liquid-spring ${
             isDescriptionExpanded
-              ? 'w-[min(90vw,460px)] p-4 sm:p-5 rounded-[26px] shadow-[0_24px_56px_rgba(0,0,0,0.42)]'
-              : 'w-auto max-w-[min(88vw,380px)] px-4 sm:px-5 py-2 rounded-[22px] cursor-pointer active:scale-[0.96] hover:scale-[1.02]'
+              ? 'w-[min(90vw,460px)] p-4 sm:p-5 rounded-[20px] sm:rounded-[24px] shadow-[0_24px_56px_rgba(0,0,0,0.42)]'
+              : 'w-auto max-w-[min(88vw,380px)] px-4 sm:px-5 py-2 rounded-full cursor-pointer active:scale-[0.96] hover:scale-[1.02]'
           }`}
         >
           <div className="specular-highlight opacity-65" />
