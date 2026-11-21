@@ -48,7 +48,12 @@ interface AiAssistRequestBody {
 let cachedAiClient: { apiKey: string; client: GoogleGenAI } | null = null;
 
 function getGeminiClient(): GoogleGenAI {
-  const apiKey = process.env.GEMINI_API_KEY?.trim();
+  const apiKey = (
+    process.env.GEMINI_API_KEY ||
+    process.env.GOOGLE_API_KEY ||
+    process.env.API_KEY ||
+    ''
+  ).trim();
   if (!apiKey) {
     throw new Error(
       'GEMINI_API_KEY is not configured. Please add your API key in Settings > Secrets.'

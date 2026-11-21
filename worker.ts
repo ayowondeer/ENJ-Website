@@ -1,11 +1,16 @@
 import { GoogleGenAI, ThinkingLevel, Type } from '@google/genai';
 
+type SecretValue = string | { get(): Promise<string> } | undefined;
+
 interface WorkerEnv {
   ASSETS: {
     fetch(request: Request): Promise<Response>;
   };
-  GEMINI_API_KEY?: string;
-  RESEND_API_KEY?: string;
+  GEMINI_API_KEY?: SecretValue;
+  GOOGLE_API_KEY?: SecretValue;
+  API_KEY?: SecretValue;
+  VITE_GEMINI_API_KEY?: SecretValue;
+  RESEND_API_KEY?: SecretValue;
   RESEND_FROM?: string;
   APP_URL?: string;
 }
@@ -62,11 +67,29 @@ function jsonResponse(data: unknown, status = 200): Response {
   });
 }
 
-function getGeminiClient(apiKeyRaw?: string): GoogleGenAI {
-  const apiKey = apiKeyRaw?.trim();
+async function resolveSecretValue(val: SecretValue): Promise<string> {
+  if (!val) return '';
+  if (typeof val === 'string') return val.trim();
+  if (typeof val === 'object' && typeof val.get === 'function') {
+    const resolved = await val.get().catch(() => '');
+    return typeof resolved === 'string' ? resolved.trim() : '';
+  }
+  return '';
+}
+
+async function resolveGeminiApiKey(env: WorkerEnv): Promise<string> {
+  for (const candidate of [env.GEMINI_API_KEY, env.GOOGLE_API_KEY, env.API_KEY, env.VITE_GEMINI_API_KEY]) {
+    const resolved = await resolveSecretValue(candidate);
+    if (resolved) return resolved;
+  }
+  return '';
+}
+
+async function getGeminiClient(env: WorkerEnv): Promise<GoogleGenAI> {
+  const apiKey = await resolveGeminiApiKey(env);
   if (!apiKey) {
     throw new Error(
-      'GEMINI_API_KEY is not configured. Add GEMINI_API_KEY in your Cloudflare Worker Variables & Secrets (or Settings > Secrets) and redeploy.'
+      'GEMINI_API_KEY is not configured. Please add GEMINI_API_KEY in Cloudflare Workers > Settings > Variables & Secrets (or Settings > Secrets) and redeploy.'
     );
   }
   return new GoogleGenAI({
@@ -356,7 +379,7 @@ async function handleContact(request: Request, env: WorkerEnv): Promise<Response
       </div>
     `;
 
-    const resendKey = (env.RESEND_API_KEY || '').trim();
+    const resendKey = await resolveSecretValue(env.RESEND_API_KEY);
     if (resendKey) {
       const resendRes = await fetch('https://api.resend.com/emails', {
         method: 'POST',
@@ -463,7 +486,7 @@ async function handleTranscribe(request: Request, env: WorkerEnv): Promise<Respo
       return jsonResponse({ error: 'No audio data received for transcription.' }, 400);
     }
 
-    const ai = getGeminiClient(env.GEMINI_API_KEY);
+    const ai = await getGeminiClient(env);
     const transcribeModels = ['gemini-3.5-transcribe', 'gemini-3.1-flash-lite'] as const;
     let lastError: unknown;
     let responseText = '';
@@ -530,7 +553,7 @@ async function handleAiAssist(request: Request, env: WorkerEnv): Promise<Respons
       );
     }
 
-    const ai = getGeminiClient(env.GEMINI_API_KEY);
+    const ai = await getGeminiClient(env);
     const parts: Array<Record<string, unknown>> = [];
 
     for (const img of images.slice(0, 6)) {

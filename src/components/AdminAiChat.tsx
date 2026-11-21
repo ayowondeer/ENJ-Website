@@ -1322,7 +1322,22 @@ export default function AdminAiChat({
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                className="fixed inset-0 z-[9990] flex items-center justify-center p-3 sm:p-6 apple-modal-backdrop"
+                onClick={(e) => {
+                  if (e.target === e.currentTarget) {
+                    e.stopPropagation();
+                  }
+                }}
+                onPointerDown={(e) => {
+                  if (e.target === e.currentTarget) {
+                    e.stopPropagation();
+                  }
+                }}
+                onTouchStart={(e) => {
+                  if (e.target === e.currentTarget) {
+                    e.stopPropagation();
+                  }
+                }}
+                className="fixed inset-0 z-[9990] flex items-center justify-center p-3 sm:p-6 apple-modal-backdrop overscroll-none"
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="ai-uploader-title"
