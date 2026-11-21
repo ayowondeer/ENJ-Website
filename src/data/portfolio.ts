@@ -17,16 +17,35 @@ import {
 import jdpiBlueImg from '../assets/images/jdpi_blue_shirt_1795012541809.webp';
 import jdpiBlackPressImg from '../assets/images/jdpi_black_press_1795012542853.webp';
 import jdpiPressDetailImg from '../assets/images/jdpi_press_detail_clean_1795012558850.webp';
+import eynOrangeFrontImg from '../assets/images/eyn_orange_shirt_front_1795254614697.webp';
+import eynWhiteFrontImg from '../assets/images/eyn_white_shirt_front_1795254614545.webp';
+import eynWhiteBackImg from '../assets/images/eyn_white_shirt_back_1795254613968.webp';
+import eynFoldedStackImg from '../assets/images/eyn_folded_batch_stack_1795254675626.webp';
+import eynHeatPressImg from '../assets/images/eyn_heat_press_transfer_1795254675294.webp';
 
 const JDPI_BLUE_IMG = jdpiBlueImg;
 const JDPI_BLACK_PRESS_IMG = jdpiBlackPressImg;
 const JDPI_PRESS_DETAIL_IMG = jdpiPressDetailImg;
+const EYN_ORANGE_FRONT_IMG = eynOrangeFrontImg;
+const EYN_WHITE_FRONT_IMG = eynWhiteFrontImg;
+const EYN_WHITE_BACK_IMG = eynWhiteBackImg;
+const EYN_FOLDED_STACK_IMG = eynFoldedStackImg;
+const EYN_HEAT_PRESS_IMG = eynHeatPressImg;
 
 let portfolioImagesPreloaded = false;
 export function preloadPortfolioImages(): void {
   if (portfolioImagesPreloaded || typeof window === 'undefined') return;
   portfolioImagesPreloaded = true;
-  [JDPI_BLUE_IMG, JDPI_BLACK_PRESS_IMG, JDPI_PRESS_DETAIL_IMG].forEach((src) => {
+  [
+    JDPI_BLUE_IMG,
+    JDPI_BLACK_PRESS_IMG,
+    JDPI_PRESS_DETAIL_IMG,
+    EYN_ORANGE_FRONT_IMG,
+    EYN_WHITE_FRONT_IMG,
+    EYN_WHITE_BACK_IMG,
+    EYN_FOLDED_STACK_IMG,
+    EYN_HEAT_PRESS_IMG
+  ].forEach((src) => {
     const img = new Image();
     img.decoding = 'async';
     img.src = src;
@@ -87,6 +106,33 @@ export const DEFAULT_PORTFOLIO: PortfolioItem[] = [
     ],
     featured: true,
     order: 1
+  },
+  {
+    id: 'port-eyn-orange-world',
+    title: '“Orange the World” Campaign T-Shirts for EYN Project',
+    category: 'Corporate Apparel & Monogram',
+    client: 'EYN Project',
+    year: '2026',
+    description:
+      'Custom dual-colorway T-shirt printing produced for EYN Project in support of the "Orange the World" (16 Days of Activism — 16DOA2026) program. Printed across vibrant orange and crisp white 100% cotton crew-neck shirts with full-color DTF heat-transfer partner emblems, central theme splash artwork with the scales of justice, lower-hem campaign mark, and bold "16DOA2026" back typography.',
+    services: [
+      'Custom T-Shirt Design & Layout',
+      'Full-Color DTF Heat-Transfer Printing',
+      'Multi-Logo Partner Branding',
+      'Dual-Colorway Batch Production'
+    ],
+    impact:
+      'Crisp, wash-resistant orange and white campaign apparel delivered in neatly folded batch sets for EYN Project.',
+    imageUrl: EYN_ORANGE_FRONT_IMG,
+    gallery: [
+      EYN_ORANGE_FRONT_IMG,
+      EYN_WHITE_FRONT_IMG,
+      EYN_WHITE_BACK_IMG,
+      EYN_FOLDED_STACK_IMG,
+      EYN_HEAT_PRESS_IMG
+    ],
+    featured: true,
+    order: 2
   }
 ];
 
@@ -102,6 +148,11 @@ function normalizeImageUrl(url: string): string {
   if (url.includes('jdpi_blue_shirt') || url.includes('jdpi-blue-shirt')) return JDPI_BLUE_IMG;
   if (url.includes('jdpi_black_press') || url.includes('jdpi-black-press')) return JDPI_BLACK_PRESS_IMG;
   if (url.includes('jdpi_press_detail') || url.includes('jdpi-press-detail')) return JDPI_PRESS_DETAIL_IMG;
+  if (url.includes('eyn_orange_shirt_front') || url.includes('eyn-orange-front')) return EYN_ORANGE_FRONT_IMG;
+  if (url.includes('eyn_white_shirt_front') || url.includes('eyn-white-front')) return EYN_WHITE_FRONT_IMG;
+  if (url.includes('eyn_white_shirt_back') || url.includes('eyn-white-back')) return EYN_WHITE_BACK_IMG;
+  if (url.includes('eyn_folded_batch_stack') || url.includes('eyn-folded-stack')) return EYN_FOLDED_STACK_IMG;
+  if (url.includes('eyn_heat_press_transfer') || url.includes('eyn-heat-press')) return EYN_HEAT_PRESS_IMG;
   return url;
 }
 
@@ -160,14 +211,18 @@ async function seedDefaultPortfolioIfEmpty(): Promise<PortfolioItem[]> {
       return [];
     }
     const now = new Date().toISOString();
-    const jdpiItem: PortfolioItem = stripUndefinedDeep({
-      ...DEFAULT_PORTFOLIO[0],
-      updatedAt: now,
-      createdAt: now
-    });
-    await setDoc(doc(db, 'portfolio', jdpiItem.id), jdpiItem);
+    const seededItems: PortfolioItem[] = [];
+    for (const baseItem of DEFAULT_PORTFOLIO) {
+      const item: PortfolioItem = stripUndefinedDeep({
+        ...baseItem,
+        updatedAt: now,
+        createdAt: now
+      });
+      await setDoc(doc(db, 'portfolio', item.id), item);
+      seededItems.push(item);
+    }
     await setDoc(markerRef, { migrated: true, updatedAt: now });
-    return [jdpiItem];
+    return seededItems;
   } catch (e) {
     console.warn('Portfolio initial seed notice:', e);
     return getLocalPortfolio();
@@ -305,7 +360,7 @@ export async function resetPortfolioToDefault(): Promise<PortfolioItem[]> {
   try {
     const snap = await getDocs(collection(db, 'portfolio'));
     for (const existingDoc of snap.docs) {
-      if (existingDoc.id !== DEFAULT_PORTFOLIO[0].id) {
+      if (!DEFAULT_PORTFOLIO.some((d) => d.id === existingDoc.id)) {
         await deleteDoc(doc(db, 'portfolio', existingDoc.id));
       }
     }

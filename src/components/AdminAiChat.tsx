@@ -129,6 +129,8 @@ interface AdminAiChatProps {
 
 const VALID_PORTFOLIO_CATEGORIES = PORTFOLIO_CATEGORIES.filter((c) => c !== 'All Projects');
 const MAX_AUDIO_BYTES = 10 * 1024 * 1024;
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').trim().replace(/\/+$/, '');
+const apiUrl = (path: string) => `${API_BASE_URL}${path}`;
 
 const compressChatImage = (file: File): Promise<UploadedPhoto | null> => {
   return new Promise((resolve) => {
@@ -756,14 +758,19 @@ export default function AdminAiChat({
           const base64 = dataUrl.split(',')[1] || '';
           const mimeType = (blob.type || 'audio/webm').split(';')[0].trim();
 
-          const res = await fetch('/api/admin/transcribe', {
+          const res = await fetch(apiUrl('/api/admin/transcribe'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ mimeType, data: base64 }),
           });
           const payload = await res.json().catch(() => ({}));
           if (!res.ok) {
-            throw new Error(payload?.error || 'Could not transcribe voice input.');
+            if (res.status === 405) {
+              throw new Error(
+                'Backend API endpoint returned 405 Method Not Allowed. Redeploy with the Cloudflare Worker enabled (worker.ts + wrangler.jsonc) or Node server running, and ensure GEMINI_API_KEY is configured.'
+              );
+            }
+            throw new Error(payload?.error || `Could not transcribe voice input (${res.status}).`);
           }
 
           const transcript = typeof payload?.text === 'string' ? payload.text.trim() : '';
@@ -807,7 +814,7 @@ export default function AdminAiChat({
         errName === 'SecurityError'
       ) {
         setUploadNotice(
-          'Microphone permission is blocked. Allow microphone access in your browser site settings.'
+          'Microphone permission was denied. Allow microphone access in your browser site settings (or open in a new tab if blocked by an embedded preview).'
         );
       } else {
         setUploadNotice('Could not start microphone.');
@@ -864,7 +871,7 @@ export default function AdminAiChat({
       if (code === 'not-allowed') {
         stopLiveSpeech(true);
         setUploadNotice(
-          'Microphone permission is blocked. Allow microphone access in your browser site settings.'
+          'Microphone permission was denied. Allow microphone access in your browser site settings (or open in a new tab if blocked by an embedded preview).'
         );
         return;
       }
@@ -982,7 +989,7 @@ export default function AdminAiChat({
     setIsSending(true);
 
     try {
-      const res = await fetch('/api/admin/ai-assist', {
+      const res = await fetch(apiUrl('/api/admin/ai-assist'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1000,9 +1007,22 @@ export default function AdminAiChat({
         }),
       });
 
-      const data = await res.json().catch(() => ({}));
+      const contentType = (res.headers.get('content-type') || '').toLowerCase();
+      const data = contentType.includes('application/json')
+        ? await res.json().catch(() => ({}))
+        : {};
       if (!res.ok) {
+        if (res.status === 405) {
+          throw new Error(
+            'API route returned 405 Method Not Allowed because only static files were hosted. Redeploy with the Cloudflare Worker enabled (wrangler.jsonc + worker.ts) or Node server, and set GEMINI_API_KEY in environment secrets.'
+          );
+        }
         throw new Error(data?.error || `Request failed (${res.status})`);
+      }
+      if (!contentType.includes('application/json') || typeof data.actionType === 'undefined') {
+        throw new Error(
+          'API route returned the website HTML instead of JSON. Ensure your hosting runs worker.ts (via wrangler.jsonc) or server.ts for /api/* routes.'
+        );
       }
 
       const actionType = (data.actionType || 'none') as DraftActionType;
@@ -1306,7 +1326,6 @@ export default function AdminAiChat({
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="ai-uploader-title"
-                onClick={() => setIsOpen(false)}
               >
                 <motion.div
                   ref={cardRef}
@@ -1315,7 +1334,6 @@ export default function AdminAiChat({
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: 10 }}
                   transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                  onClick={(e) => e.stopPropagation()}
                   onDragOver={(e) => {
                     e.preventDefault();
                     setIsDragging(true);

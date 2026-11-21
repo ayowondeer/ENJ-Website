@@ -187,7 +187,17 @@ export default function PortfolioView({ onNavigateShop: _onNavigateShop, onNavig
     if (img.dataset.fallbackApplied) return;
     img.dataset.fallbackApplied = '1';
     const src = img.getAttribute('src') || '';
-    if (src.includes('black_press') || src.includes('black-press') || idxHint === 1) {
+    if (src.includes('eyn-orange-front') || src.includes('eyn_orange_shirt_front')) {
+      img.src = '/portfolio/eyn-orange-front.jpg';
+    } else if (src.includes('eyn-white-front') || src.includes('eyn_white_shirt_front')) {
+      img.src = '/portfolio/eyn-white-front.jpg';
+    } else if (src.includes('eyn-white-back') || src.includes('eyn_white_shirt_back')) {
+      img.src = '/portfolio/eyn-white-back.jpg';
+    } else if (src.includes('eyn-folded-stack') || src.includes('eyn_folded_batch_stack')) {
+      img.src = '/portfolio/eyn-folded-stack.jpg';
+    } else if (src.includes('eyn-heat-press') || src.includes('eyn_heat_press_transfer')) {
+      img.src = '/portfolio/eyn-heat-press.jpg';
+    } else if (src.includes('black_press') || src.includes('black-press') || idxHint === 1) {
       img.src = '/jdpi-black-press.jpg';
     } else if (src.includes('press_detail') || src.includes('press-detail') || idxHint === 2) {
       img.src = '/jdpi-press-detail.jpg';

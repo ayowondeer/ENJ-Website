@@ -487,7 +487,8 @@ export default function App() {
     };
 
     try {
-      const response = await fetch('/api/contact', {
+      const apiBase = (import.meta.env.VITE_API_BASE_URL || '').trim().replace(/\/+$/, '');
+      const response = await fetch(`${apiBase}/api/contact`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
